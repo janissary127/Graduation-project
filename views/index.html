@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>CARD PICK — 카드 추천 데모</title>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/styles.css"/>
+  <link rel="icon" href="data:,">
+</head>
+<body>
+  <!-- Header -->
+  <header class="site-header">
+    <div class="container header__inner">
+      <a class="brand" href="#" aria-label="CARD PICK 홈">
+        <span class="brand__logo" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="26" height="26" role="img" focusable="false">
+            <rect x="2" y="4" width="20" height="16" rx="3" fill="#fff" stroke="currentColor" stroke-width="2"/>
+            <rect x="2" y="7" width="20" height="3" fill="currentColor" opacity=".25"/>
+            <rect x="6.5" y="13" width="5.5" height="3.6" rx="0.6" fill="currentColor" opacity=".18"/>
+            <line x1="8.3" y1="13" x2="8.3" y2="16.6" stroke="currentColor" stroke-width="1" opacity=".25"/>
+            <line x1="10.2" y1="13" x2="10.2" y2="16.6" stroke="currentColor" stroke-width="1" opacity=".25"/>
+          </svg>
+        </span>
+        <span class="brand__text">CARD PICK</span>
+      </a>
+
+      <nav class="nav" aria-label="주요 메뉴">
+        <a href="#">고릴라차트</a>
+        <a href="#">카드</a>
+        <a href="#">카드사</a>
+        <a href="#">캐시백</a>
+        <a href="#">트래블</a>
+        <a href="#">카드리뷰</a>
+        <a href="#">프리미엄</a>
+        <a href="#">카드커버</a>
+      </nav>
+
+      <div class="header__icons">
+        <button class="icon-btn" id="openSearch" aria-label="검색" title="검색">
+          <svg viewBox="0 0 24 24" width="22" height="22" role="img" focusable="false">
+            <circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2.2"/>
+            <line x1="16.8" y1="16.8" x2="21" y2="21" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+          </svg>
+        </button>
+        <a class="icon-btn" href="./compare.html" aria-label="비교함" title="비교함">
+          <svg viewBox="0 0 24 24" width="22" height="22" role="img" focusable="false">
+            <path d="M3 4h2l1.6 9.5a2 2 0 0 0 2 1.5h8.6a2 2 0 0 0 2-1.6L21 8H6"
+                  fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="10" cy="20" r="1.7" fill="none" stroke="currentColor" stroke-width="2"/>
+            <circle cx="17" cy="20" r="1.7" fill="none" stroke="currentColor" stroke-width="2"/>
+          </svg>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Search Modal -->
+  <div class="search-modal" id="searchModal" aria-hidden="true">
+    <div class="modal-backdrop" id="searchBackdrop"></div>
+    <div class="search-dialog" role="dialog" aria-modal="true" aria-labelledby="searchTitle">
+      <div class="search-top">
+        <div class="search-input">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"/><line x1="16.6" y1="16.6" x2="21" y2="21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          <input id="searchInput" type="text" placeholder="메뉴, 카드, 혜택을 검색해보세요" aria-labelledby="searchTitle" autocomplete="off"/>
+        </div>
+        <button class="search-close" id="searchClose" aria-label="닫기">닫기</button>
+      </div>
+      <div class="search-titlebar">
+        <h2 id="searchTitle" class="search-title">통합 검색</h2>
+      </div>
+      <section class="search-section search-recent">
+        <div class="section-head">
+          <h3>최근 검색어</h3>
+          <label class="switch">
+            <input type="checkbox" id="recentToggle" checked>
+            <span class="slider"></span>
+            <span class="switch-label">최근 검색어 저장</span>
+          </label>
+        </div>
+        <div id="recentList" class="chip-row muted">최근 검색한 내용이 없습니다.</div>
+      </section>
+      <section class="search-section">
+        <h3>지금 많이 찾고 있어요</h3>
+        <div id="hotList" class="chip-row"></div>
+      </section>
+      <section class="search-section">
+        <h3>이런 정보를 찾고 계세요?</h3>
+        <div id="suggestList" class="suggest-row"></div>
+      </section>
+      <div class="search-bottom">
+        <button class="btn-primary" id="searchSubmit">검색</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="container hero__wrap" id="hero">
+      <div class="hero__viewport">
+        <div class="hero__track" id="heroTrack"></div>
+        <button class="hero__nav hero__nav--prev" aria-label="이전 배너">‹</button>
+        <button class="hero__nav hero__nav--next" aria-label="다음 배너">›</button>
+        <div class="hero__dots" id="heroDots" role="tablist" aria-label="배너 선택"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Benefit Row -->
+  <section class="benefit">
+    <div class="container benefit__head">
+      <h2>CARD PICK! 최대 혜택 총정리</h2>
+      <a class="btn-outline" href="#">전체보기</a>
+    </div>
+    <div class="container benefit__row">
+      <div class="benefit__viewport" id="benefitViewport">
+        <ul class="benefit__list" id="benefitList"></ul>
+      </div>
+      <button class="benefit__arrow" id="benefitPrev" aria-label="왼쪽">‹</button>
+      <button class="benefit__arrow" id="benefitNext" aria-label="오른쪽">›</button>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      <p class="muted">© 2025 CARD PICK — 데모 페이지</p>
+    </div>
+  </footer>
+
+  <script src="../js/app.js"></script>
+</body>
+</html>

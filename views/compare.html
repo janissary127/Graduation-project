@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>CARD PICK — 카드 비교</title>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/styles.css"/>
+  <link rel="icon" href="data:,">
+</head>
+<body>
+  <!-- Header -->
+  <header class="site-header">
+    <div class="container header__inner">
+      <a class="brand" href="./index.html" aria-label="CARD PICK 홈">
+        <span class="brand__logo" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="26" height="26" role="img" focusable="false">
+            <rect x="2" y="4" width="20" height="16" rx="3" fill="#fff" stroke="currentColor" stroke-width="2"/>
+            <rect x="2" y="7" width="20" height="3" fill="currentColor" opacity=".25"/>
+            <rect x="6.5" y="13" width="5.5" height="3.6" rx="0.6" fill="currentColor" opacity=".18"/>
+            <line x1="8.3" y1="13" x2="8.3" y2="16.6" stroke="currentColor" stroke-width="1" opacity=".25"/>
+            <line x1="10.2" y1="13" x2="10.2" y2="16.6" stroke="currentColor" stroke-width="1" opacity=".25"/>
+          </svg>
+        </span>
+        <span class="brand__text">CARD PICK</span>
+      </a>
+
+      <nav class="nav" aria-label="주요 메뉴">
+        <a href="./index.html#chart">고릴라차트</a>
+        <a href="./index.html#cards">카드</a>
+        <a href="./index.html#issuers">카드사</a>
+        <a href="./index.html#cashback">캐시백</a>
+        <a href="./index.html#travel">트래블</a>
+        <a href="./index.html#review">카드리뷰</a>
+        <a href="./index.html#premium">프리미엄</a>
+        <a href="./index.html#cover">카드커버</a>
+      </nav>
+
+      <div class="header__icons">
+        <button class="icon-btn" id="openSearch" aria-label="검색" title="검색">
+          <svg viewBox="0 0 24 24" width="22" height="22" role="img" focusable="false">
+            <circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2.2"/>
+            <line x1="16.8" y1="16.8" x2="21" y2="21" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+          </svg>
+        </button>
+        <a class="icon-btn" href="./compare.html" aria-label="비교함" title="비교함">
+          <svg viewBox="0 0 24 24" width="22" height="22" role="img" focusable="false">
+            <path d="M3 4h2l1.6 9.5a2 2 0 0 0 2 1.5h8.6a2 2 0 0 0 2-1.6L21 8H6"
+                  fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="10" cy="20" r="1.7" fill="none" stroke="currentColor" stroke-width="2"/>
+            <circle cx="17" cy="20" r="1.7" fill="none" stroke="currentColor" stroke-width="2"/>
+          </svg>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Compare Page -->
+  <main class="compare-page">
+    <section class="container">
+      <div class="compare-hero">
+        <div class="ce-icon" aria-hidden="true">
+          <svg viewBox="0 0 64 64" width="64" height="64">
+            <rect x="6" y="10" width="52" height="44" rx="6" fill="#fff" stroke="#111827" stroke-width="2"/>
+            <line x1="6" y1="20" x2="58" y2="20" stroke="#111827" stroke-width="2"/>
+            <rect x="14" y="28" width="12" height="16" fill="#ffd24d" stroke="#111827" stroke-width="2"/>
+            <rect x="36" y="28" width="12" height="16" fill="#ffd24d" stroke="#111827" stroke-width="2"/>
+            <line x1="14" y1="48" x2="48" y2="48" stroke="#111827" stroke-width="2"/>
+          </svg>
+        </div>
+        <h1>카드 선택 후 비교할 수 있어요.</h1>
+        <p>아래 상자를 클릭하여 비교할 카드 상품을 선택해주세요.</p>
+      </div>
+
+      <div class="compare-slots">
+        <div class="slot">
+          <div class="slot-circle">
+            <button class="slot-target" data-slot="0" aria-label="1번 카드 선택">
+              <span class="plus">+</span>
+            </button>
+            <button class="slot-clear" data-clear="0" aria-label="1번 카드 선택 해제">✕</button>
+          </div>
+          <p class="slot-caption" id="slot-name-0">카드를 선택해 주세요.</p>
+        </div>
+
+        <div class="divider-vert" aria-hidden="true"></div>
+
+        <div class="slot">
+          <div class="slot-circle">
+            <button class="slot-target" data-slot="1" aria-label="2번 카드 선택">
+              <span class="plus">+</span>
+            </button>
+            <button class="slot-clear" data-clear="1" aria-label="2번 카드 선택 해제">✕</button>
+          </div>
+          <p class="slot-caption" id="slot-name-1">카드를 선택해 주세요.</p>
+        </div>
+
+        <div class="divider-vert" aria-hidden="true"></div>
+
+        <div class="slot">
+          <div class="slot-circle">
+            <button class="slot-target" data-slot="2" aria-label="3번 카드 선택">
+              <span class="plus">+</span>
+            </button>
+            <button class="slot-clear" data-clear="2" aria-label="3번 카드 선택 해제">✕</button>
+          </div>
+          <p class="slot-caption" id="slot-name-2">카드를 선택해 주세요.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Search Modal (공통) -->
+  <div class="search-modal" id="searchModal" aria-hidden="true">
+    <div class="modal-backdrop" id="searchBackdrop"></div>
+    <div class="search-dialog" role="dialog" aria-modal="true" aria-labelledby="searchTitle">
+      <div class="search-top">
+        <div class="search-input">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"/><line x1="16.6" y1="16.6" x2="21" y2="21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          <input id="searchInput" type="text" placeholder="메뉴, 카드, 혜택을 검색해보세요" aria-labelledby="searchTitle" autocomplete="off"/>
+        </div>
+        <button class="search-close" id="searchClose" aria-label="닫기">닫기</button>
+      </div>
+      <div class="search-titlebar">
+        <h2 id="searchTitle" class="search-title">통합 검색</h2>
+      </div>
+      <section class="search-section search-recent">
+        <div class="section-head">
+          <h3>최근 검색어</h3>
+          <label class="switch">
+            <input type="checkbox" id="recentToggle" checked>
+            <span class="slider"></span>
+            <span class="switch-label">최근 검색어 저장</span>
+          </label>
+        </div>
+        <div id="recentList" class="chip-row muted">최근 검색한 내용이 없습니다.</div>
+      </section>
+      <section class="search-section">
+        <h3>지금 많이 찾고 있어요</h3>
+        <div id="hotList" class="chip-row"></div>
+      </section>
+      <section class="search-section">
+        <h3>이런 정보를 찾고 계세요?</h3>
+        <div id="suggestList" class="suggest-row"></div>
+      </section>
+      <div class="search-bottom">
+        <button class="btn-primary" id="searchSubmit">검색</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 카드 선택 Picker -->
+  <div class="picker-modal" id="pickerModal" aria-hidden="true">
+    <div class="modal-backdrop" id="pickerBackdrop"></div>
+    <div class="picker-dialog" role="dialog" aria-modal="true" aria-labelledby="pickerTitle">
+      <div class="picker-header">
+        <div class="picker-tabs" role="tablist" aria-label="카드 종류">
+          <button class="picker-tab is-active" data-type="credit" role="tab" aria-selected="true">신용카드</button>
+          <button class="picker-tab" data-type="check" role="tab" aria-selected="false">체크카드</button>
+        </div>
+        <button class="picker-close" id="pickerClose" aria-label="닫기">✕</button>
+      </div>
+
+      <div class="picker-titlebar">
+        <h2 id="pickerTitle" class="picker-title">카드 선택</h2>
+      </div>
+
+      <div class="picker-filters">
+        <div id="issuerChips" class="chip-row"></div>
+      </div>
+
+      <div class="picker-search">
+        <div class="search-input">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"/>
+            <line x1="16.6" y1="16.6" x2="21" y2="21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          <input id="pickerKeyword" type="text" placeholder="키워드 검색" autocomplete="off"/>
+        </div>
+      </div>
+
+      <div class="picker-list-wrap">
+        <div class="picker-list" id="pickerList" role="listbox" aria-label="카드 목록"></div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div class="container">
+      <p class="muted">© 2025 CARD PICK — 데모 페이지</p>
+    </div>
+  </footer>
+
+  <script src="../js/app.js"></script>
+</body>
+</html>
