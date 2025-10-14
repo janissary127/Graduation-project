@@ -162,7 +162,7 @@ function initSearchModal(){
   function open(){
     modal.classList.add("is-open");
     modal.setAttribute("aria-hidden","false");
-    document.body.classList.add("no-scroll");  /* ← 배경 스크롤 잠금 */
+    document.body.classList.add("no-scroll");  /* 배경 스크롤 잠금 */
     renderRecents(); renderHot(); renderSuggest();
     setTimeout(()=>input.focus(),0);
     bindTrap();
@@ -170,7 +170,7 @@ function initSearchModal(){
   function close(){
     modal.classList.remove("is-open");
     modal.setAttribute("aria-hidden","true");
-    document.body.classList.remove("no-scroll"); /* ← 잠금 해제 */
+    document.body.classList.remove("no-scroll"); /* 잠금 해제 */
     unbindTrap();
     openBtn.focus();
   }
@@ -335,6 +335,40 @@ function initCompareSlots(){
     btn.addEventListener("click",e=>{ e.stopPropagation(); clearSlot(Number(btn.getAttribute("data-clear"))); });
   });
 }
+
+/* =========================
+ * 헤더: 비교함 뱃지 & 활성 메뉴 표시 (상대경로 대응)
+ * =======================*/
+(function headerInit(){
+  const KEY = "cp_selected_cards";
+  const badge = document.getElementById("compareBadge");
+
+  function updateBadge(){
+    if(!badge) return;
+    try {
+      const arr = JSON.parse(localStorage.getItem(KEY) || "[]").filter(Boolean);
+      if (arr.length > 0) {
+        badge.textContent = arr.length;
+        badge.style.display = "inline-block";
+      } else {
+        badge.style.display = "none";
+      }
+    } catch {}
+  }
+  updateBadge();
+  window.addEventListener("storage", (e)=> { if(e.key === KEY) updateBadge(); });
+
+  // 현재 파일 경로에 특정 키워드가 포함되면 해당 메뉴 활성화
+  const p = location.pathname.toLowerCase();
+  const keys = ["recommend","browse","charts","deals","compare","index"];
+  const hit = keys.find(k => p.includes(k));
+  const map = { recommend:"recommend", browse:"browse", charts:"charts", deals:"deals", compare:"compare", index:"" };
+  const key = hit ? map[hit] : "";
+  if (key) {
+    const el = document.querySelector(`.nav a[data-nav="${key}"]`);
+    if (el) el.classList.add("is-active");
+  }
+})();
 
 /* =========================
  * 초기화

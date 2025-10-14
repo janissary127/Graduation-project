@@ -25,6 +25,15 @@ body.no-scroll{overflow:hidden}
 .header__icons{display:flex;gap:8px}
 .icon-btn{border:1px solid var(--line);background:#fff;border-radius:12px;height:38px;min-width:38px;cursor:pointer;display:grid;place-items:center;transition:transform .12s ease,box-shadow .12s ease,border-color .12s ease}
 .icon-btn:hover{transform:translateY(-1px);box-shadow:0 8px 22px rgba(16,24,40,.12);border-color:#e3e8f0}
+/* 활성 메뉴/뱃지 */
+.nav a.is-active{ color:#0b6eff; background:#eef7ff }
+.icon-with-badge{ position:relative; display:inline-grid; place-items:center }
+.badge{
+  position:absolute; top:-6px; right:-8px;
+  background:#0ea5ff; color:#fff; border-radius:999px;
+  font-size:11px; line-height:1; padding:3px 6px;
+  box-shadow:0 6px 16px rgba(14,165,255,.35);
+}
 
 /* ==== Hero (홈) ==== */
 .hero{background:#f2f4f8;border-bottom:1px solid var(--line)}
@@ -103,7 +112,7 @@ body.no-scroll{overflow:hidden}
 /* ====== Modal 공통 ====== */
 .search-modal,.picker-modal{
   position:fixed; inset:0; display:none; align-items:center; justify-content:center;
-  z-index:1000; /* ← 모든 요소 위로 */
+  z-index:1000; /* 모든 요소 위로 */
 }
 .search-modal.is-open,.picker-modal.is-open{display:flex}
 .modal-backdrop{position:absolute;inset:0;background:rgba(17,24,39,.55);backdrop-filter:blur(2px);z-index:0}
