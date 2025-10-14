@@ -4,14 +4,18 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>CARD PICK · 비교함</title>
-  <link rel="stylesheet" href="../css/styles.css" />
-  <script defer src="../js/app.js"></script>
+
+  <!-- 정적 파일: Flask/Jinja 경로 -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}" />
+  <script defer src="{{ url_for('static', filename='js/app4.js') }}"></script>
+  <!-- 필요 시 활성화 -->
+  <!-- <script defer src="{{ url_for('static', filename='js/app2.js') }}"></script> -->
 </head>
 <body>
-  <!-- Header: index.html과 동일(카드픽봇 메뉴 포함) -->
+  <!-- Header -->
   <header class="site-header">
     <div class="container header__inner">
-      <a href="./index.html" class="brand" aria-label="CARD PICK 홈">
+      <a href="{{ url_for('index') }}" class="brand" aria-label="CARD PICK 홈">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
           <rect x="2" y="5" width="20" height="14" rx="3" fill="#111827"></rect>
           <rect x="4" y="9"  width="16" height="2" rx="1" fill="#fff" opacity=".75"></rect>
@@ -22,11 +26,11 @@
 
       <nav class="nav" aria-label="주요">
         <a href="#" class="nav-bot" data-nav="bot" id="navBot" title="대화형 추천 챗봇 열기">카드픽봇</a>
-        <a href="./recommend.html" data-nav="recommend">카드픽추천</a>
-        <a href="./browse.html"    data-nav="browse">카드찾기</a>
-        <a href="./charts.html"    data-nav="charts">인기차트</a>
-        <a href="./deals.html"     data-nav="deals">혜택·이벤트</a>
-        <a href="./compare.html"   data-nav="compare">비교함</a>
+        <a href="{{ url_for('recommend') }}" data-nav="recommend">카드픽추천</a>
+        <a href="{{ url_for('browse') }}"    data-nav="browse">카드찾기</a>
+        <a href="{{ url_for('charts') }}"    data-nav="charts">인기차트</a>
+        <a href="{{ url_for('deals') }}"     data-nav="deals">혜택·이벤트</a>
+        <a href="{{ url_for('compare') }}"   data-nav="compare">비교함</a>
       </nav>
 
       <div class="header__icons">
@@ -36,7 +40,7 @@
             <path d="M20 20L16.65 16.65" stroke="#111827" stroke-width="2" stroke-linecap="round"></path>
           </svg>
         </button>
-        <a href="./compare.html" class="icon-btn" aria-label="비교함">
+        <a href="{{ url_for('compare') }}" class="icon-btn" aria-label="비교함">
           <span class="icon-with-badge">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
               <path d="M7 3v18M17 3v18M4 7h6M14 17h6"
@@ -143,7 +147,7 @@
     </div>
   </div>
 
-  <!-- 검색 모달(공통) — index.html과 동일 -->
+  <!-- 검색 모달(공통) -->
   <div id="searchModal" class="search-modal" aria-hidden="true" role="dialog" aria-modal="true">
     <div id="searchBackdrop" class="modal-backdrop"></div>
     <div class="search-dialog" role="document">

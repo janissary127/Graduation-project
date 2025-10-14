@@ -4,14 +4,18 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>CARD PICK — 카드찾기</title>
-  <link rel="stylesheet" href="../css/styles.css" />
-  <script defer src="../js/app.js"></script>
+
+  <!-- 정적 파일: Flask/Jinja 경로 -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}" />
+  <script defer src="{{ url_for('static', filename='js/app4.js') }}"></script>
+  <!-- 필요 시 활성화 -->
+  <!-- <script defer src="{{ url_for('static', filename='js/app2.js') }}"></script> -->
 </head>
 <body>
   <!-- Header (공통) -->
   <header class="site-header">
     <div class="container header__inner">
-      <a href="./index.html" class="brand" aria-label="CARD PICK 홈">
+      <a href="{{ url_for('index') }}" class="brand" aria-label="CARD PICK 홈">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
           <rect x="2" y="5" width="20" height="14" rx="3" fill="#111827"/>
           <rect x="4" y="9" width="16" height="2" rx="1" fill="#fff" opacity=".75"/>
@@ -20,11 +24,11 @@
         <strong class="brand__text">CARD PICK</strong>
       </a>
       <nav class="nav" aria-label="주요">
-        <a href="./recommend.html" data-nav="recommend">카드픽추천</a>
-        <a href="./browse.html"    data-nav="browse">카드찾기</a>
-        <a href="./charts.html"    data-nav="charts">인기차트</a>
-        <a href="./deals.html"     data-nav="deals">혜택·이벤트</a>
-        <a href="./compare.html"   data-nav="compare">비교함</a>
+        <a href="{{ url_for('recommend') }}" data-nav="recommend">카드픽추천</a>
+        <a href="{{ url_for('browse') }}"    data-nav="browse">카드찾기</a>
+        <a href="{{ url_for('charts') }}"    data-nav="charts">인기차트</a>
+        <a href="{{ url_for('deals') }}"     data-nav="deals">혜택·이벤트</a>
+        <a href="{{ url_for('compare') }}"   data-nav="compare">비교함</a>
       </nav>
       <div class="header__icons">
         <button id="openSearch" class="icon-btn" aria-label="검색 열기">
@@ -33,7 +37,7 @@
             <path d="M20 20L16.65 16.65" stroke="#111827" stroke-width="2" stroke-linecap="round"/>
           </svg>
         </button>
-        <a href="./compare.html" class="icon-btn" aria-label="비교함">
+        <a href="{{ url_for('compare') }}" class="icon-btn" aria-label="비교함">
           <span class="icon-with-badge">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
               <path d="M7 3v18M17 3v18M4 7h6M14 17h6"
@@ -73,25 +77,25 @@
             <div class="brand-circle" style="background:#0066ff">삼성</div>
             <div class="benefit__label">온라인/간편결제 특화</div>
             <div class="benefit__issuer">삼성 iD SELECT ALL</div>
-            <a href="./compare.html" class="btn-outline" style="margin-top:8px">비교함 담기</a>
+            <a href="{{ url_for('compare') }}" class="btn-outline" style="margin-top:8px">비교함 담기</a>
           </article>
           <article class="benefit__item">
             <div class="brand-circle" style="background:#6a5de3">롯데</div>
             <div class="benefit__label">편의점/카페 상시혜택</div>
             <div class="benefit__issuer">LOCA Likit</div>
-            <a href="./compare.html" class="btn-outline" style="margin-top:8px">비교함 담기</a>
+            <a href="{{ url_for('compare') }}" class="btn-outline" style="margin-top:8px">비교함 담기</a>
           </article>
           <article class="benefit__item">
             <div class="brand-circle" style="background:#0071c2">우리</div>
             <div class="benefit__label">생활/쇼핑 적립</div>
             <div class="benefit__issuer">정석 POINT</div>
-            <a href="./compare.html" class="btn-outline" style="margin-top:8px">비교함 담기</a>
+            <a href="{{ url_for('compare') }}" class="btn-outline" style="margin-top:8px">비교함 담기</a>
           </article>
           <article class="benefit__item">
             <div class="brand-circle" style="background:#0f62ae">NH</div>
             <div class="benefit__label">체크 · 교통/통신 절약</div>
             <div class="benefit__issuer">올바른 체크</div>
-            <a href="./compare.html" class="btn-outline" style="margin-top:8px">비교함 담기</a>
+            <a href="{{ url_for('compare') }}" class="btn-outline" style="margin-top:8px">비교함 담기</a>
           </article>
         </div>
       </section>
