@@ -11,6 +11,8 @@ img{max-width:100%;display:block}
 a{text-decoration:none;color:inherit}
 .container{max-width:1200px;margin:0 auto;padding:0 24px}
 .muted{color:var(--muted)}
+/* 모달 열렸을 때 배경 스크롤 잠금 */
+body.no-scroll{overflow:hidden}
 
 /* ==== Header ==== */
 .site-header{position:sticky;top:0;z-index:40;background:rgba(255,255,255,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
@@ -99,11 +101,14 @@ a{text-decoration:none;color:inherit}
 .slot-clear:hover{ transform:scale(1.05); color:#111827 }
 
 /* ====== Modal 공통 ====== */
-.search-modal,.picker-modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center}
+.search-modal,.picker-modal{
+  position:fixed; inset:0; display:none; align-items:center; justify-content:center;
+  z-index:1000; /* ← 모든 요소 위로 */
+}
 .search-modal.is-open,.picker-modal.is-open{display:flex}
-.modal-backdrop{position:absolute;inset:0;background:rgba(17,24,39,.55);backdrop-filter:blur(2px)}
+.modal-backdrop{position:absolute;inset:0;background:rgba(17,24,39,.55);backdrop-filter:blur(2px);z-index:0}
 
-/* ==== Search Modal (리뉴얼) ==== */
+/* ==== Search Modal ==== */
 .search-dialog{
   position:relative; z-index:1; width:min(940px, 94vw); max-height:min(86vh, 780px);
   background:#fff; border:1px solid var(--line); border-radius:22px;
@@ -121,12 +126,10 @@ a{text-decoration:none;color:inherit}
   border:1.5px solid #e7ebf3; border-radius:14px; padding:12px 14px; background:#fff;
   transition:border-color .15s ease, box-shadow .15s ease;
 }
-.search-input:focus-within{
-  border-color:#b7dfff; box-shadow:0 0 0 4px #e9f5ff;
-}
+.search-input:focus-within{ border-color:#b7dfff; box-shadow:0 0 0 4px #e9f5ff }
 .search-input svg{ width:20px; height:20px; color:#64748b }
 .search-input input{ flex:1; border:0; outline:none; font-size:15.5px; background:transparent }
-.search-close{ border:1px solid #e7ebf3; background:#fff; border-radius:10px; padding:9px 12px; cursor:pointer; }
+.search-close{ border:1px solid #e7ebf3; background:#fff; border-radius:10px; padding:9px 12px; cursor:pointer }
 .search-close:hover{ background:#f7f8fb }
 
 /* 새 타이틀 */
@@ -149,7 +152,7 @@ a{text-decoration:none;color:inherit}
 }
 .chip:hover{ background:#f8fafc; transform:translateY(-1px); box-shadow:0 6px 18px rgba(16,24,40,.08) }
 
-/* HOT 배지 — 칩 바깥 좌상단 */
+/* HOT 배지 */
 .chip.hot{ padding-left:12px }
 .chip.hot::before{
   content:"HOT"; position:absolute; left:-8px; top:-10px;
@@ -158,7 +161,7 @@ a{text-decoration:none;color:inherit}
   padding:2px 6px; border-radius:999px; box-shadow:0 2px 6px rgba(16,24,40,.06);
 }
 
-/* 추천 카드 행 */
+/* 추천 카드 */
 .suggest-row{
   display:flex; gap:12px; overflow-x:auto; padding:2px 4px 10px;
   -webkit-overflow-scrolling:touch;
