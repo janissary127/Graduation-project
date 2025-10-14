@@ -7,10 +7,9 @@
  *  - 헤더 뱃지/활성 메뉴
  * =======================================================*/
 
-/* ---------- 1) 히어로 슬라이더에 들어갈 데이터 (더미) ---------- */
+/* ---------- 1) 히어로 슬라이더 더미 데이터 ---------- */
 const slides = [
   { badge:"10월 한정 캐시백 이벤트", title:"최대 93.8만원 혜택", desc:"지난달보다 오른 최대 캐시백 금액 확인하세요!",
-    // stack: 겹쳐진 카드 비주얼(colors + 회전각)
     stack:[ {c1:"#ffdede",c2:"#ffb8b8",r:"-10deg"}, {c1:"#edf2ff",c2:"#cfd8ff",r:"-2deg"}, {c1:"#ffeec2",c2:"#ffd27a",r:"6deg"}, {c1:"#e7fef1",c2:"#bdfadc",r:"14deg"} ] },
   { badge:"연회비 캐시백 프로모션", title:"연 최대 45만원 혜택", desc:"연회비를 상쇄하는 강력한 웰컴 혜택 모음.",
     stack:[ {c1:"#e6fffb",c2:"#b7f4ef",r:"-12deg"}, {c1:"#fff7d1",c2:"#ffe69b",r:"-2deg"}, {c1:"#f3e8ff",c2:"#dab6ff",r:"10deg"} ] },
@@ -31,19 +30,16 @@ const benefitItems = [
   { short:"쿠팡", name:"쿠팡 와우카드", label:"연 최대 62만원 혜택", color:"#ef4444" },
 ];
 
-/* =========================================================
+/* =========================
  * 히어로 슬라이더
- * =======================================================*/
-let heroIndex = 0;      // 현재 슬라이드 인덱스
-let heroTimer = null;   // 자동 넘김 타이머
+ * =======================*/
+let heroIndex = 0, heroTimer = null;
 
-// 슬라이드/도트/버튼 렌더 및 이벤트 연결
 function renderHero(){
   const track=document.getElementById("heroTrack");
   const dots=document.getElementById("heroDots");
-  if(!(track&&dots)) return; // 홈이 아니면 스킵
+  if(!(track&&dots)) return;
 
-  // 슬라이드 DOM 그리기
   track.innerHTML = slides.map(s=>`
     <article class="hero__slide">
       <div class="hero__inner">
@@ -60,28 +56,24 @@ function renderHero(){
       </div>
     </article>`).join("");
 
-  // 하단 도트 DOM 그리기
   dots.innerHTML = slides.map((_,i)=>`<button class="hero__dot" aria-selected="${i===0}"></button>`).join("");
 
-  // 좌우 버튼 클릭 시 이동
   const prev=document.querySelector(".hero__nav--prev");
   const next=document.querySelector(".hero__nav--next");
   if(prev&&next){
     prev.onclick=()=>{stopHeroAuto();goHero(heroIndex-1);startHeroAuto();};
     next.onclick=()=>{stopHeroAuto();goHero(heroIndex+1);startHeroAuto();};
-    // 마우스 올리면 자동재생 잠시 멈춤
     [prev,next].forEach(b=>{
       b.addEventListener("mouseenter",stopHeroAuto);
       b.addEventListener("mouseleave",startHeroAuto);
     });
   }
 
-  // 드래그/스와이프로도 넘길 수 있게 처리
   const viewport=document.querySelector(".hero__viewport");
   if(viewport){
     let startX=null;
     const getX=e=>e.clientX ?? e.touches?.[0]?.clientX ?? e.changedTouches?.[0]?.clientX;
-    const isOnNav=t=>t && t.closest?.(".hero__nav"); // 버튼 위 드래그는 무시
+    const isOnNav=t=>t && t.closest?.(".hero__nav");
 
     const down=e=>{ if(isOnNav(e.target)) return; startX=getX(e); };
     const up=e=>{ if(startX==null) return; const diff=getX(e)-startX; if(Math.abs(diff)>40) diff<0?goHero(heroIndex+1):goHero(heroIndex-1); startX=null; };
@@ -92,33 +84,25 @@ function renderHero(){
     viewport.addEventListener("touchend",up,{passive:true});
   }
 
-  startHeroAuto();  // 자동 슬라이드 시작
-  updateHero();     // 초기 위치 반영
+  startHeroAuto(); updateHero();
 }
-
-// 특정 인덱스로 이동 (양끝 래핑)
 function goHero(n){ heroIndex=(n+slides.length)%slides.length; updateHero(); }
-
-// 트랙 X이동 및 도트 상태 갱신
 function updateHero(){
   const track=document.getElementById("heroTrack");
   const dots=document.querySelectorAll("#heroDots .hero__dot");
   if(track) track.style.transform=`translateX(-${heroIndex*100}%)`;
   dots.forEach((b,i)=>b?.setAttribute("aria-selected",String(i===heroIndex)));
 }
-
-// 자동 넘김 시작/정지
 function startHeroAuto(){ stopHeroAuto(); heroTimer=setInterval(()=>goHero(heroIndex+1),5000); }
 function stopHeroAuto(){ if(heroTimer) clearInterval(heroTimer); }
 
-/* =========================================================
- * 혜택 가로 슬라이드
- * =======================================================*/
+/* =========================
+ * 혜택 행 슬라이더
+ * =======================*/
 function renderBenefit(){
   const list=document.getElementById("benefitList");
-  if(!list) return; // 홈이 아니면 스킵
+  if(!list) return;
 
-  // 리스트 항목 렌더링
   list.innerHTML = benefitItems.map(item=>`
     <li class="benefit__item">
       <div class="brand-circle" style="background:${item.color}">${item.short}</div>
@@ -131,35 +115,19 @@ function renderBenefit(){
   const next=document.getElementById("benefitNext");
   if(!(viewport&&prev&&next)) return;
 
-  // 한 번에 3칸씩 이동
   const cardWidth=170+8, step=cardWidth*3;
 
-  // 화살표 비활성화 상태 갱신
-  function update(){
-    prev.disabled=viewport.scrollLeft<=0;
-    const max=viewport.scrollWidth-viewport.clientWidth-2;
-    next.disabled=viewport.scrollLeft>=max;
-  }
+  function update(){ prev.disabled=viewport.scrollLeft<=0; const max=viewport.scrollWidth-viewport.clientWidth-2; next.disabled=viewport.scrollLeft>=max; }
   prev.onclick=()=>{viewport.scrollBy({left:-step,behavior:"smooth"}); setTimeout(update,320);};
   next.onclick=()=>{viewport.scrollBy({left: step,behavior:"smooth"}); setTimeout(update,320);};
-
-  // 세로 스크롤 휠을 가로로 변환(UX)
   viewport.addEventListener("scroll",update,{passive:true});
-  viewport.addEventListener("wheel",e=>{
-    if(Math.abs(e.deltaX)<Math.abs(e.deltaY)){ // 트랙패드/마우스휠 수직을 수평으로
-      viewport.scrollBy({left:e.deltaY,behavior:"auto"});
-      e.preventDefault();
-    }
-  },{passive:false});
-
+  viewport.addEventListener("wheel",e=>{ if(Math.abs(e.deltaX)<Math.abs(e.deltaY)){ viewport.scrollBy({left:e.deltaY,behavior:"auto"}); e.preventDefault(); } },{passive:false});
   update();
 }
 
-/* =========================================================
+/* =========================
  * 검색 모달
- *  - 최근 검색어 localStorage 저장/불러오기
- *  - HOT/추천 키워드 클릭으로 검색 실행
- * =======================================================*/
+ * =======================*/
 function initSearchModal(){
   const openBtn=document.getElementById("openSearch");
   const modal=document.getElementById("searchModal");
@@ -174,7 +142,6 @@ function initSearchModal(){
   const suggestWrap=document.getElementById("suggestList");
   const submitBtn=document.getElementById("searchSubmit");
 
-  // HOT/추천 키워드 더미
   const HOT=["현금캐백","실적","포인트","해외적립","즉시결제","연회비혜택","트래블 라운지","바우처","배달/카페","통신비","대중교통"];
   const SUGGEST=[
     {k:"HOT",t:"퀴즈/행운 이벤트 바로가기",e:"🎁"},
@@ -184,41 +151,35 @@ function initSearchModal(){
     {k:"생활",t:"모빌리티/교통/통신비 모음",e:"🚇"},
   ];
 
-  // 최근 검색어(로컬스토리지) 키
   const RECENT_KEY="cp_recent_search";
   const getRecents=()=>{ try{return JSON.parse(localStorage.getItem(RECENT_KEY)||"[]");}catch{return[]} };
   const setRecents=list=>localStorage.setItem(RECENT_KEY,JSON.stringify(list.slice(0,10)));
 
-  // 최근 검색어 렌더
   function renderRecents(){
     const r=getRecents();
     if(!r.length){ recentWrap.classList.add("muted"); recentWrap.textContent="최근 검색한 내용이 없습니다."; return; }
     recentWrap.classList.remove("muted");
     recentWrap.innerHTML=r.map(v=>`<button class="chip" data-q="${v}">${v}</button>`).join("");
   }
-  // HOT 키워드 렌더
   function renderHot(){ hotWrap.innerHTML=HOT.map((v,i)=>`<button class="chip ${i<2?"hot":""}" data-q="${v}">${v}</button>`).join(""); }
-  // 추천 카드 렌더
   function renderSuggest(){ suggestWrap.innerHTML=SUGGEST.map(s=>`<div class="suggest-card"><div class="k">${s.k}</div><div class="t">${s.t}</div><div class="e">${s.e}</div></div>`).join(""); }
 
-  // 모달 열기/닫기
   function open(){
     modal.classList.add("is-open");
     modal.setAttribute("aria-hidden","false");
-    document.body.classList.add("no-scroll");  // 배경 스크롤 잠금
+    document.body.classList.add("no-scroll");  /* 배경 스크롤 잠금 */
     renderRecents(); renderHot(); renderSuggest();
     setTimeout(()=>input.focus(),0);
-    bindTrap(); // 포커스 트랩
+    bindTrap();
   }
   function close(){
     modal.classList.remove("is-open");
     modal.setAttribute("aria-hidden","true");
-    document.body.classList.remove("no-scroll"); // 잠금 해제
+    document.body.classList.remove("no-scroll"); /* 잠금 해제 */
     unbindTrap();
     openBtn.focus();
   }
 
-  // 검색 실행(엔터/버튼/칩 클릭)
   function performSearch(q){
     const query=(q ?? input.value).trim();
     if(!query){ input.focus(); return; }
@@ -226,11 +187,10 @@ function initSearchModal(){
       const r=getRecents().filter(v=>v!==query);
       r.unshift(query); setRecents(r);
     }
-    console.log("검색:",query); // 실제 검색 라우팅은 프로젝트에 맞게 연동
+    console.log("검색:",query);
     close();
   }
 
-  // 이벤트 바인딩
   openBtn.addEventListener("click",open);
   closeBtn?.addEventListener("click",close);
   backdrop?.addEventListener("click",close);
@@ -239,7 +199,6 @@ function initSearchModal(){
   modal.addEventListener("click",e=>{ const b=e.target.closest?.(".chip"); if(!b) return; const q=b.getAttribute("data-q"); input.value=q; performSearch(q); });
   document.addEventListener("keydown",e=>{ if(!modal.classList.contains("is-open")) return; if(e.key==="Escape") close(); });
 
-  // 접근성: 포커스 트랩(모달 내부에서 탭이 순환되도록)
   let trapHandler=null;
   function bindTrap(){
     trapHandler=e=>{
@@ -256,14 +215,11 @@ function initSearchModal(){
   function unbindTrap(){ if(trapHandler){ modal.removeEventListener("keydown",trapHandler); trapHandler=null; } }
 }
 
-/* =========================================================
- * 비교 페이지 — 카드 선택 팝업(피커)
- *  - 더미 카드 목록/필터/검색
- *  - 선택 결과를 3개 슬롯에 반영
- * =======================================================*/
+/* =========================
+ * 비교 페이지 — 카드 선택 팝업
+ * =======================*/
 const CARD_ISSUERS=["전체","신한카드","삼성카드","현대카드","롯데카드","KB국민카드","우리카드","하나카드","NH농협카드","IBK기업은행","BC 바로카드","네이버페이","현대백화점"];
 const CARD_PRODUCTS=[
-  // type: credit/check 로 구분
   {id:"mr-life",name:"신한카드 Mr.Life",issuer:"신한카드",type:"credit",c1:"#ffeded",c2:"#ffc3c3"},
   {id:"taptap-o",name:"삼성카드 taptap O",issuer:"삼성카드",type:"credit",c1:"#ffe6f1",c2:"#ffc7de"},
   {id:"sky-miles",name:"삼성카드 & MILEAGE PLATINUM (스카이패스)",issuer:"삼성카드",type:"credit",c1:"#eaf2ff",c2:"#cfe0ff"},
@@ -278,30 +234,24 @@ const CARD_PRODUCTS=[
   {id:"kb-simple",name:"KB국민 탄탄대로 체크",issuer:"KB국민카드",type:"check",c1:"#fff4eb",c2:"#ffe0c8"},
 ];
 
-// 비교 슬롯 상태 저장 키(localStorage)
 const SELECTED_KEY="cp_selected_cards";
-let selectedCards=[null,null,null]; // 3개 슬롯
-// 피커 현재 상태(탭/발급사/키워드)
+let selectedCards=[null,null,null];
 let pickerType="credit", pickerIssuer="전체", pickerKeyword="", currentSlot=null;
 
-// 로컬 저장/불러오기
 function saveSelected(){ try{localStorage.setItem(SELECTED_KEY,JSON.stringify(selectedCards));}catch{} }
 function loadSelected(){ try{const raw=localStorage.getItem(SELECTED_KEY); if(!raw) return; const arr=JSON.parse(raw); if(Array.isArray(arr)&&arr.length===3) selectedCards=arr;}catch{} }
 
-// 피커 열기: 현재 슬롯 index를 기억하고 필터 UI 초기화
 function openPicker(slotIndex){
   currentSlot=slotIndex;
   const modal=document.getElementById("pickerModal");
   const chipsWrap=document.getElementById("issuerChips");
   const input=document.getElementById("pickerKeyword");
 
-  // 탭 활성화 표시
   document.querySelectorAll(".picker-tab").forEach(btn=>{
     btn.classList.toggle("is-active",btn.dataset.type===pickerType);
     btn.setAttribute("aria-selected",String(btn.dataset.type===pickerType));
   });
 
-  // 발급사 칩 렌더 + 클릭시 선택 토글
   chipsWrap.innerHTML=CARD_ISSUERS.map(n=>`<button class="chip ${n===pickerIssuer?"on":""}" data-issuer="${n}">${n}</button>`).join("");
   chipsWrap.onclick=e=>{
     const b=e.target.closest(".chip"); if(!b) return;
@@ -310,21 +260,18 @@ function openPicker(slotIndex){
     renderPickerList();
   };
 
-  // 검색어 반영
   input.value=pickerKeyword;
   input.oninput=()=>{ pickerKeyword=input.value.trim(); renderPickerList(); };
 
-  // 리스트 초기 렌더
   renderPickerList();
 
-  // 모달 열기 + 바깥/닫기 버튼 이벤트
   modal.classList.add("is-open");
   modal.setAttribute("aria-hidden","false");
-  document.body.classList.add("no-scroll");
+  document.body.classList.add("no-scroll"); /* 배경 스크롤 잠금 */
+
   document.getElementById("pickerBackdrop").onclick=closePicker;
   document.getElementById("pickerClose").onclick=closePicker;
 
-  // 탭 클릭 처리(신용/체크)
   document.querySelectorAll(".picker-tab").forEach(btn=>{
     btn.onclick=()=>{
       pickerType=btn.dataset.type;
@@ -336,30 +283,22 @@ function openPicker(slotIndex){
     };
   });
 }
-
-// 피커 닫기
 function closePicker(){
   const modal=document.getElementById("pickerModal");
   modal.classList.remove("is-open");
   modal.setAttribute("aria-hidden","true");
-  document.body.classList.remove("no-scroll");
+  document.body.classList.remove("no-scroll"); /* 잠금 해제 */
   currentSlot=null;
 }
 
-// 현재 필터/검색 조건에 맞는 카드 리스트 다시 그리기
 function renderPickerList(){
   const list=document.getElementById("pickerList");
   const q=pickerKeyword.toLowerCase();
   let items=CARD_PRODUCTS.filter(p=>p.type===pickerType);
   if(pickerIssuer!=="전체") items=items.filter(p=>p.issuer===pickerIssuer);
   if(q) items=items.filter(p=>p.name.toLowerCase().includes(q));
+  if(!items.length){ list.innerHTML=`<div class="muted" style="padding:16px 6px;">조건에 맞는 카드가 없습니다.</div>`; return; }
 
-  if(!items.length){
-    list.innerHTML=`<div class="muted" style="padding:16px 6px;">조건에 맞는 카드가 없습니다.</div>`;
-    return;
-  }
-
-  // 아이템 DOM + 클릭 시 해당 슬롯에 적용
   list.innerHTML=items.map(p=>`
     <div class="picker-item" data-id="${p.id}" role="option">
       <div class="picker-thumb" style="--c1:${p.c1};--c2:${p.c2}"></div>
@@ -374,12 +313,10 @@ function renderPickerList(){
   };
 }
 
-// 슬롯 DOM에 카드 적용/라벨 업데이트
 function renderSlot(i,card){
   const target=document.querySelector(`.slot-target[data-slot="${i}"]`);
   const label=document.getElementById(`slot-name-${i}`);
   if(!target||!label) return;
-
   if(!card){
     target.classList.remove("selected");
     target.innerHTML=`<span class="plus">+</span>`;
@@ -390,13 +327,9 @@ function renderSlot(i,card){
   target.innerHTML=`<div class="slot-mini" style="--c1:${card.c1};--c2:${card.c2}" title="${card.name}"></div>`;
   label.textContent=card.name;
 }
-
-// 현재 슬롯에 카드 적용 + 저장
 function applyCardToSlot(card){ if(currentSlot==null) return; selectedCards[currentSlot]=card; renderSlot(currentSlot,card); saveSelected(); }
-// 슬롯 해제
 function clearSlot(idx){ selectedCards[idx]=null; renderSlot(idx,null); saveSelected(); }
 
-// 비교 페이지 초기화(저장된 상태 불러오고 버튼 이벤트 연결)
 function initCompareSlots(){
   loadSelected();
   [0,1,2].forEach(i=>renderSlot(i,selectedCards[i]));
@@ -408,15 +341,13 @@ function initCompareSlots(){
   });
 }
 
-/* =========================================================
- * 헤더: 비교함 뱃지 & 활성 메뉴 표시
- *  - file:// 환경에서도 동작하도록 '파일명 포함 여부'로 활성화 판단
- * =======================================================*/
+/* =========================
+ * 헤더: 비교함 뱃지 & 활성 메뉴 표시 (상대경로 대응)
+ * =======================*/
 (function headerInit(){
   const KEY = "cp_selected_cards";
   const badge = document.getElementById("compareBadge");
 
-  // 비교함 뱃지 업데이트
   function updateBadge(){
     if(!badge) return;
     try {
@@ -430,10 +361,8 @@ function initCompareSlots(){
     } catch {}
   }
   updateBadge();
-  // 다른 탭에서 변경되어도 반영
   window.addEventListener("storage", (e)=> { if(e.key === KEY) updateBadge(); });
 
-  // 현재 파일 경로에 특정 키워드가 포함되면 해당 메뉴 활성화
   const p = location.pathname.toLowerCase();
   const keys = ["recommend","browse","charts","deals","compare","index"];
   const hit = keys.find(k => p.includes(k));
@@ -445,21 +374,16 @@ function initCompareSlots(){
   }
 })();
 
-/* =========================================================
- * 초기화 엔트리: DOM 로드 후 각 모듈 초기화
- * =======================================================*/
+/* =========================
+ * 초기화
+ * =======================*/
 document.addEventListener("DOMContentLoaded",()=>{
-  // 홈에서만 존재하는 요소들 체크 후 렌더
   if(document.getElementById("heroTrack")) renderHero();
   if(document.getElementById("benefitList")) renderBenefit();
-
-  // 검색 모달 공통 초기화
   initSearchModal();
 
-  // 비교 페이지에서만 슬롯 초기화
   if(document.querySelector(".compare-page")) initCompareSlots();
 
-  // 키보드 ← → 로 히어로 이동
   if(document.getElementById("heroTrack")){
     document.addEventListener("keydown",e=>{
       if(e.key==="ArrowLeft"){e.preventDefault();goHero(heroIndex-1);}

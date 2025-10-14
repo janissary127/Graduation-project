@@ -1,24 +1,20 @@
-/* =========================================
-   CARD PICK — 전역 스타일
-   - 색상, 그림자, 반경 등 토큰 정의
-   ========================================= */
 :root{
   --bg:#fff; --text:#111827; --muted:#6b7280; --line:#eceff5;
   --brand:#0e111a; --accent:#0ea5ff; --accent-soft:#e6f6ff;
   --soft:#f6f7fb; --radius:22px; --shadow:0 12px 40px rgba(16,24,40,.10);
 }
 
-/* ===== Base 리셋/유틸 ===== */
+/* ==== Base ==== */
 *{box-sizing:border-box}
 html,body{margin:0;background:var(--bg);color:var(--text);font-family:"Pretendard",system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial}
 img{max-width:100%;display:block}
 a{text-decoration:none;color:inherit}
 .container{max-width:1200px;margin:0 auto;padding:0 24px}
 .muted{color:var(--muted)}
-/* 모달 열릴 때 배경 스크롤 잠금 */
+/* 모달 열렸을 때 배경 스크롤 잠금 */
 body.no-scroll{overflow:hidden}
 
-/* ===== Header ===== */
+/* ==== Header ==== */
 .site-header{position:sticky;top:0;z-index:40;background:rgba(255,255,255,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
 .header__inner{height:68px;display:flex;align-items:center;gap:20px}
 .brand{display:flex;align-items:center;gap:10px}
@@ -29,7 +25,7 @@ body.no-scroll{overflow:hidden}
 .header__icons{display:flex;gap:8px}
 .icon-btn{border:1px solid var(--line);background:#fff;border-radius:12px;height:38px;min-width:38px;cursor:pointer;display:grid;place-items:center;transition:transform .12s ease,box-shadow .12s ease,border-color .12s ease}
 .icon-btn:hover{transform:translateY(-1px);box-shadow:0 8px 22px rgba(16,24,40,.12);border-color:#e3e8f0}
-/* 활성 메뉴 표시 + 비교함 뱃지 */
+/* 활성 메뉴/뱃지 */
 .nav a.is-active{ color:#0b6eff; background:#eef7ff }
 .icon-with-badge{ position:relative; display:inline-grid; place-items:center }
 .badge{
@@ -39,7 +35,7 @@ body.no-scroll{overflow:hidden}
   box-shadow:0 6px 16px rgba(14,165,255,.35);
 }
 
-/* ===== Hero (대배너 슬라이드) ===== */
+/* ==== Hero (홈) ==== */
 .hero{background:#f2f4f8;border-bottom:1px solid var(--line)}
 .hero__wrap{position:relative;padding:26px 0}
 .hero__viewport{position:relative;overflow:hidden;border-radius:var(--radius);background:#fff;border:1px solid var(--line)}
@@ -49,13 +45,12 @@ body.no-scroll{overflow:hidden}
 @media(max-width:980px){.hero__inner{grid-template-columns:1fr}}
 .hero__image{display:grid;place-items:center}
 .stack{position:relative;width:300px;height:200px}
-/* 겹쳐진 카드 비주얼 */
 .stack .card{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) rotate(var(--r));width:210px;height:130px;border-radius:14px;border:1px solid #e5e7ee;box-shadow:0 14px 40px rgba(40,50,70,.15);background:linear-gradient(135deg,var(--c1),var(--c2))}
 .hero__copy .kicker{color:var(--accent);font-weight:800;margin-bottom:6px}
 .hero__copy h2{font-size:36px;line-height:1.15;margin:.1em 0 .3em 0}
 .hero__copy p{color:#475569;margin:0}
 
-/* 좌우 화살표 + 하단 점 */
+/* Hero arrows & dots */
 .hero__nav{position:absolute;top:50%;transform:translateY(-50%);width:52px;height:52px;border-radius:999px;border:1px solid rgba(17,24,39,.08);background:rgba(255,255,255,.86);backdrop-filter:blur(6px);box-shadow:0 10px 30px rgba(16,24,40,.16);cursor:pointer;color:#5b6475;font-size:22px;line-height:1;display:grid;place-items:center;transition:transform .15s ease,opacity .15s ease,box-shadow .15s ease;opacity:.9;pointer-events:auto;z-index:5}
 .hero__nav--prev{left:18px}
 .hero__nav--next{right:18px}
@@ -65,13 +60,61 @@ body.no-scroll{overflow:hidden}
 .hero__dot{width:9px;height:9px;border:0;border-radius:999px;background:#cfd6e4;cursor:pointer;transition:transform .15s ease}
 .hero__dot[aria-selected="true"]{background:#ffb200;transform:scale(1.15)}
 
-/* ===== Benefit Row (브랜드/혜택 가로 리스트) ===== */
+/* ===== About: 메인 중간 소개 섹션 ===== */
+.about{ padding:34px 0 10px; background:linear-gradient(180deg,#f7f9fc 0%, #ffffff 100%) }
+.about .container{ position:relative }
+.about__card{
+  border:1px solid var(--line);
+  border-radius:22px;
+  background:
+    radial-gradient(1200px 200px at 10% -40%, #e9f5ff 0%, transparent 60%),
+    radial-gradient(1000px 180px at 110% 140%, #fff6ec 0%, transparent 60%),
+    #fff;
+  box-shadow:0 24px 70px rgba(16,24,40,.10);
+}
+.about__wrap{
+  display:grid;
+  grid-template-columns: 520px 1fr;
+  gap:36px;
+  padding:32px 28px;
+}
+@media(max-width:980px){ .about__wrap{ grid-template-columns: 1fr } }
+.about .kicker{ color:var(--accent); font-weight:800; margin-bottom:6px }
+.about__title{ font-size:30px; line-height:1.2; margin:.2em 0 .35em; letter-spacing:-.3px; font-weight:900 }
+.about__desc{ color:#4b5563; margin:0 0 14px }
+.tick-list{ list-style:none; padding:0; margin:0 0 16px; display:grid; gap:10px }
+.tick-list li{
+  display:flex; align-items:flex-start; gap:10px;
+  background:#fff; border:1px solid #eef2f6; border-radius:12px; padding:10px 12px;
+}
+.tick-list svg{ width:18px; height:18px; margin-top:2px; color:#16a34a }
+.about__actions{ display:flex; gap:10px; margin-top:6px }
+/* 오른쪽: 시각화 카드 스택 */
+.about__right{ display:flex; flex-direction:column; gap:14px; align-items:center; justify-content:center }
+.about__cards{ position:relative; height:220px; width:100%; display:grid; place-items:center }
+.about-card{
+  position:absolute; left:50%; top:50%;
+  transform: translate(calc(-50% + var(--x,0px)), calc(-50% + var(--y,0px))) rotate(var(--rot,0deg));
+  width:230px; height:132px;
+  border-radius:16px; border:1px solid #e7ebf3;
+  background:linear-gradient(135deg, var(--c1), var(--c2));
+  box-shadow:0 16px 40px rgba(40,50,70,.14);
+  display:flex; flex-direction:column; justify-content:center; align-items:flex-start; gap:6px;
+  padding:14px;
+}
+.about-card__title{ font-weight:800; color:#374151; font-size:14px }
+.about-card__num{ font-weight:900; font-size:22px; letter-spacing:.2px }
+.about__stats{ display:grid; grid-template-columns:repeat(3,1fr); gap:10px; width:100% }
+.stat{ background:#fff; border:1px solid #eef2f6; border-radius:14px; padding:12px; display:flex; flex-direction:column; align-items:center; text-align:center }
+.stat__num{ font-weight:900; font-size:22px }
+.stat__label{ font-size:12px; color:#6b7280 }
+
+/* ==== Benefit row ==== */
 .benefit{padding:26px 0}
 .benefit__head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
 .btn-outline{border:1px solid var(--line);border-radius:999px;padding:8px 14px;background:#fff}
 .benefit__row{position:relative;display:flex;align-items:center}
 .benefit__viewport{position:relative;overflow:hidden;flex:1;border:1px solid var(--line);border-radius:18px;background:#fff;
-  /* 가장자리 페이드 마스크(잔상/겹침 방지 시각효과) */
   -webkit-mask-image:linear-gradient(to right,transparent 0,#000 40px,#000 calc(100% - 40px),transparent 100%);
           mask-image:linear-gradient(to right,transparent 0,#000 40px,#000 calc(100% - 40px),transparent 100%);
   -webkit-mask-mode:match-source;mask-mode:match-source}
@@ -86,7 +129,7 @@ body.no-scroll{overflow:hidden}
 .benefit__arrow:hover{transform:translateY(-50%) scale(1.05)}
 .benefit__arrow[disabled]{opacity:.35;cursor:not-allowed}
 
-/* ===== Compare Page (비교 페이지 전용) ===== */
+/* ==== 비교 페이지 ==== */
 .compare-page{background:#fafbfd; padding:36px 0 60px}
 .compare-hero{display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px;margin-top:12px;margin-bottom:26px}
 .compare-hero h1{font-size:32px;letter-spacing:-.3px;margin:10px 0 6px;font-weight:900}
@@ -100,7 +143,8 @@ body.no-scroll{overflow:hidden}
 .slot-mini{width:120px;height:74px;border-radius:10px;border:1px solid #e5e7ee;box-shadow:0 8px 16px rgba(40,50,70,.1);background:linear-gradient(135deg,var(--c1),var(--c2))}
 .plus{font-size:28px;line-height:1}
 .slot-caption{font-size:12px;color:#6b7280;margin:0}
-/* 해제 버튼은 호버/선택 시에만 나타남 */
+
+/* 선택 해제 버튼 */
 .slot-clear{
   position:absolute; right:8px; top:8px;
   width:28px; height:28px; border-radius:999px;
@@ -114,15 +158,15 @@ body.no-scroll{overflow:hidden}
 .slot-target.selected ~ .slot-clear{ opacity:1; pointer-events:auto }
 .slot-clear:hover{ transform:scale(1.05); color:#111827 }
 
-/* ===== Modal 공통(검색/피커) ===== */
+/* ====== Modal 공통 ====== */
 .search-modal,.picker-modal{
   position:fixed; inset:0; display:none; align-items:center; justify-content:center;
-  z-index:1000; /* 모든 요소 위에 노출 */
+  z-index:1000; /* 모든 요소 위로 */
 }
 .search-modal.is-open,.picker-modal.is-open{display:flex}
 .modal-backdrop{position:absolute;inset:0;background:rgba(17,24,39,.55);backdrop-filter:blur(2px);z-index:0}
 
-/* ===== Search Modal 레이아웃 ===== */
+/* ==== Search Modal ==== */
 .search-dialog{
   position:relative; z-index:1; width:min(940px, 94vw); max-height:min(86vh, 780px);
   background:#fff; border:1px solid var(--line); border-radius:22px;
@@ -131,23 +175,32 @@ body.no-scroll{overflow:hidden}
 }
 @keyframes sd-pop{ from{transform:translateY(6px) scale(.98); opacity:.6} to{transform:none; opacity:1} }
 
-.search-top{ display:flex; align-items:center; gap:12px; padding:16px 18px; border-bottom:1px solid #f2f4f8; background:#fff }
-.search-input{ flex:1; display:flex; align-items:center; gap:12px; border:1.5px solid #e7ebf3; border-radius:14px; padding:12px 14px; background:#fff; transition:border-color .15s ease, box-shadow .15s ease }
+.search-top{
+  display:flex; align-items:center; gap:12px;
+  padding:16px 18px; border-bottom:1px solid #f2f4f8; background:#fff;
+}
+.search-input{
+  flex:1; display:flex; align-items:center; gap:12px;
+  border:1.5px solid #e7ebf3; border-radius:14px; padding:12px 14px; background:#fff;
+  transition:border-color .15s ease, box-shadow .15s ease;
+}
 .search-input:focus-within{ border-color:#b7dfff; box-shadow:0 0 0 4px #e9f5ff }
 .search-input svg{ width:20px; height:20px; color:#64748b }
 .search-input input{ flex:1; border:0; outline:none; font-size:15.5px; background:transparent }
 .search-close{ border:1px solid #e7ebf3; background:#fff; border-radius:10px; padding:9px 12px; cursor:pointer }
 .search-close:hover{ background:#f7f8fb }
 
+/* 새 타이틀 */
 .search-titlebar{ padding:14px 22px 6px 22px }
 .search-title{ font-size:22px; font-weight:900; letter-spacing:-.2px; margin:0 }
 
+/* 섹션 */
 .search-section{ padding:14px 22px }
 .search-section + .search-section{ border-top:1px solid #f5f7fb }
 .section-head{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:12px }
 .search-section h3{ font-size:15px; margin:0 0 12px }
 
-/* 칩/태그 스타일 */
+/* 칩 */
 .chip-row{ display:flex; flex-wrap:wrap; gap:10px }
 .chip{
   position:relative; border:1px solid #e6eaf2; background:#fff;
@@ -156,7 +209,8 @@ body.no-scroll{overflow:hidden}
   box-shadow:0 2px 8px rgba(16,24,40,.04);
 }
 .chip:hover{ background:#f8fafc; transform:translateY(-1px); box-shadow:0 6px 18px rgba(16,24,40,.08) }
-/* HOT 배지(왼쪽 상단에 떠있는 라벨) */
+
+/* HOT 배지 */
 .chip.hot{ padding-left:12px }
 .chip.hot::before{
   content:"HOT"; position:absolute; left:-8px; top:-10px;
@@ -165,11 +219,10 @@ body.no-scroll{overflow:hidden}
   padding:2px 6px; border-radius:999px; box-shadow:0 2px 6px rgba(16,24,40,.06);
 }
 
-/* 추천 카드 가로 스크롤 */
+/* 추천 카드 */
 .suggest-row{
   display:flex; gap:12px; overflow-x:auto; padding:2px 4px 10px;
   -webkit-overflow-scrolling:touch;
-  /* 양쪽 페이드 마스크로 가장자리 깨끗하게 처리 */
   -webkit-mask-image:linear-gradient(to right, transparent 0, #000 24px, #000 calc(100% - 24px), transparent 100%);
           mask-image:linear-gradient(to right, transparent 0, #000 24px, #000 calc(100% - 24px), transparent 100%);
 }
@@ -182,7 +235,7 @@ body.no-scroll{overflow:hidden}
 .suggest-card .t{ font-size:14.5px; font-weight:800 }
 .suggest-card .e{ font-size:22px; margin-top:6px }
 
-/* 검색 모달 하단 버튼 영역 */
+/* 하단 버튼 */
 .search-bottom{ padding:12px 22px; border-top:1px solid var(--line); display:flex; justify-content:flex-end; background:#fff }
 .btn-primary{ border:0; background:#0ea5ff; color:#fff; border-radius:10px; padding:10px 16px; cursor:pointer; font-weight:800 }
 .btn-primary:hover{ filter:brightness(.95) }
@@ -225,13 +278,16 @@ body.no-scroll{overflow:hidden}
 .picker-name{font-size:14px; font-weight:700}
 .picker-issuer{font-size:12px; color:#92A0B2}
 
-/* ===== Footer & 접근성/반응형 ===== */
+/* ==== Footer & A11y / Responsive ==== */
 .footer{border-top:1px solid var(--line);padding:30px 0;margin-top:30px}
 :focus-visible{outline:3px solid rgba(14,165,255,.55);outline-offset:2px;border-radius:10px}
 button:focus-visible{outline-offset:4px}
 
-/* 반응형 브레이크포인트 */
+/* 반응형 */
 @media (max-width:1024px){.hero__slide{padding:36px}.hero__copy h2{font-size:32px}.benefit__item{min-width:156px}}
+@media (max-width:980px){
+  .about__wrap{ grid-template-columns:1fr }
+}
 @media (max-width:820px){
   .hero__copy h2{font-size:28px}
   .stack{width:260px;height:180px}.stack .card{width:190px;height:120px}
@@ -240,7 +296,7 @@ button:focus-visible{outline-offset:4px}
 }
 @media (max-width:640px){
   .header__inner{height:60px}
-  .nav{display:none} /* 모바일에서는 헤더 메뉴 숨김(필요시 햄버거 추가 가능) */
+  .nav{display:none}
   .hero__slide{padding:26px}
   .hero__copy h2{font-size:24px}
   .hero__nav{width:44px;height:44px}
@@ -250,7 +306,5 @@ button:focus-visible{outline-offset:4px}
   .compare-slots{grid-template-columns:1fr 12px 1fr 12px 1fr}
   .divider-vert{height:300px}
 }
-/* 터치 환경에서 화살표 버튼 접근성 보정 */
 @media (hover:none){.hero__nav{opacity:.9;pointer-events:auto}}
-/* 모션 최소화 선호 사용자를 위한 보정 */
 @media (prefers-reduced-motion:reduce){*{transition:none !important;animation:none !important;scroll-behavior:auto !important}}
