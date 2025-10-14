@@ -1,0 +1,40 @@
+⏺ WAR 배포용으로 변경하려면 다음 항목들을 수정하면 됩니다:
+
+  WAR 배포 설정으로 변경하는 방법
+
+  1. build.gradle 파일 수정
+
+  plugins {
+      id 'java'
+      id 'war'  // 이 줄 추가
+      id 'org.springframework.boot' version '3.5.6'
+      id 'io.spring.dependency-management' version '1.1.7'
+  }
+
+  2. 의존성에 providedRuntime 추가
+
+  dependencies {
+      implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+      implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+      implementation 'org.springframework.boot:spring-boot-starter-web'
+      compileOnly 'org.projectlombok:lombok'
+      runtimeOnly 'com.h2database:h2'
+      annotationProcessor 'org.projectlombok:lombok'
+      providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat'  // 이 줄 추가
+      testImplementation 'org.springframework.boot:spring-boot-starter-test'
+      testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+  }
+
+  3. WAR 파일 빌드
+
+  ./gradlew clean build
+
+  WAR 파일은 build/libs/ 디렉토리에 생성됩니다.
+
+  참고사항
+
+  - ServletInitializer.java 파일은 이미 있으므로 추가 작업 불필요
+  - WAR 배포 시 외부 톰캣 서버에 배포
+  - JAR는 내장 톰캣으로 독립 실행, WAR는 외부 서버에 배포용
+
+  현재는 개발 단계이므로 JAR 설정으로 두고, 실제 배포 시점에 WAR로 변경하는 것을 추천합니다!

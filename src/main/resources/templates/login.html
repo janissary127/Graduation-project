@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>로그인 - 신용카드 추천 시스템</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="/">신용카드 추천 시스템</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">홈</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/login">로그인</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="login-container">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-md-6 col-lg-5">
+                    <div class="card shadow-lg">
+                        <div class="card-body p-5">
+                            <div class="text-center mb-4">
+                                <h2 class="fw-bold">로그인</h2>
+                                <p class="text-muted">계정에 로그인하여 시작하세요</p>
+                            </div>
+
+                            <div th:if="${error}" class="alert alert-danger" role="alert">
+                                <span th:text="${error}"></span>
+                            </div>
+
+                            <form method="post" th:action="@{/login}">
+                                <div class="mb-3">
+                                    <label for="username" class="form-label">사용자명</label>
+                                    <input type="text" class="form-control form-control-lg" id="username"
+                                           name="username" placeholder="사용자명을 입력하세요" required>
+                                </div>
+                                <div class="mb-4">
+                                    <label for="password" class="form-label">비밀번호</label>
+                                    <input type="password" class="form-control form-control-lg" id="password"
+                                           name="password" placeholder="비밀번호를 입력하세요" required>
+                                </div>
+                                <div class="mb-3 form-check">
+                                    <input type="checkbox" class="form-check-input" id="rememberMe">
+                                    <label class="form-check-label" for="rememberMe">
+                                        로그인 상태 유지
+                                    </label>
+                                </div>
+                                <div class="d-grid">
+                                    <button type="submit" class="btn btn-primary btn-lg">로그인</button>
+                                </div>
+                            </form>
+
+                            <div class="text-center mt-4">
+                                <p class="text-muted">계정이 없으신가요? <a href="#" class="text-primary">회원가입</a></p>
+                                <p class="text-muted"><a href="#" class="text-primary">비밀번호를 잊으셨나요?</a></p>
+                            </div>
+
+                            <div class="mt-4 p-3 bg-light rounded">
+                                <small class="text-muted">
+                                    <strong>테스트 계정:</strong><br>
+                                    사용자명: admin<br>
+                                    비밀번호: 1234
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="bg-light py-4 mt-5">
+        <div class="container text-center">
+            <p class="text-muted mb-0">&copy; 2025 신용카드 추천 시스템. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

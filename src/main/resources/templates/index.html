@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>신용카드 추천 시스템</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="/">신용카드 추천 시스템</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/">홈</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/login">로그인</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="hero-section">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-6">
+                    <h1 class="display-4 fw-bold mb-4">나에게 맞는 신용카드를 찾아보세요</h1>
+                    <p class="lead mb-4">
+                        소비 패턴과 라이프스타일을 분석하여 가장 적합한 신용카드를 추천해드립니다.
+                    </p>
+                    <a href="/login" class="btn btn-primary btn-lg">시작하기</a>
+                </div>
+                <div class="col-lg-6 text-center">
+                    <div class="card-illustration">
+                        <svg width="300" height="200" viewBox="0 0 300 200">
+                            <rect x="50" y="50" width="200" height="120" rx="10" fill="#007bff" opacity="0.8"/>
+                            <rect x="60" y="60" width="180" height="30" rx="5" fill="#ffffff" opacity="0.3"/>
+                            <circle cx="80" cy="140" r="15" fill="#ffc107"/>
+                            <circle cx="110" cy="140" r="15" fill="#ffc107" opacity="0.7"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container my-5">
+        <div class="row">
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body text-center">
+                        <div class="feature-icon mb-3">
+                            <svg width="60" height="60" fill="#007bff">
+                                <circle cx="30" cy="30" r="28" fill="#e3f2fd"/>
+                                <text x="30" y="40" text-anchor="middle" font-size="30">📊</text>
+                            </svg>
+                        </div>
+                        <h5 class="card-title">소비 패턴 분석</h5>
+                        <p class="card-text">당신의 소비 습관을 분석하여 최적의 카드를 찾아드립니다.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body text-center">
+                        <div class="feature-icon mb-3">
+                            <svg width="60" height="60" fill="#007bff">
+                                <circle cx="30" cy="30" r="28" fill="#e3f2fd"/>
+                                <text x="30" y="40" text-anchor="middle" font-size="30">💳</text>
+                            </svg>
+                        </div>
+                        <h5 class="card-title">맞춤형 추천</h5>
+                        <p class="card-text">다양한 카드 중에서 당신에게 가장 유리한 카드를 추천합니다.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body text-center">
+                        <div class="feature-icon mb-3">
+                            <svg width="60" height="60" fill="#007bff">
+                                <circle cx="30" cy="30" r="28" fill="#e3f2fd"/>
+                                <text x="30" y="40" text-anchor="middle" font-size="30">🎁</text>
+                            </svg>
+                        </div>
+                        <h5 class="card-title">혜택 비교</h5>
+                        <p class="card-text">카드별 혜택을 한눈에 비교하고 선택할 수 있습니다.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="bg-light py-4 mt-5">
+        <div class="container text-center">
+            <p class="text-muted mb-0">&copy; 2025 신용카드 추천 시스템. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
