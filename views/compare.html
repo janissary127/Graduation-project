@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ko">
+
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
@@ -11,6 +12,7 @@
   <!-- 필요 시 활성화 -->
   <!-- <script defer src="{{ url_for('static', filename='js/app2.js') }}"></script> -->
 </head>
+
 <body>
   <!-- Header -->
   <header class="site-header">
@@ -18,8 +20,8 @@
       <a href="{{ url_for('index') }}" class="brand" aria-label="CARD PICK 홈">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
           <rect x="2" y="5" width="20" height="14" rx="3" fill="#111827"></rect>
-          <rect x="4" y="9"  width="16" height="2" rx="1" fill="#fff" opacity=".75"></rect>
-          <rect x="4" y="13" width="6"  height="2" rx="1" fill="#fff" opacity=".75"></rect>
+          <rect x="4" y="9" width="16" height="2" rx="1" fill="#fff" opacity=".75"></rect>
+          <rect x="4" y="13" width="6" height="2" rx="1" fill="#fff" opacity=".75"></rect>
         </svg>
         <strong class="brand__text">CARD PICK</strong>
       </a>
@@ -27,10 +29,10 @@
       <nav class="nav" aria-label="주요">
         <a href="#" class="nav-bot" data-nav="bot" id="navBot" title="대화형 추천 챗봇 열기">카드픽봇</a>
         <a href="{{ url_for('recommend') }}" data-nav="recommend">카드픽추천</a>
-        <a href="{{ url_for('browse') }}"    data-nav="browse">카드찾기</a>
-        <a href="{{ url_for('charts') }}"    data-nav="charts">인기차트</a>
-        <a href="{{ url_for('deals') }}"     data-nav="deals">혜택·이벤트</a>
-        <a href="{{ url_for('compare') }}"   data-nav="compare">비교함</a>
+        <a href="{{ url_for('browse') }}" data-nav="browse">카드찾기</a>
+        <a href="{{ url_for('charts') }}" data-nav="charts">인기차트</a>
+        <a href="{{ url_for('deals') }}" data-nav="deals">혜택·이벤트</a>
+        <a href="{{ url_for('compare') }}" data-nav="compare">비교함</a>
       </nav>
 
       <div class="header__icons">
@@ -43,8 +45,7 @@
         <a href="{{ url_for('compare') }}" class="icon-btn" aria-label="비교함">
           <span class="icon-with-badge">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <path d="M7 3v18M17 3v18M4 7h6M14 17h6"
-                    stroke="#111827" stroke-width="2" stroke-linecap="round"></path>
+              <path d="M7 3v18M17 3v18M4 7h6M14 17h6" stroke="#111827" stroke-width="2" stroke-linecap="round"></path>
             </svg>
             <span id="compareBadge" class="badge" style="display:none">0</span>
           </span>
@@ -135,7 +136,10 @@
       <!-- 이름 검색 -->
       <div class="picker-search">
         <div class="search-input">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"></circle><path d="M20 20L16.65 16.65" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path></svg>
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"></circle>
+            <path d="M20 20L16.65 16.65" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>
+          </svg>
           <input id="pickerKeyword" type="text" placeholder="카드 이름으로 검색" />
         </div>
       </div>
@@ -153,7 +157,10 @@
     <div class="search-dialog" role="document">
       <div class="search-top">
         <div class="search-input">
-          <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"></circle><path d="M20 20L16.65 16.65" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path></svg>
+          <svg viewBox="0 0 24 24">
+            <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"></circle>
+            <path d="M20 20L16.65 16.65" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>
+          </svg>
           <input id="searchInput" type="text" placeholder="메뉴, 카드, 혜택을 검색해보세요" />
         </div>
         <button id="searchClose" class="search-close" aria-label="닫기">닫기</button>
@@ -190,4 +197,5 @@
     <div class="container muted">© 2025 CARD PICK — 데모 페이지입니다.</div>
   </footer>
 </body>
+
 </html>
