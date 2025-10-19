@@ -1,202 +1,320 @@
 /* =========================================================
- * CARD PICK — app.js (JSON 기반)
- * - data/card_list.json을 그대로 사용 (더미 데이터 없음)
- * - 검색 모달 (통합 검색)
- * - 비교 페이지: 카드 선택 팝업 + 저장/복원/해제
- * - 카드 색상 관련 스타일은 주석 처리(이미지로 대체 예정)
+ * CARD PICK — app.js (Flask + JSON 연동 버전)
+ *  - 공통 헤더 주입(카드픽봇 포함)  ← Flask 라우트(/, /recommend ...)
+ *  - 히어로: 데이터 있으면 데이터 기반, 없으면 기존 더미 슬라이드
+ *  - 혜택 라인: 데이터(발급사 목록) → 없으면 기존 더미
+ *  - 검색 모달
+ *  - 비교 페이지 카드 선택(피커): 데이터 기반(id 저장) → 없으면 기존 더미(객체 저장) 폴백
+ *  - 헤더 뱃지/활성 메뉴
+ *  - 플로팅 챗봇 위젯 + 헤더 '카드픽봇' 연동
  * =======================================================*/
 
-/* 저장 키 & 상태 */
-const SELECTED_KEY = "cp_selected_cards_v1";
-let selectedCardIds = [null, null, null]; // 슬롯별 선택된 카드 id
-let cardData = [];       // 원본 JSON 전체 구조(여기에 400+ 레코드가 들어있음)
-let CARD_PRODUCTS = [];  // Picker에서 사용할 간단한 배열: { id, name, issuer, type, promo, desc, details, image }
+/* ------------------------ 전역 상태 ------------------------ */
+const LS_KEY_V1 = "cp_selected_cards_v1"; // id 기반(데이터 모드)
+const LS_KEY_V0 = "cp_selected_cards";    // 객체 기반(네 기존 방식) — 폴백/마이그레이션용
+let selectedIds = [null, null, null];     // 데이터 모드: id 저장
+let selectedObjs = [null, null, null];    // 폴백 모드: 객체 저장
+let useDataMode = false;                  // 카드 JSON을 성공적으로 불렀으면 true
 
+let RAW = [];          // 원본 JSON
+let CARDS = [];        // 정규화 데이터: {id,name,issuer,type,promo,desc,details,image}
 let pickerType = "credit";
 let pickerIssuer = "전체";
 let pickerKeyword = "";
 let currentSlot = null;
 
+let heroIndex = 0, heroTimer = null;
+
+/* ------------------------ 유틸 ------------------------ */
+const esc = (s) => (s || s === 0) ? String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])) : "";
+const $ = (q, sc = document) => sc.querySelector(q);
+const $$ = (q, sc = document) => [...sc.querySelectorAll(q)];
+
 /* =========================================================
- * 카드 목록 로드
- * - 경로: ../data/card_list.json (프로젝트 구조에 맞게 조정 가능)
- * - JSON 구조를 유연하게 처리 (배열 또는 객체 내 배열)
+ * (A) 공통 헤더 템플릿(Flask 라우트) & 주입
  * =======================================================*/
-async function loadCardList() {
+function buildGlobalHeaderHTML() {
+  return `
+  <header class="site-header">
+    <div class="container header__inner">
+      <a href="/" class="brand" aria-label="CARD PICK 홈">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <rect x="2" y="5" width="20" height="14" rx="3" fill="#111827"></rect>
+          <rect x="4" y="9"  width="16" height="2" rx="1" fill="#fff" opacity=".75"></rect>
+          <rect x="4" y="13" width="6"  height="2" rx="1" fill="#fff" opacity=".75"></rect>
+        </svg>
+        <strong class="brand__text">CARD PICK</strong>
+      </a>
+
+      <nav class="nav" aria-label="주요">
+        <a href="#" class="nav-bot" data-nav="bot" id="navBot" title="대화형 추천 챗봇 열기">카드픽봇</a>
+        <a href="/recommend" data-nav="recommend">카드픽추천</a>
+        <a href="/browse"    data-nav="browse">카드찾기</a>
+        <a href="/charts"    data-nav="charts">인기차트</a>
+        <a href="/deals"     data-nav="deals">혜택·이벤트</a>
+        <a href="/compare"   data-nav="compare">비교함</a>
+      </nav>
+
+      <div class="header__icons">
+        <button id="openSearch" class="icon-btn" aria-label="검색 열기">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <circle cx="11" cy="11" r="7" stroke="#111827" stroke-width="2"></circle>
+            <path d="M20 20L16.65 16.65" stroke="#111827" stroke-width="2" stroke-linecap="round"></path>
+          </svg>
+        </button>
+        <a href="/compare" class="icon-btn" aria-label="비교함">
+          <span class="icon-with-badge">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M7 3v18M17 3v18M4 7h6M14 17h6"
+                    stroke="#111827" stroke-width="2" stroke-linecap="round"></path>
+            </svg>
+            <span id="compareBadge" class="badge" style="display:none">0</span>
+          </span>
+        </a>
+      </div>
+    </div>
+  </header>`;
+}
+function mountGlobalHeader() {
+  const html = buildGlobalHeaderHTML();
+  const wrap = document.createElement("div");
+  wrap.innerHTML = html.trim();
+  const newHeader = wrap.firstElementChild;
+  const oldHeader = document.querySelector(".site-header");
+  if (oldHeader) oldHeader.replaceWith(newHeader);
+  else document.body.insertBefore(newHeader, document.body.firstChild);
+}
+
+/* =========================================================
+ * (B) 데이터 로드: /api/cards → 실패 시 /static/data/card_list.json
+ * =======================================================*/
+async function loadCards() {
+  async function j(url) {
+    const r = await fetch(url, { cache: "no-store" });
+    if (!r.ok) throw new Error(`${r.status} @ ${url}`);
+    return r.json();
+  }
   try {
-    // static 경로에서 불러오기 (권장)
-    const res = await fetch("/static/data/card_list.json");
-    if (!res.ok) throw new Error("card_list.json 로드 실패: " + res.status);
-    const json = await res.json();
+    let json;
+    try {
+      json = await j("/api/cards");                // 백엔드 API 시도
+    } catch (e) {
+      // API 없으면 정적 파일 폴백
+      json = await j("/static/data/card_list.json");
+    }
 
-    // 파일에 따라 유연하게 카드 배열 추출
-    cardData = Array.isArray(json) ? json : (json.cards || json.items || json.list || []);
+    // --- 반드시 RAW에 할당해 주세요 ---
+    RAW = Array.isArray(json) ? json : (json.cards || json.items || json.list || []);
 
-    // 최소한의 필드로 변환
-    CARD_PRODUCTS = cardData.map(item => {
-      const id = String(item.team_id ?? item.id ?? item.teamId ?? Math.random());
+    // CARDS 생성: 기존 식별자(base)를 사용하되 idx를 붙여 유니크하게 만듭니다.
+    CARDS = RAW.map((it, idx) => {
+      const baseId = (it.team_id ?? it.id ?? it.teamId ?? `card`);
+      const id = String(`${baseId}_${idx}`);
+
       return {
         id,
-        name: item.name ?? item.title ?? "Unnamed Card",
-        issuer: item.corp ?? item.issuer ?? "기타",
-        type: item.type ?? "credit",
-        promo: item.promo ?? "",
-        desc: item.desc1 ?? item.description ?? "",
-        details: item.details ?? [],
-        // image 필드: 나중에 이미지가 업로드되면 이 필드에 경로를 넣어주세요.
-        image: item.image ?? "" // 빈 문자열이면 이미지 미등록 상태
-        // 과거에 사용하던 색상(c1,c2)은 이미지로 대체할 계획이므로 제거/주석 처리.
-        // c1: item.c1 ?? "#f0f4f8",
-        // c2: item.c2 ?? "#dde6f3",
+        name: it.name ?? it.title ?? "Unnamed Card",
+        issuer: it.corp ?? it.issuer ?? "기타",
+        type: (it.type ?? "credit").toLowerCase(),
+        promo: it.promo ?? "",
+        desc: it.desc1 ?? it.description ?? "",
+        details: it.details ?? [],
+        image: it.image ?? ""
       };
     });
 
-    // Picker/Compare UI 초기화 (데이터 준비 후)
-    if (document.querySelector(".compare-page")) initCompareSlots();
-
-    // 혜택(발급사) 라인과 히어로 섹션도 업데이트
-    renderBenefit();
-    renderHeroFromData();
-
-  } catch (err) {
-    console.error("카드 목록 로드 에러:", err);
+    useDataMode = CARDS.length > 0;
+  } catch (e) {
+    console.warn("카드 JSON 로드 실패(더미 모드로 진행):", e);
+    useDataMode = false;
+    RAW = [];
+    CARDS = [];
   }
 }
 
+
 /* =========================================================
- * 히어로: data 기반 (상위 3개 카드의 promo/이름 사용)
- * - 더미 슬라이드는 제거됨
+ * (C) 히어로: 데이터 → 없으면 기존 더미 슬라이드
  * =======================================================*/
-function renderHeroFromData() {
-  const track = document.getElementById("heroTrack");
-  const dots = document.getElementById("heroDots");
+const dummySlides = [
+  {
+    badge: "대화형 추천 챗봇 오픈", title: "말로 끝내는 카드 추천", desc: "챗봇에게 내 소비 습관만 알려주세요!",
+    stack: [{ c1: "#ffdede", c2: "#ffb8b8", r: "-10deg" }, { c1: "#edf2ff", c2: "#cfd8ff", r: "-2deg" }, { c1: "#ffeec2", c2: "#ffd27a", r: "6deg" }, { c1: "#e7fef1", c2: "#bdfadc", r: "14deg" }]
+  },
+  {
+    badge: "연회비 캐시백 모음", title: "연 최대 45만원 혜택", desc: "연회비를 상쇄하는 강력한 웰컴 혜택.",
+    stack: [{ c1: "#e6fffb", c2: "#b7f4ef", r: "-12deg" }, { c1: "#fff7d1", c2: "#ffe69b", r: "-2deg" }, { c1: "#f3e8ff", c2: "#dab6ff", r: "10deg" }]
+  },
+  {
+    badge: "트래블 · 프리미엄", title: "라운지 · 해외 적립 2배", desc: "여행자에게 꼭 필요한 혜택, 한번에.",
+    stack: [{ c1: "#e8f0ff", c2: "#cbe0ff", r: "-8deg" }, { c1: "#dbfff7", c2: "#b0ffe9", r: "0deg" }, { c1: "#ffe2e2", c2: "#ffcaca", r: "8deg" }]
+  },
+];
+
+function renderHero() {
+  const track = $("#heroTrack"), dots = $("#heroDots");
   if (!(track && dots)) return;
 
-  // cardData에서 promo가 있는 상위 3개 항목을 히어로로 사용
-  const slides = CARD_PRODUCTS.filter(p => p.promo).slice(0, 3);
-  if (!slides.length) {
-    track.innerHTML = `<div class="muted">히어로 배너에 사용할 카드 프로모션이 없습니다.</div>`;
-    dots.innerHTML = "";
-    return;
+  if (useDataMode) {
+    const slides = CARDS.filter(p => p.promo).slice(0, 3);
+    if (slides.length) {
+      track.innerHTML = slides.map(s => `
+        <article class="hero__slide">
+          <div class="hero__inner">
+            <div class="hero__image">
+              ${s.image ? `<img src="${esc(s.image)}" alt="${esc(s.name)}">`
+          : `<div class="hero-image-placeholder" aria-hidden="true">${esc(s.name)}</div>`}
+            </div>
+            <div class="hero__copy">
+              <div class="kicker">${esc(s.issuer)}</div>
+              <h2>${esc(s.promo)}</h2>
+              <p>${esc(s.desc || "")}</p>
+            </div>
+          </div>
+        </article>`).join("");
+      dots.innerHTML = slides.map((_, i) => `<button class="hero__dot" aria-selected="${i === 0}" aria-label="${i + 1}번째 배너"></button>`).join("");
+      bindHeroNav();
+      heroIndex = 0; updateHero(); startHeroAuto();
+      return;
+    }
   }
 
-  track.innerHTML = slides.map((s) => `
+  // 데이터 없으면: 네 기존 더미 슬라이드 사용
+  track.innerHTML = dummySlides.map(s => `
     <article class="hero__slide">
       <div class="hero__inner">
         <div class="hero__image">
-          <!-- 이미지 기반으로 대체 예정 -->
-          <div class="hero-image-placeholder" aria-hidden="true">${s.name}</div>
+          <div class="stack">
+            ${s.stack.map((c, i) => `<div class="card" style="--c1:${c.c1};--c2:${c.c2};--r:${c.r};z-index:${10 - i}"></div>`).join("")}
+          </div>
         </div>
         <div class="hero__copy">
-          <div class="kicker">${escapeHtml(s.issuer)}</div>
-          <h2>${escapeHtml(s.promo)}</h2>
-          <p>${escapeHtml(s.desc || "")}</p>
+          <div class="kicker">${esc(s.badge)}</div>
+          <h2>${esc(s.title)}</h2>
+          <p>${esc(s.desc)}</p>
         </div>
       </div>
-    </article>
-  `).join("");
-
-  dots.innerHTML = slides.map((_, i) => `<button class="hero__dot" aria-selected="${i === 0 ? "true" : "false"}" aria-label="${i + 1}번째 배너"></button>`).join("");
-
-  // 간단한 인덱스 관리
-  heroIndex = 0;
-  updateHero();
-  startHeroAuto();
+    </article>`).join("");
+  dots.innerHTML = dummySlides.map((_, i) => `<button class="hero__dot" aria-selected="${i === 0}"></button>`).join("");
+  bindHeroNav();
+  startHeroAuto(); updateHero();
 }
-
-let heroIndex = 0;
-let heroTimer = null;
-function goHero(n) { heroIndex = (n + (document.querySelectorAll("#heroTrack .hero__slide").length)) % document.querySelectorAll("#heroTrack .hero__slide").length; updateHero(); }
-function updateHero() {
-  const track = document.getElementById("heroTrack");
-  const dots = document.querySelectorAll("#heroDots .hero__dot");
-  if (track) track.style.transform = `translateX(-${heroIndex * 100}%)`;
-  dots.forEach((b, i) => b?.setAttribute("aria-selected", String(i === heroIndex)));
+function bindHeroNav() {
+  const prev = $(".hero__nav--prev"), next = $(".hero__nav--next");
+  if (prev && next) {
+    prev.onclick = () => { stopHeroAuto(); goHero(heroIndex - 1); startHeroAuto(); };
+    next.onclick = () => { stopHeroAuto(); goHero(heroIndex + 1); startHeroAuto(); };
+    [prev, next].forEach(b => { b.addEventListener("mouseenter", stopHeroAuto); b.addEventListener("mouseleave", startHeroAuto); });
+  }
+  const viewport = $(".hero__viewport");
+  if (viewport) {
+    let startX = null;
+    const getX = e => e.clientX ?? e.touches?.[0]?.clientX ?? e.changedTouches?.[0]?.clientX;
+    const isOnNav = t => t && t.closest?.(".hero__nav");
+    const down = e => { if (isOnNav(e.target)) return; startX = getX(e); };
+    const up = e => { if (startX == null) return; const diff = getX(e) - startX; if (Math.abs(diff) > 40) diff < 0 ? goHero(heroIndex + 1) : goHero(heroIndex - 1); startX = null; };
+    viewport.addEventListener("pointerdown", down);
+    viewport.addEventListener("pointerup", up);
+    viewport.addEventListener("touchstart", down, { passive: true });
+    viewport.addEventListener("touchend", up, { passive: true });
+  }
 }
+function goHero(n) {
+  const len = $$("#heroTrack .hero__slide").length || (useDataMode ? 1 : dummySlides.length);
+  heroIndex = (n + len) % len; updateHero();
+}
+function updateHero() { const track = $("#heroTrack"); const dots = $$("#heroDots .hero__dot"); if (track) track.style.transform = `translateX(-${heroIndex * 100}%)`; dots.forEach((b, i) => b?.setAttribute("aria-selected", String(i === heroIndex))); }
 function startHeroAuto() { stopHeroAuto(); heroTimer = setInterval(() => goHero(heroIndex + 1), 5000); }
-function stopHeroAuto() { if (heroTimer) { clearInterval(heroTimer); heroTimer = null; } }
+function stopHeroAuto() { if (heroTimer) clearInterval(heroTimer); }
 
 /* =========================================================
- * 혜택 라인: 발급사 목록을 cardData에서 뽑아서 렌더
- * - 더미 benefitItems 제거
+ * (D) 혜택 라인: 데이터(발급사) → 없으면 기존 더미
  * =======================================================*/
-function renderBenefit() {
-  const list = document.getElementById("benefitList");
-  if (!list) return;
+const dummyBenefit = [
+  { short: "S", name: "삼성카드", label: "최대 93.8만원 받기", color: "#0066ff" },
+  { short: "LOCA", name: "롯데카드", label: "최대 45만원 받기", color: "#6a5de3" },
+  { short: "우리", name: "우리카드", label: "최대 32.5만원 받기", color: "#0071c2" },
+  { short: "신한", name: "신한카드", label: "최대 29만원 받기", color: "#3762ff" },
+  { short: "KB", name: "KB국민카드", label: "최대 23만원 받기", color: "#8b6a45" },
+  { short: "현대", name: "현대카드", label: "최대 20만원 받기", color: "#1f2937" },
+  { short: "IBK", name: "IBK기업은행", label: "최대 17.5만원 받기", color: "#0090ff" },
+  { short: "NH", name: "NH농협카드", label: "최대 12만원 받기", color: "#0f62ae" },
+  { short: "쿠팡", name: "쿠팡 와우카드", label: "연 최대 62만원 혜택", color: "#ef4444" },
+];
 
-  const issuers = Array.from(new Set(CARD_PRODUCTS.map(p => p.issuer))).slice(0, 12);
-  if (!issuers.length) {
-    list.innerHTML = `<li class="muted">표시할 카드사가 없습니다.</li>`;
-    return;
+function renderBenefit() {
+  const list = $("#benefitList"); if (!list) return;
+
+  if (useDataMode) {
+    const issuers = [...new Set(CARDS.map(p => p.issuer))].slice(0, 24);
+    if (issuers.length) {
+      list.innerHTML = issuers.map(issuer => {
+        const short = issuer.length <= 3 ? issuer : issuer.split(" ")[0].slice(0, 3);
+        return `
+          <li class="benefit__item">
+            <div class="brand-circle">${esc(short)}</div>
+            <div class="benefit__label">카드 상품 보기</div>
+            <div class="benefit__issuer">${esc(issuer)}</div>
+          </li>`;
+      }).join("");
+      bindBenefitNav();
+      return;
+    }
   }
 
-  list.innerHTML = issuers.map((issuer) => {
-    // 임시 약칭: 첫 글자 또는 앞 글자 사용
-    const short = issuer.length <= 3 ? issuer : issuer.split(" ")[0].slice(0, 3);
-    return `
-      <li class="benefit__item">
-        <div class="brand-circle">${escapeHtml(short)}</div>
-        <div class="benefit__label">카드 상품 보기</div>
-        <div class="benefit__issuer">${escapeHtml(issuer)}</div>
-      </li>
-    `;
-  }).join("");
+  // 데이터 없으면 기존 더미 라인
+  list.innerHTML = dummyBenefit.map(item => `
+    <li class="benefit__item">
+      <div class="brand-circle" style="background:${item.color}">${esc(item.short)}</div>
+      <div class="benefit__label">${esc(item.label)}</div>
+      <div class="benefit__issuer">${esc(item.name)}</div>
+    </li>`).join("");
+  bindBenefitNav();
+}
+function bindBenefitNav() {
+  const viewport = $("#benefitViewport"), prev = $("#benefitPrev"), next = $("#benefitNext");
+  if (!(viewport && prev && next)) return;
+  const cardWidth = 170 + 8, step = cardWidth * 3;
+  function update() { prev.disabled = viewport.scrollLeft <= 0; const max = viewport.scrollWidth - viewport.clientWidth - 2; next.disabled = viewport.scrollLeft >= max; }
+  prev.onclick = () => { viewport.scrollBy({ left: -step, behavior: "smooth" }); setTimeout(update, 320); };
+  next.onclick = () => { viewport.scrollBy({ left: step, behavior: "smooth" }); setTimeout(update, 320); };
+  viewport.addEventListener("scroll", update, { passive: true });
+  viewport.addEventListener("wheel", e => { if (Math.abs(e.deltaX) < Math.abs(e.deltaY)) { viewport.scrollBy({ left: e.deltaY, behavior: "auto" }); e.preventDefault(); } }, { passive: false });
+  update();
 }
 
 /* =========================================================
- * 검색 모달 (통합 검색)
- * - 기존 로직 유지 (최근검색 저장 등)
+ * (E) 검색 모달 (기존 유지)
  * =======================================================*/
 function initSearchModal() {
-  const openBtn = document.getElementById("openSearch");
-  const modal = document.getElementById("searchModal");
-  if (!(openBtn && modal)) return;
+  const openBtn = $("#openSearch"); const modal = $("#searchModal"); if (!(openBtn && modal)) return;
+  const backdrop = $("#searchBackdrop"); const closeBtn = $("#searchClose"); const input = $("#searchInput");
+  const recentWrap = $("#recentList"); const recentToggle = $("#recentToggle"); const hotWrap = $("#hotList"); const suggestWrap = $("#suggestList"); const submitBtn = $("#searchSubmit");
 
-  const backdrop = document.getElementById("searchBackdrop");
-  const closeBtn = document.getElementById("searchClose");
-  const input = document.getElementById("searchInput");
-  const recentWrap = document.getElementById("recentList");
-  const recentToggle = document.getElementById("recentToggle");
-  const hotWrap = document.getElementById("hotList");
-  const suggestWrap = document.getElementById("suggestList");
-  const submitBtn = document.getElementById("searchSubmit");
-
-  const HOT = ["현금캐백", "실적", "포인트", "해외적립", "연회비혜택"];
-  const SUGGEST = [
-    { k: "HOT", t: "퀴즈/행운 이벤트 바로가기", e: "🎁" },
-    { k: "글로벌", t: "해외 적립/수수료 비교", e: "🌍" },
-  ];
+  const HOT = ["카페/배달", "연회비 1만원 이하", "해외 적립", "교통/통신", "간편결제", "무실적"];
+  const SUGGEST = [{ k: "챗봇", t: "대화로 카드 찾기 시작", e: "💬" }, { k: "인기", t: "이번 달 HOT 카드", e: "🔥" }, { k: "해외", t: "수수료/라운지/적립 비교", e: "🌍" }, { k: "생활", t: "교통/통신/구독", e: "🚇" }];
 
   const RECENT_KEY = "cp_recent_search";
-  const getRecents = () => { try { return JSON.parse(localStorage.getItem(RECENT_KEY) || "[]"); } catch { return []; } };
-  const setRecents = (list) => localStorage.setItem(RECENT_KEY, JSON.stringify(list.slice(0, 10)));
+  const getRecents = () => { try { return JSON.parse(localStorage.getItem(RECENT_KEY) || "[]"); } catch { return [] } };
+  const setRecents = l => localStorage.setItem(RECENT_KEY, JSON.stringify(l.slice(0, 10)));
 
   function renderRecents() {
     const r = getRecents();
-    if (!r.length) {
-      recentWrap.classList.add("muted");
-      recentWrap.textContent = "최근 검색한 내용이 없습니다.";
-      return;
-    }
+    if (!r.length) { recentWrap.classList.add("muted"); recentWrap.textContent = "최근 검색한 내용이 없습니다."; return; }
     recentWrap.classList.remove("muted");
-    recentWrap.innerHTML = r.map((v) => `<button class="chip" data-q="${v}">${escapeHtml(v)}</button>`).join("");
+    recentWrap.innerHTML = r.map(v => `<button class="chip" data-q="${esc(v)}">${esc(v)}</button>`).join("");
   }
-  function renderHot() { hotWrap.innerHTML = HOT.map((v, i) => `<button class="chip ${i < 2 ? "hot" : ""}" data-q="${v}">${escapeHtml(v)}</button>`).join(""); }
-  function renderSuggest() { suggestWrap.innerHTML = SUGGEST.map(s => `<div class="suggest-card"><div class="k">${escapeHtml(s.k)}</div><div class="t">${escapeHtml(s.t)}</div><div class="e">${escapeHtml(s.e)}</div></div>`).join(""); }
+  function renderHot() { hotWrap.innerHTML = HOT.map((v, i) => `<button class="chip ${i < 1 ? "hot" : ""}" data-q="${esc(v)}">${esc(v)}</button>`).join(""); }
+  function renderSuggest() { suggestWrap.innerHTML = SUGGEST.map(s => `<div class="suggest-card"><div class="k">${esc(s.k)}</div><div class="t">${esc(s.t)}</div><div class="e">${esc(s.e)}</div></div>`).join(""); }
 
-  function open() { modal.classList.add("is-open"); modal.setAttribute("aria-hidden", "false"); renderRecents(); renderHot(); renderSuggest(); setTimeout(() => input.focus(), 0); bindTrap(); }
-  function close() { modal.classList.remove("is-open"); modal.setAttribute("aria-hidden", "true"); unbindTrap(); openBtn.focus(); }
+  function open() { modal.classList.add("is-open"); modal.setAttribute("aria-hidden", "false"); document.body.classList.add("no-scroll"); renderRecents(); renderHot(); renderSuggest(); setTimeout(() => input.focus(), 0); bindTrap(); }
+  function close() { modal.classList.remove("is-open"); modal.setAttribute("aria-hidden", "true"); document.body.classList.remove("no-scroll"); unbindTrap(); openBtn.focus(); }
 
   function performSearch(q) {
     const query = (q ?? input.value).trim();
     if (!query) { input.focus(); return; }
-    if (recentToggle?.checked) {
-      const r = getRecents().filter(v => v !== query);
-      r.unshift(query);
-      setRecents(r);
-    }
+    if (recentToggle?.checked) { const r = getRecents().filter(v => v !== query); r.unshift(query); setRecents(r); }
     console.log("검색:", query);
-    // 실제 검색/라우팅 로직은 여기에 연결하세요.
     close();
   }
 
@@ -204,32 +322,16 @@ function initSearchModal() {
   closeBtn?.addEventListener("click", close);
   backdrop?.addEventListener("click", close);
   submitBtn?.addEventListener("click", () => performSearch());
+  input?.addEventListener("keydown", e => { if (e.key === "Enter") performSearch(); if (e.key === "Escape") close(); });
+  modal.addEventListener("click", e => { const b = e.target.closest?.(".chip"); if (!b) return; const q = b.getAttribute("data-q"); input.value = q; performSearch(q); });
+  document.addEventListener("keydown", e => { if (!modal.classList.contains("is-open")) return; if (e.key === "Escape") close(); });
 
-  input?.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") performSearch();
-    if (e.key === "Escape") close();
-  });
-
-  modal.addEventListener("click", (e) => {
-    const b = e.target.closest?.(".chip");
-    if (!b) return;
-    const q = b.getAttribute("data-q");
-    input.value = q;
-    performSearch(q);
-  });
-
-  document.addEventListener("keydown", (e) => {
-    if (!modal.classList.contains("is-open")) return;
-    if (e.key === "Escape") close();
-  });
-
-  // focus trap
   let trapHandler = null;
   function bindTrap() {
-    trapHandler = (e) => {
+    trapHandler = e => {
       if (e.key !== "Tab") return;
       const focusables = modal.querySelectorAll('button,[href],input,select,textarea,[tabindex]:not([tabindex="-1"])');
-      const list = [...focusables].filter((el) => !el.hasAttribute("disabled") && el.offsetParent !== null);
+      const list = [...focusables].filter(el => !el.hasAttribute("disabled") && el.offsetParent !== null);
       if (!list.length) return;
       const first = list[0], last = list[list.length - 1];
       if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
@@ -237,243 +339,325 @@ function initSearchModal() {
     };
     modal.addEventListener("keydown", trapHandler);
   }
-  function unbindTrap() {
-    if (trapHandler) { modal.removeEventListener("keydown", trapHandler); trapHandler = null; }
-  }
+  function unbindTrap() { if (trapHandler) { modal.removeEventListener("keydown", trapHandler); trapHandler = null; } }
 }
 
 /* =========================================================
- * 비교 페이지 — Picker / 슬롯 관련
- * - CARD_PRODUCTS는 loadCardList()에서 생성됨
- * - 카드 색상(배경)은 이미지로 대체 예정: 스타일 관련 코드는 주석 처리
+ * (F) 비교 페이지 — 데이터 모드 우선(id 저장), 폴백은 기존 객체 저장
  * =======================================================*/
-function saveSelected() {
-  try { localStorage.setItem(SELECTED_KEY, JSON.stringify(selectedCardIds)); } catch { }
-}
+
+/*
+  수정 포인트:
+  - loadSelected()의 useDataMode 설정을 명확히 했습니다.
+  - 저장/복원 로직은 v1(id) 우선, v0(객체) 폴백으로 유지합니다.
+*/
+
 function loadSelected() {
   try {
-    const raw = localStorage.getItem(SELECTED_KEY);
-    if (!raw) return;
-    const arr = JSON.parse(raw);
-    if (Array.isArray(arr) && arr.length === 3) selectedCardIds = arr;
-  } catch { }
+    // 1) v1 (id 기반) 우선 복원
+    const rawV1 = localStorage.getItem(LS_KEY_V1);
+    if (rawV1) {
+      const arr = JSON.parse(rawV1);
+      if (Array.isArray(arr) && arr.length === 3) {
+        selectedIds = arr;
+        // v1 데이터가 있으면 (사용자 선택이 id 기반) 데이터 모드로 해석.
+        // 실제 CARDS가 비어있으면 renderSlot에서 안전하게 초기화됩니다.
+        useDataMode = true;
+        return;
+      }
+    }
+    // 2) v0 (객체 기반) 폴백
+    const rawV0 = localStorage.getItem(LS_KEY_V0);
+    if (rawV0) {
+      const arr = JSON.parse(rawV0);
+      if (Array.isArray(arr) && arr.length === 3) {
+        selectedObjs = arr;
+        // useDataMode는 기존 판별값을 유지 (loadCards()에서 결정됨).
+        // 폴백 데이터는 객체 자체를 보관했기 때문에 useDataMode=false인 경우에만 사용됩니다.
+        return;
+      }
+    }
+  } catch (e) {
+    // parsing 문제 등 무시
+    console.warn("loadSelected parse error", e);
+  }
+}
+function saveSelected() {
+  try {
+    if (useDataMode) {
+      localStorage.setItem(LS_KEY_V1, JSON.stringify(selectedIds));
+    } else {
+      localStorage.setItem(LS_KEY_V0, JSON.stringify(selectedObjs));
+    }
+  } catch (e) {
+    console.warn("saveSelected error", e);
+  }
 }
 
 function openPicker(slotIndex) {
   currentSlot = slotIndex;
-  const modal = document.getElementById("pickerModal");
-  const chipsWrap = document.getElementById("issuerChips");
-  const input = document.getElementById("pickerKeyword");
+  const modal = $("#pickerModal"); const chipsWrap = $("#issuerChips"); const input = $("#pickerKeyword");
   if (!modal || !chipsWrap || !input) return;
 
-  // 탭 상태 동기화
-  document.querySelectorAll(".picker-tab").forEach((btn) => {
+  $$(".picker-tab").forEach(btn => {
     btn.classList.toggle("is-active", btn.dataset.type === pickerType);
     btn.setAttribute("aria-selected", String(btn.dataset.type === pickerType));
   });
 
-  // 카드사 칩 렌더 (데이터 기반)
-  const issuers = ["전체", ...Array.from(new Set(CARD_PRODUCTS.map(p => p.issuer)))].slice(0, 50);
-  chipsWrap.innerHTML = issuers.map(n => `<button class="chip ${n === pickerIssuer ? "on" : ""}" data-issuer="${escapeHtml(n)}">${escapeHtml(n)}</button>`).join("");
-
+  const issuers = ["전체", ...(useDataMode ? [...new Set(CARDS.map(p => p.issuer))] : CARD_ISSUERS.filter(i => i !== "전체"))].slice(0, 50);
+  chipsWrap.innerHTML = issuers.map(n => `<button class="chip ${n === pickerIssuer ? "on" : ""}" data-issuer="${esc(n)}">${esc(n)}</button>`).join("");
   chipsWrap.onclick = (e) => {
     const b = e.target.closest(".chip"); if (!b) return;
     pickerIssuer = b.getAttribute("data-issuer");
-    chipsWrap.querySelectorAll(".chip").forEach((c) => c.classList.toggle("on", c === b));
+    $$("#issuerChips .chip").forEach(c => c.classList.toggle("on", c === b));
     renderPickerList();
   };
 
-  // 검색
   input.value = pickerKeyword;
   input.oninput = () => { pickerKeyword = input.value.trim(); renderPickerList(); };
 
-  // 탭
-  document.querySelectorAll(".picker-tab").forEach((btn) => {
+  $$(".picker-tab").forEach(btn => {
     btn.onclick = () => {
       pickerType = btn.dataset.type;
-      document.querySelectorAll(".picker-tab").forEach((t) => t.classList.toggle("is-active", t === btn));
-      document.querySelectorAll(".picker-tab").forEach((t) => t.setAttribute("aria-selected", String(t === btn)));
+      $$(".picker-tab").forEach(t => { t.classList.toggle("is-active", t === btn); t.setAttribute("aria-selected", String(t === btn)); });
       renderPickerList();
     };
   });
 
   renderPickerList();
-
   modal.classList.add("is-open");
   modal.setAttribute("aria-hidden", "false");
-  document.getElementById("pickerBackdrop")?.addEventListener("click", closePicker);
-  document.getElementById("pickerClose")?.addEventListener("click", closePicker);
+  $("#pickerBackdrop")?.addEventListener("click", closePicker, { once: true });
+  $("#pickerClose")?.addEventListener("click", closePicker, { once: true });
 }
-
-function closePicker() {
-  const modal = document.getElementById("pickerModal");
-  if (!modal) return;
-  modal.classList.remove("is-open");
-  modal.setAttribute("aria-hidden", "true");
-  currentSlot = null;
-}
+function closePicker() { const modal = $("#pickerModal"); if (!modal) return; modal.classList.remove("is-open"); modal.setAttribute("aria-hidden", "true"); currentSlot = null; }
 
 function renderPickerList() {
-  const list = document.getElementById("pickerList");
-  if (!list) return;
+  const list = $("#pickerList"); if (!list) return;
   const q = pickerKeyword.toLowerCase();
 
-  let items = CARD_PRODUCTS.filter((p) => p.type === pickerType);
-  if (pickerIssuer !== "전체") items = items.filter((p) => p.issuer === pickerIssuer);
-  if (q) items = items.filter((p) => p.name.toLowerCase().includes(q) || (p.promo ?? "").toLowerCase().includes(q));
+  // 데이터 모드
+  if (useDataMode) {
+    let items = CARDS.filter(p => p.type === pickerType);
+    if (pickerIssuer !== "전체") items = items.filter(p => p.issuer === pickerIssuer);
+    if (q) items = items.filter(p => p.name.toLowerCase().includes(q) || (p.promo || "").toLowerCase().includes(q));
+    if (!items.length) { list.innerHTML = `<div class="muted" style="padding:16px 6px;">조건에 맞는 카드가 없습니다.</div>`; return; }
 
-  if (!items.length) {
-    list.innerHTML = `<div class="muted" style="padding:16px 6px;">조건에 맞는 카드가 없습니다.</div>`;
+    list.innerHTML = items.map(p => `
+      <div class="picker-item" data-id="${p.id}" role="option" tabindex="0">
+        <div class="picker-thumb">
+          <img src="${esc(p.image || "")}" alt="${esc(p.name)}" class="card-img" onerror="this.style.display='none'">
+        </div>
+        <div class="picker-info">
+          <div class="picker-name">${esc(p.name)}</div>
+          <div class="picker-issuer">${esc(p.issuer)} ${p.promo ? `· ${esc(p.promo)}` : ""}</div>
+        </div>
+      </div>`).join("");
+
+    list.onclick = (e) => { const item = e.target.closest(".picker-item"); if (!item) return; const card = CARDS.find(x => x.id === item.dataset.id); applyCard(card); closePicker(); };
+    list.onkeydown = (e) => { if (e.key === "Enter") { const item = e.target.closest(".picker-item"); if (!item) return; const card = CARDS.find(x => x.id === item.dataset.id); applyCard(card); closePicker(); } };
     return;
   }
 
-  list.innerHTML = items.map((p) => `
-    <div class="picker-item" data-id="${p.id}" role="option" tabindex="0">
-      <div class="picker-thumb">
-        <!-- 이미지가 준비되면 아래 img 태그에 p.image 경로를 넣어 사용하세요. -->
-        <img src="${escapeHtml(p.image || "")}" alt="${escapeHtml(p.name)}" class="card-img" onerror="this.style.display='none'">
-        <!-- 과거에 카드 색상으로 표현하던 부분 (이미지로 대체 예정)
-        <div class="picker-thumb-color" style="--c1:${"#ccc"};--c2:${"#eee"}"></div>
-        -->
-      </div>
-      <div class="picker-info">
-        <div class="picker-name">${escapeHtml(p.name)}</div>
-        <div class="picker-issuer">${escapeHtml(p.issuer)} ${p.promo ? `· ${escapeHtml(p.promo)}` : ""}</div>
-      </div>
-    </div>
-  `).join("");
+  // 폴백 모드(네 기존 더미)
+  let items = CARD_PRODUCTS.filter(p => p.type === pickerType);
+  if (pickerIssuer !== "전체") items = items.filter(p => p.issuer === pickerIssuer);
+  if (q) items = items.filter(p => p.name.toLowerCase().includes(q));
+  if (!items.length) { list.innerHTML = `<div class="muted" style="padding:16px 6px;">조건에 맞는 카드가 없습니다.</div>`; return; }
 
-  // 클릭/키보드 선택
-  list.onclick = (e) => {
-    const item = e.target.closest(".picker-item"); if (!item) return;
-    const card = CARD_PRODUCTS.find(x => x.id === item.dataset.id);
-    applyCardToSlot(card);
-    closePicker();
-  };
-  list.onkeydown = (e) => {
-    if (e.key === "Enter") {
-      const item = e.target.closest(".picker-item"); if (!item) return;
-      const card = CARD_PRODUCTS.find(x => x.id === item.dataset.id);
-      applyCardToSlot(card);
-      closePicker();
-    }
-  };
+  list.innerHTML = items.map(p => `
+    <div class="picker-item" data-id="${p.id}" role="option" tabindex="0">
+      <div class="picker-thumb" style="--c1:${p.c1};--c2:${p.c2}"></div>
+      <div><div class="picker-name">${esc(p.name)}</div><div class="picker-issuer">${esc(p.issuer)}</div></div>
+    </div>`).join("");
+
+  list.onclick = (e) => { const item = e.target.closest(".picker-item"); if (!item) return; const card = items.find(x => x.id === item.dataset.id); applyCard(card); closePicker(); };
+  list.onkeydown = (e) => { if (e.key === "Enter") { const item = e.target.closest(".picker-item"); if (!item) return; const card = items.find(x => x.id === item.dataset.id); applyCard(card); closePicker(); } };
 }
 
-/* 슬롯 렌더 / 적용 / 해제 */
-function renderSlot(i) {
-  const target = document.querySelector(`.slot-target[data-slot="${i}"]`);
-  const label = document.getElementById(`slot-name-${i}`);
-  if (!target || !label) return;
-  const id = selectedCardIds[i];
-  if (!id) {
-    target.classList.remove("selected");
-    target.innerHTML = `<span class="plus">+</span>`;
-    label.textContent = "카드를 선택해 주세요.";
-    return;
+function applyCard(card) {
+  if (currentSlot == null || !card) return;
+  if (useDataMode) {
+    selectedIds[currentSlot] = card.id;
+    renderSlot(currentSlot); saveSelected();
+  } else {
+    selectedObjs[currentSlot] = card;
+    renderSlot(currentSlot); saveSelected();
   }
-  const card = CARD_PRODUCTS.find(p => p.id === id);
-  if (!card) {
-    selectedCardIds[i] = null;
-    saveSelected();
-    renderSlot(i);
+}
+
+function renderSlot(i) {
+  const target = $(`.slot-target[data-slot="${i}"]`);
+  const label = $(`#slot-name-${i}`);
+  if (!target || !label) return;
+
+  if (useDataMode) {
+    const id = selectedIds[i];
+    if (!id) { target.classList.remove("selected"); target.innerHTML = `<span class="plus">+</span>`; label.textContent = "카드를 선택해 주세요."; return; }
+    const card = CARDS.find(p => p.id === id);
+    if (!card) { selectedIds[i] = null; saveSelected(); renderSlot(i); return; }
+    target.classList.add("selected");
+    target.innerHTML = `
+      <div class="slot-mini" title="${esc(card.name)}">
+        <img src="${esc(card.image || "")}" alt="${esc(card.name)}" class="slot-img" onerror="this.style.display='none'">
+      </div>`;
+    label.textContent = card.name;
     return;
   }
 
+  // 폴백 모드
+  const card = selectedObjs[i];
+  if (!card) { target.classList.remove("selected"); target.innerHTML = `<span class="plus">+</span>`; label.textContent = "카드를 선택해 주세요."; return; }
   target.classList.add("selected");
-  target.innerHTML = `
-    <div class="slot-mini" title="${escapeHtml(card.name)}">
-      <!-- 이미지가 준비되면 아래 img 사용 (현재는 빈 src 일 수 있음) -->
-      <img src="${escapeHtml(card.image || "")}" alt="${escapeHtml(card.name)}" class="slot-img" onerror="this.style.display='none'">
-      <!-- 색상기반 미리보기(주석 처리) -->
-      <!-- <div class="slot-mini-color" style="--c1:${card.c1};--c2:${card.c2}"></div> -->
-    </div>
-  `;
+  target.innerHTML = `<div class="slot-mini" style="--c1:${card.c1};--c2:${card.c2}" title="${esc(card.name)}"></div>`;
   label.textContent = card.name;
 }
 
-function applyCardToSlot(card) {
-  if (currentSlot == null || !card) return;
-  selectedCardIds[currentSlot] = card.id;
-  renderSlot(currentSlot);
-  saveSelected();
-}
-
 function clearSlot(idx) {
-  selectedCardIds[idx] = null;
-  renderSlot(idx);
-  saveSelected();
+  if (useDataMode) { selectedIds[idx] = null; }
+  else { selectedObjs[idx] = null; }
+  renderSlot(idx); saveSelected();
 }
 
-/* 슬롯 초기화 & 이벤트 */
 function initCompareSlots() {
+  if (!document.querySelector(".compare-page")) return;
   loadSelected();
   [0, 1, 2].forEach(i => renderSlot(i));
 
-  document.querySelectorAll(".slot-target").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      const idx = Number(btn.getAttribute("data-slot"));
-      openPicker(idx);
-    });
+  $$(".slot-target").forEach(btn => {
+    btn.addEventListener("click", () => openPicker(Number(btn.getAttribute("data-slot"))));
+    btn.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openPicker(Number(btn.getAttribute("data-slot"))); } });
   });
-
-  document.querySelectorAll(".slot-clear").forEach((btn) => {
-    btn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      const idx = Number(btn.getAttribute("data-clear"));
-      clearSlot(idx);
-    });
+  $$(".slot-clear").forEach(btn => {
+    btn.addEventListener("click", (e) => { e.stopPropagation(); clearSlot(Number(btn.getAttribute("data-clear"))); });
   });
-}
-
-/* 카드 상세 보기 (간단한 모달) */
-function showCardDetail(card) {
-  const modal = document.getElementById("cardDetailModal");
-  if (!modal) return;
-  const title = modal.querySelector(".detail-title");
-  const body = modal.querySelector(".detail-body");
-  title.textContent = card.name;
-  body.innerHTML = `
-    <div class="detail-issuer">${escapeHtml(card.issuer)}</div>
-    <div class="detail-promo">${escapeHtml(card.promo || "")}</div>
-    <div class="detail-desc">${escapeHtml(card.desc || "")}</div>
-    <div class="detail-more">${(card.details && card.details.length) ? `<pre style="white-space:pre-wrap;max-height:200px;overflow:auto">${escapeHtml(JSON.stringify(card.details, null, 2))}</pre>` : ""}</div>
-  `;
-  modal.classList.add("is-open");
-  modal.setAttribute("aria-hidden", "false");
-  modal.querySelector(".detail-close")?.addEventListener("click", () => {
-    modal.classList.remove("is-open");
-    modal.setAttribute("aria-hidden", "true");
-  }, { once: true });
-}
-
-/* 유틸: 간단 이스케이프 */
-function escapeHtml(s) {
-  if (!s && s !== 0) return "";
-  return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 }
 
 /* =========================================================
- * 초기화
- * - loadCardList()를 먼저 호출하여 CARD_PRODUCTS를 만들고 그 후 Compare 등을 바인딩
+ * (G) 헤더 상태(뱃지 & 활성 메뉴)
+ * =======================================================*/
+function initHeaderState() {
+  const badge = $("#compareBadge");
+  function updateBadge() {
+    if (!badge) return;
+    try {
+      const arr = useDataMode
+        ? (JSON.parse(localStorage.getItem(LS_KEY_V1) || "[]") || []).filter(Boolean)
+        : (JSON.parse(localStorage.getItem(LS_KEY_V0) || "[]") || []).filter(Boolean);
+      if (arr.length > 0) { badge.textContent = arr.length; badge.style.display = "inline-block"; }
+      else { badge.style.display = "none"; }
+    } catch { }
+  }
+  updateBadge(); window.addEventListener("storage", (e) => { if ([LS_KEY_V1, LS_KEY_V0].includes(e.key)) updateBadge(); });
+
+  const p = location.pathname.toLowerCase();
+  const keys = ["recommend", "browse", "charts", "deals", "compare", "/"];
+  const hit = keys.find(k => k === "/" ? p === "/" : p.includes(k));
+  const map = { recommend: "recommend", browse: "browse", charts: "charts", deals: "deals", compare: "compare", "/": "" };
+  const key = hit ? map[hit] : "";
+  if (key) { const el = document.querySelector(`.nav a[data-nav="${key}"]`); el?.classList.add("is-active"); }
+}
+
+/* =========================================================
+ * (H) 플로팅 챗봇 위젯 (기존 유지, 링크는 Flask 경로)
+ * =======================================================*/
+function insertChatWidget() {
+  if ($("#cpChatDrawer")) return;
+  const fab = document.createElement("button");
+  fab.className = "cp-chat-fab"; fab.id = "cpChatFab"; fab.setAttribute("aria-label", "챗봇 열기");
+  fab.innerHTML = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M4 6a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4v6a4 4 0 0 1-4 4h-4l-4 4v-4H8a4 4 0 0 1-4-4V6z" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"></path></svg>`;
+  document.body.appendChild(fab);
+
+  const drawer = document.createElement("section");
+  drawer.className = "cp-chat-drawer"; drawer.id = "cpChatDrawer";
+  drawer.setAttribute("role", "dialog"); drawer.setAttribute("aria-modal", "false"); drawer.setAttribute("aria-hidden", "true");
+  drawer.innerHTML = `
+    <div class="cp-chat-head">
+      <div class="cp-chat-title"><span class="dot"></span> CARD PICK BOT</div>
+      <button class="cp-chat-close" id="cpChatClose" aria-label="닫기">닫기</button>
+    </div>
+    <div class="cp-chat-log" id="cpChatLog" aria-live="polite"></div>
+    <div class="cp-chat-suggest" id="cpChatSuggest"></div>
+    <form class="cp-chat-input" id="cpChatForm">
+      <input id="cpChatInput" type="text" placeholder="예) 카페/배달 자주 쓰고, 연회비는 저렴하게" />
+      <button class="cp-chat-send" type="submit">보내기</button>
+    </form>`;
+  document.body.appendChild(drawer);
+
+  const log = $("#cpChatLog"), suggest = $("#cpChatSuggest"), form = $("#cpChatForm"), input = $("#cpChatInput"), closeBtn = $("#cpChatClose");
+  const SUG = ["카페/배달 많이 써요", "연회비 1만원 이하", "해외 결제 자주해요", "교통/통신 절약", "간편결제 많이 써요"];
+  suggest.innerHTML = SUG.map(s => `<button type="button" class="cp-chip" data-msg="${esc(s)}">${esc(s)}</button>`).join("");
+
+  function open() { drawer.classList.add("is-open"); drawer.setAttribute("aria-hidden", "false"); setTimeout(() => input.focus(), 0); }
+  function close() { drawer.classList.remove("is-open"); drawer.setAttribute("aria-hidden", "true"); fab.focus(); }
+  fab.addEventListener("click", () => { open(); if (!log.dataset.welcome) { addBot("안녕하세요! 소비 패턴을 알려주시면 맞춤 카드를 추천해 드릴게요. 예) 카페/배달, 연회비 1만원 이하"); log.dataset.welcome = "1"; } });
+  closeBtn.addEventListener("click", close);
+
+  suggest.addEventListener("click", (e) => { const b = e.target.closest(".cp-chip"); if (!b) return; input.value = b.getAttribute("data-msg"); form.requestSubmit(); });
+  form.addEventListener("submit", (e) => { e.preventDefault(); const q = (input.value || "").trim(); if (!q) return input.focus(); addUser(q); input.value = ""; setTimeout(() => addBot(genAnswer(q)), 350); });
+
+  function addUser(t) { const el = document.createElement("div"); el.className = "cp-msg user"; el.textContent = t; log.appendChild(el); log.scrollTop = log.scrollHeight; }
+  function addBot(h) { const el = document.createElement("div"); el.className = "cp-msg bot"; el.innerHTML = h; log.appendChild(el); log.scrollTop = log.scrollHeight; }
+  function genAnswer(q) {
+    const s = q.toLowerCase();
+    if (/카페|배달|편의점/.test(s)) return `<strong>추천: 삼성 taptap O</strong><br/>• 카페/배달 상시 적립 · 간편결제 추가<br/>→ <a href="/compare">비교함</a>에서 더 보기`;
+    if (/해외|여행|라운지|마일/.test(s)) return `<strong>추천: 스카이패스 계열</strong><br/>• 해외 적립/라운지 강점<br/>→ <a href="/compare">비교함</a>에서 조건 비교`;
+    if (/교통|통신|구독/.test(s)) return `<strong>추천: KB My WE:SH</strong><br/>• 교통/통신/구독 생활영역 특화<br/>→ <a href="/compare">비교함</a> 이동`;
+    if (/연회비|만원|저렴/.test(s)) return `<strong>추천: 현대 ZERO Edition2</strong><br/>• 무실적/낮은 연회비 구간<br/>→ <a href="/compare">비교함</a>에서 대안도 확인`;
+    return `원하시는 혜택 키워드를 알려주세요. 예) "카페/배달", "해외 적립", "교통/통신", "연회비 1만원 이하"`;
+  }
+  window.CPChat = { open, close };
+}
+
+/* =========================================================
+ * (I) 초기화
  * =======================================================*/
 document.addEventListener("DOMContentLoaded", async () => {
-  // UI들 초기화(있을 경우)
-  initSearchModal();
+  // 1) 공통 헤더 주입 및 상태
+  mountGlobalHeader();
+  initHeaderState();
 
-  // 카드 목록 로드 (비동기)
-  await loadCardList();
-
-  // Compare 페이지가 있으면 슬롯 초기화 (loadCardList 내부에서도 안전하게 호출됨)
-  if (document.querySelector(".compare-page")) {
-    initCompareSlots();
+  // 2) 챗봇 위젯 + 헤더 연동
+  insertChatWidget();
+  const navBot = $("#navBot");
+  if (navBot) {
+    navBot.setAttribute("aria-expanded", "false");
+    navBot.addEventListener("click", (e) => { e.preventDefault(); if (!window.CPChat) insertChatWidget(); window.CPChat.open(); navBot.setAttribute("aria-expanded", "true"); });
   }
 
-  // 히어로 키보드 제어
-  if (document.getElementById("heroTrack")) {
-    document.addEventListener("keydown", (e) => {
+  // 3) 검색 모달
+  initSearchModal();
+
+  // 4) 카드 데이터 로드 → UI 렌더 (히어로/혜택/비교)
+  await loadCards();
+  if ($("#heroTrack")) renderHero();
+  if ($("#benefitList")) renderBenefit();
+  if ($(".compare-page")) initCompareSlots();
+
+  // 5) 히어로 키보드 제어
+  if ($("#heroTrack")) {
+    document.addEventListener("keydown", e => {
       if (e.key === "ArrowLeft") { e.preventDefault(); goHero(heroIndex - 1); }
       if (e.key === "ArrowRight") { e.preventDefault(); goHero(heroIndex + 1); }
     });
   }
 });
+
+/* =========================================================
+ * (J) 폴백에 필요한 네 기존 더미 카드/발급사(삭제 금지)
+ * =======================================================*/
+const CARD_ISSUERS = ["전체", "신한카드", "삼성카드", "현대카드", "롯데카드", "KB국민카드", "우리카드", "하나카드", "NH농협카드", "IBK기업은행", "BC 바로카드", "네이버페이", "현대백화점"];
+const CARD_PRODUCTS = [
+  { id: "mr-life", name: "신한카드 Mr.Life", issuer: "신한카드", type: "credit", c1: "#ffeded", c2: "#ffc3c3" },
+  { id: "taptap-o", name: "삼성카드 taptap O", issuer: "삼성카드", type: "credit", c1: "#ffe6f1", c2: "#ffc7de" },
+  { id: "sky-miles", name: "삼성 & MILEAGE PLATINUM (스카이패스)", issuer: "삼성카드", type: "credit", c1: "#eaf2ff", c2: "#cfe0ff" },
+  { id: "id-select-all", name: "삼성 iD SELECT ALL", issuer: "삼성카드", type: "credit", c1: "#eef2f7", c2: "#dde6f3" },
+  { id: "kb-wesh", name: "KB국민 My WE:SH", issuer: "KB국민카드", type: "credit", c1: "#f9f4e7", c2: "#ead9b6" },
+  { id: "hy-zero2", name: "현대 ZERO Edition2", issuer: "현대카드", type: "credit", c1: "#e8f0ff", c2: "#c7d8ff" },
+  { id: "lotte-loca", name: "롯데 LOCA Likit", issuer: "롯데카드", type: "credit", c1: "#e8f8ff", c2: "#bdf0ff" },
+  { id: "woori-point", name: "우리 카드의정석 POINT", issuer: "우리카드", type: "credit", c1: "#e6fff4", c2: "#b9fbe0" },
+  { id: "hana-clubsk", name: "하나카드 CLUB SK", issuer: "하나카드", type: "credit", c1: "#eafff9", c2: "#c5fff0" },
+  { id: "nh-good", name: "NH농협 올바른 체크", issuer: "NH농협카드", type: "check", c1: "#f5fff0", c2: "#e0ffd1" },
+  { id: "ibk-daily", name: "IBK 일상의기쁨 체크", issuer: "IBK기업은행", type: "check", c1: "#f0f7ff", c2: "#d7e7ff" },
+  { id: "kb-simple", name: "KB국민 탄탄대로 체크", issuer: "KB국민카드", type: "check", c1: "#fff4eb", c2: "#ffe0c8" },
+];
