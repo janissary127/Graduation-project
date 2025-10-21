@@ -432,6 +432,7 @@ function openPicker(slotIndex) {
 }
 function closePicker() { const modal = $("#pickerModal"); if (!modal) return; modal.classList.remove("is-open"); modal.setAttribute("aria-hidden", "true"); currentSlot = null; }
 
+// --- 수정된 renderPickerList (기존 로직을 유지하되, img에 data-src 사용) ---
 function renderPickerList() {
   const list = $("#pickerList"); if (!list) return;
   const q = pickerKeyword.toLowerCase();
@@ -443,23 +444,46 @@ function renderPickerList() {
     if (q) items = items.filter(p => p.name.toLowerCase().includes(q) || (p.promo || "").toLowerCase().includes(q));
     if (!items.length) { list.innerHTML = `<div class="muted" style="padding:16px 6px;">조건에 맞는 카드가 없습니다.</div>`; return; }
 
-    list.innerHTML = items.map(p => `
+    // build HTML but do NOT set real src — use data-src to avoid immediate fetching
+    list.innerHTML = items.map(p => {
+      const src = (p.image && p.image.length) ? p.image : imagePathForName(p.name, ".jpg");
+      // base without ext for safer retries
+      const base = src.replace(/\.(jpg|png|webp|jpeg)$/i, "");
+      const ext = src.match(/\.(jpg|png|webp|jpeg)$/i) ? src.match(/\.(jpg|png|webp|jpeg)$/i)[0] : ".jpg";
+
+      return `
       <div class="picker-item" data-id="${p.id}" role="option" tabindex="0">
         <div class="picker-thumb">
-          <img src="${esc(p.image || "")}" alt="${esc(p.name)}" class="card-img" onerror="this.style.display='none'">
+          <img src="${TRANSPARENT_PLACEHOLDER}"
+            alt="${esc(p.name)}"
+            class="card-img"
+            width="160" height="100"
+            data-name="${esc(p.name)}"
+            data-name-raw="${p.name}"
+            data-src="${base + ext}" 
+            data-src-base="${base}" 
+            data-current-ext="${ext}"
+            data-try-index="0"
+            data-priority="${items.indexOf(p) < 6 ? 'high' : 'low'}"
+            onerror="handleSlotImageError(this)">
         </div>
         <div class="picker-info">
           <div class="picker-name">${esc(p.name)}</div>
           <div class="picker-issuer">${esc(p.issuer)} ${p.promo ? `· ${esc(p.promo)}` : ""}</div>
         </div>
-      </div>`).join("");
+      </div>`;
+    }).join("");
 
+    // 이벤트 바인딩 (delegation 유지)
     list.onclick = (e) => { const item = e.target.closest(".picker-item"); if (!item) return; const card = CARDS.find(x => x.id === item.dataset.id); applyCard(card); closePicker(); };
     list.onkeydown = (e) => { if (e.key === "Enter") { const item = e.target.closest(".picker-item"); if (!item) return; const card = CARDS.find(x => x.id === item.dataset.id); applyCard(card); closePicker(); } };
+
+    // 지연 로드 설정
+    requestAnimationFrame(() => setupLazyLoading(list));
     return;
   }
 
-  // 폴백 모드(네 기존 더미)
+  // 폴백 모드
   let items = CARD_PRODUCTS.filter(p => p.type === pickerType);
   if (pickerIssuer !== "전체") items = items.filter(p => p.issuer === pickerIssuer);
   if (q) items = items.filter(p => p.name.toLowerCase().includes(q));
@@ -467,12 +491,26 @@ function renderPickerList() {
 
   list.innerHTML = items.map(p => `
     <div class="picker-item" data-id="${p.id}" role="option" tabindex="0">
-      <div class="picker-thumb" style="--c1:${p.c1};--c2:${p.c2}"></div>
+      <div class="picker-thumb" style="--c1:${p.c1};--c2:${p.c2}">
+        <img src="${TRANSPARENT_PLACEHOLDER}"
+             alt="${esc(p.name)}"
+             class="card-img"
+             width="160" height="100"
+             data-name="${esc(p.name)}"
+             data-src="${imagePathForName(p.name, '.jpg')}"
+             data-src-base="${imagePathForName(p.name, '')}"
+             data-current-ext=".jpg"
+             data-try-index="0"
+             data-priority="${items.indexOf(p) < 6 ? 'high' : 'low'}"
+             onerror="handleSlotImageError(this)">
+      </div>
       <div><div class="picker-name">${esc(p.name)}</div><div class="picker-issuer">${esc(p.issuer)}</div></div>
     </div>`).join("");
 
   list.onclick = (e) => { const item = e.target.closest(".picker-item"); if (!item) return; const card = items.find(x => x.id === item.dataset.id); applyCard(card); closePicker(); };
   list.onkeydown = (e) => { if (e.key === "Enter") { const item = e.target.closest(".picker-item"); if (!item) return; const card = items.find(x => x.id === item.dataset.id); applyCard(card); closePicker(); } };
+
+  requestAnimationFrame(() => setupLazyLoading(list));
 }
 
 function applyCard(card) {
@@ -486,28 +524,89 @@ function applyCard(card) {
   }
 }
 
-// helpers: 이미지 경로 생성 + onerror 재시도 핸들러
+// --- 헬퍼: 안전한 이미지 경로 생성 (사용자 코드에 이미 있으면 생략) ---
 function imagePathForName(name, ext = ".jpg") {
-  // 카드 이름 그대로 파일명이면 encodeURIComponent로 안전하게 변환
-  return `/static/img/${encodeURIComponent(name)}${ext}`;
+  if (!name) return "";
+  if (/^(\/|https?:\/\/)/.test(name)) return name;
+  const filename = name.trim();
+  return "/static/img/" + encodeURIComponent(filename) + ext;
 }
 
+// --- 헬퍼: 안전한 fallback(투명 1x1) --- 
+const TRANSPARENT_PLACEHOLDER = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==";
+
+
+// --- 헬퍼: 이미지 onerror 재시도 로직 (무한루프 방지) ---
 function handleSlotImageError(img) {
-  // data-name 에 card.name 이 들어있음
-  const name = img.dataset.name || img.alt || "";
-  const exts = [".jpg", ".jpeg", ".png", ".webp"]; // 시도할 확장자 순서
-  let idx = parseInt(img.dataset.tryIndex || "0", 10);
+  try {
+    let tries = Number(img.dataset.tryIndex || 0);
+    if (tries >= 2) {
+      // 최종 실패 시 안전한 대체 이미지(서버에서 준비한 노-이미지)로 교체
+      img.src = "/static/img/no-image.png";
+      return;
+    }
+    img.dataset.tryIndex = tries + 1;
 
-  // 이미 시도한 확장자 다음 것을 시도
-  idx++;
-  if (idx >= exts.length) {
-    // 모두 실패하면 이미지 숨김 (원하면 placeholder로 바꿀 수 있음)
-    img.style.display = "none";
-    return;
+    // 시도 전략 예시: .jpg -> .png -> no-image
+    const origName = img.datasetName || img.dataset.name || img.getAttribute("alt") || "";
+    const tryExts = [".jpg", ".png", ".webp"];
+    // 이미 사용한 ext는 건너뜀
+    const currentExt = (img.dataset.currentExt || ".jpg");
+    const nextIdx = Math.max(0, tryExts.indexOf(currentExt)) + 1;
+    const nextExt = tryExts[nextIdx] || ".png";
+    img.dataset.currentExt = nextExt;
+
+    // 데이터 소스가 있으면 data-src 업데이트해서 다시 시도
+    if (img.datasetSrcBase) {
+      img.dataset.src = img.datasetSrcBase + nextExt;
+      // 실제 요청 트리거
+      img.src = img.dataset.src;
+    } else {
+      // fallback: 이미지 경로 추론
+      img.src = imagePathForName(origName, nextExt);
+    }
+  } catch (e) {
+    // 안전하게 대체 이미지로
+    img.src = "/static/img/no-image.png";
   }
+}
 
-  img.dataset.tryIndex = String(idx);
-  img.src = imagePathForName(name, exts[idx]);
+// --- 헬퍼: IntersectionObserver로 지연 로드 설정 ---
+function setupLazyLoading(container) {
+  const imgs = Array.from(container.querySelectorAll('img[data-src]'));
+
+  if ('IntersectionObserver' in window) {
+    const root = container; // 만약 container가 스크롤 가능한 리스트라면 root로 설정
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const img = entry.target;
+          observer.unobserve(img);
+
+          // 실제 로드 트리거
+          img.loading = img.loading || "lazy";
+          img.decoding = img.decoding || "async";
+          // fetchpriority를 지원하면 중요도 설정 (첫 화면에 보이는 이미지만 'high'로)
+          if (!('fetchpriority' in img) && img.dataset.priority === 'high') {
+            img.setAttribute('fetchpriority', 'high');
+          }
+          img.src = img.dataset.src;
+          // 한 번 src로 교체하면 data-src 제거
+          img.removeAttribute('data-src');
+        }
+      });
+    }, { root: root, rootMargin: "200px", threshold: 0.01 });
+
+    imgs.forEach(img => observer.observe(img));
+  } else {
+    // IntersectionObserver 없는 브라우저: 모두 로드 (최소한 loading="lazy"는 적용)
+    imgs.forEach(img => {
+      img.loading = img.loading || "lazy";
+      img.decoding = img.decoding || "async";
+      img.src = img.dataset.src;
+      img.removeAttribute('data-src');
+    });
+  }
 }
 
 function handleSlotImageLoad(img) {
