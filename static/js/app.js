@@ -432,7 +432,6 @@ function openPicker(slotIndex) {
 }
 function closePicker() { const modal = $("#pickerModal"); if (!modal) return; modal.classList.remove("is-open"); modal.setAttribute("aria-hidden", "true"); currentSlot = null; }
 
-// --- 수정된 renderPickerList (기존 로직을 유지하되, img에 data-src 사용) ---
 function renderPickerList() {
   const list = $("#pickerList"); if (!list) return;
   const q = pickerKeyword.toLowerCase();
@@ -461,10 +460,11 @@ function renderPickerList() {
             data-name="${esc(p.name)}"
             data-name-raw="${p.name}"
             data-src="${base + ext}" 
-            data-src-base="${base}" 
+            data-src-base="${base}"
             data-current-ext="${ext}"
             data-try-index="0"
             data-priority="${items.indexOf(p) < 6 ? 'high' : 'low'}"
+            onload="handleCardImgLoad(this)"
             onerror="handleSlotImageError(this)">
         </div>
         <div class="picker-info">
@@ -502,6 +502,7 @@ function renderPickerList() {
              data-current-ext=".jpg"
              data-try-index="0"
              data-priority="${items.indexOf(p) < 6 ? 'high' : 'low'}"
+             onload="handleCardImgLoad(this)"
              onerror="handleSlotImageError(this)">
       </div>
       <div><div class="picker-name">${esc(p.name)}</div><div class="picker-issuer">${esc(p.issuer)}</div></div>
@@ -511,6 +512,27 @@ function renderPickerList() {
   list.onkeydown = (e) => { if (e.key === "Enter") { const item = e.target.closest(".picker-item"); if (!item) return; const card = items.find(x => x.id === item.dataset.id); applyCard(card); closePicker(); } };
 
   requestAnimationFrame(() => setupLazyLoading(list));
+}
+
+// 실제 이미지(플레이스홀더가 아닌)가 로드되었을 때 호출됩니다.
+// TRANSPARENT_PLACEHOLDER 로드 시엔 무시하고, data-src-base(또는 data-src)가 현재 src에 포함될 때만 회전 클래스를 붙입니다.
+function handleCardImgLoad(img) {
+  try {
+    const dataBase = img.dataset.srcBase || img.dataset.src;
+    if (!dataBase) return;
+    // 브라우저가 img.src를 절대 URL로 저장하므로, dataBase의 일부가 img.src에 포함되어 있는지 확인
+    const baseNoExt = dataBase.replace(/\.(jpg|png|webp|jpeg)$/i, "");
+    if (img.src.indexOf(baseNoExt) === -1 && img.src.indexOf(dataBase) === -1) {
+      // 아직 플레이스홀더(또는 다른 임시 이미지)인 경우: 회전 적용하지 않음
+      return;
+    }
+    // 실제 이미지가 로드된 시점 — 왼쪽으로 90도 회전 클래스 추가
+    img.classList.add("rotate-left");
+    // 필요한 경우 스타일 보정(예: 크기/포지셔닝) 추가 가능
+  } catch (e) {
+    // 실패해도 UI가 깨지지 않도록 조용히 무시
+    console.warn("handleCardImgLoad()", e);
+  }
 }
 
 function applyCard(card) {

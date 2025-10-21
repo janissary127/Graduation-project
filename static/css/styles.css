@@ -426,6 +426,36 @@ button:focus-visible{ outline-offset:4px }
 .picker-name{ font-size:14px; font-weight:700 }
 .picker-issuer{ font-size:12px; color:#92A0B2 }
 
+/* picker의 썸네일 내에서 이미지를 회전시키기 위한 규칙
+   - card-img에만 적용해서 다른 곳(slot-img 등)은 건드리지 않습니다. */
+.picker-thumb {
+  position: relative;
+  overflow: hidden;
+}
+
+/* 기본: thumb 안에서 이미지가 컨테이너에 맞게 채워지도록 설정 */
+.picker-thumb .card-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;        /* 필요에 따라 contain으로 바꿀 수 있음 */
+  display: block;
+  transform-origin: center center;
+  transition: transform .16s ease;
+  will-change: transform;
+}
+
+/* 로드 완료 시 적용되는 회전 클래스: 왼쪽으로 90도 */
+/* .picker-thumb .card-img.rotate-left {
+  transform: rotate(-90deg);
+} */
+
+/* (선택) 데스크탑/작은 썸네일에서 회전했을 때 더 잘 보이게 조정하고 싶으면 주석 해제 후 사용
+.picker-thumb .card-img.rotate-left {
+  transform: rotate(-90deg) scale(1.05); 
+}
+*/
+
+
 /* ============= 플로팅 챗봇 위젯 ============= */
 .cp-chat-fab{
   position:fixed; right:20px; bottom:22px; z-index:1200;
