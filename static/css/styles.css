@@ -338,10 +338,35 @@ button:focus-visible{ outline-offset:4px }
 }
 .slot-target.selected{ border-style:solid }
 .slot-mini{
-  width:120px; height:74px; border-radius:10px; border:1px solid #e5e7ee;
+  width:120px;
+  height:74px;
+  border-radius:10px;
+  border:1px solid #e5e7ee;
   box-shadow:0 8px 16px rgba(40,50,70,.1);
   background:linear-gradient(135deg,var(--c1),var(--c2));
+  /* 크롭 제거: overflow를 숨기지 않음 (전체 이미지 보이게) */
+  overflow: visible;
+  /* 중앙 정렬 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
 }
+
+/* 이미지 기본 스타일 — transition(회전 효과) 제거 */
+.slot-mini img.slot-img{
+  max-width: 100%;
+  max-height: 100%;
+  width: 100%;
+  height: 100%;
+  object-fit: contain; /* 전체가 보이게 함 */
+  display: block;
+  transform: none;     /* JS에서 직접 변환할 경우 여기에 영향 없음 */
+  transition: none;    /* 회전/애니메이션 효과 제거 */
+  image-orientation: from-image; /* EXIF 보정이 가능하면 활용 (브라우저 지원에 따름) */
+}
+
+
 .plus{ font-size:28px; line-height:1 }
 .slot-caption{ font-size:12px; color:#6b7280; margin:0 }
 

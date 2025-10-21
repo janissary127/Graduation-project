@@ -486,6 +486,99 @@ function applyCard(card) {
   }
 }
 
+// helpers: 이미지 경로 생성 + onerror 재시도 핸들러
+function imagePathForName(name, ext = ".jpg") {
+  // 카드 이름 그대로 파일명이면 encodeURIComponent로 안전하게 변환
+  return `/static/img/${encodeURIComponent(name)}${ext}`;
+}
+
+function handleSlotImageError(img) {
+  // data-name 에 card.name 이 들어있음
+  const name = img.dataset.name || img.alt || "";
+  const exts = [".jpg", ".jpeg", ".png", ".webp"]; // 시도할 확장자 순서
+  let idx = parseInt(img.dataset.tryIndex || "0", 10);
+
+  // 이미 시도한 확장자 다음 것을 시도
+  idx++;
+  if (idx >= exts.length) {
+    // 모두 실패하면 이미지 숨김 (원하면 placeholder로 바꿀 수 있음)
+    img.style.display = "none";
+    return;
+  }
+
+  img.dataset.tryIndex = String(idx);
+  img.src = imagePathForName(name, exts[idx]);
+}
+
+function handleSlotImageLoad(img) {
+  // 안전하게 스타일 초기화 (transition / transform 제거)
+  img.style.transition = '';
+  img.style.transform = '';
+  img.style.position = '';
+  img.style.top = '';
+  img.style.left = '';
+  img.style.maxWidth = '';
+  img.style.maxHeight = '';
+  img.style.width = '';
+  img.style.height = '';
+  img.style.objectFit = 'contain';
+
+  const w = img.naturalWidth;
+  const h = img.naturalHeight;
+  if (!w || !h) return;
+
+  const container = img.closest('.slot-mini');
+  if (!container) return;
+
+  const cw = container.clientWidth || 120; // 안전값
+  const ch = container.clientHeight || 74;
+
+  // portrait 인지 판별
+  if (h > w) {
+    // 캔버스에 -90도(시계반대)로 회전된 이미지를 그려서 dataURL로 교체
+    try {
+      const canvas = document.createElement('canvas');
+      canvas.width = cw;
+      canvas.height = ch;
+      const ctx = canvas.getContext('2d');
+
+      // 회전 후의 가로/세로는 (h, w)
+      // 회전된 이미지를 컨테이너에 맞추기 위한 스케일
+      const scale = Math.min(cw / h, ch / w);
+
+      // 중심을 기준으로 회전하고 스케일 적용
+      ctx.translate(cw / 2, ch / 2);
+      ctx.rotate(-Math.PI / 2); // -90도 (요청: 반대 방향)
+      ctx.scale(scale, scale);
+
+      // 이미지를 중심으로 그리기 (원본 크기 기준)
+      ctx.drawImage(img, -w / 2, -h / 2, w, h);
+
+      // 캔버스 결과를 img src로 교체하면 브라우저에서 이미 회전된 정적 이미지로 보여짐
+      img.src = canvas.toDataURL('image/png');
+
+      // 이미지가 데이터URL로 바뀐 뒤에도 크기 맞추기: contain으로 전체 표시
+      img.style.width = '100%';
+      img.style.height = '100%';
+      img.style.objectFit = 'contain';
+      img.style.display = 'block';
+    } catch (e) {
+      // 캔버스 실패 시 폴백: CSS 회전(-90deg)으로 처리하되 transition 제거
+      img.style.transform = 'rotate(-90deg)';
+      img.style.maxWidth = '100%';
+      img.style.maxHeight = '100%';
+      img.style.objectFit = 'contain';
+    }
+  } else {
+    // landscape: 그냥 전체 보이도록 contain
+    img.style.width = '100%';
+    img.style.height = '100%';
+    img.style.objectFit = 'contain';
+    img.style.display = 'block';
+  }
+}
+
+// 수정된 renderSlot (useDataMode 부분만 바꿨습니다)
 function renderSlot(i) {
   const target = $(`.slot-target[data-slot="${i}"]`);
   const label = $(`#slot-name-${i}`);
@@ -493,14 +586,34 @@ function renderSlot(i) {
 
   if (useDataMode) {
     const id = selectedIds[i];
-    if (!id) { target.classList.remove("selected"); target.innerHTML = `<span class="plus">+</span>`; label.textContent = "카드를 선택해 주세요."; return; }
+    if (!id) {
+      target.classList.remove("selected");
+      target.innerHTML = `<span class="plus">+</span>`;
+      label.textContent = "카드를 선택해 주세요.";
+      return;
+    }
     const card = CARDS.find(p => p.id === id);
     if (!card) { selectedIds[i] = null; saveSelected(); renderSlot(i); return; }
+
     target.classList.add("selected");
+
+    // 우선 card.image가 직접 지정되어 있으면 그걸 쓰고, 없으면 static/img/<card.name>.jpg 사용
+    const initialSrc = card.image && card.image.length
+      ? card.image
+      : imagePathForName(card.name, ".jpg");
+
+    // data-name 에 원래 이름을 넣어 handleSlotImageError에서 사용
     target.innerHTML = `
       <div class="slot-mini" title="${esc(card.name)}">
-        <img src="${esc(card.image || "")}" alt="${esc(card.name)}" class="slot-img" onerror="this.style.display='none'">
+        <img src="${esc(initialSrc)}"
+             alt="${esc(card.name)}"
+             class="slot-img"
+             data-name="${esc(card.name)}"
+             data-try-index="0"
+             onload="handleSlotImageLoad(this)"
+             onerror="handleSlotImageError(this)">
       </div>`;
+
     label.textContent = card.name;
     return;
   }
@@ -512,6 +625,7 @@ function renderSlot(i) {
   target.innerHTML = `<div class="slot-mini" style="--c1:${card.c1};--c2:${card.c2}" title="${esc(card.name)}"></div>`;
   label.textContent = card.name;
 }
+
 
 function clearSlot(idx) {
   if (useDataMode) { selectedIds[idx] = null; }
