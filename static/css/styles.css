@@ -33,6 +33,205 @@ body.no-scroll{ overflow:hidden }
 :focus-visible{ outline:3px solid rgba(14,165,255,.55); outline-offset:2px; border-radius:10px }
 button:focus-visible{ outline-offset:4px }
 
+/* =========================================================
+   ChatGPT 홈 느낌의 메인 영역 전용 스타일 (index 전용)
+   ======================================================= */
+
+/* 전체 메인 배경: 아주 옅은 그라디언트 */
+.home-main{
+  background:
+    radial-gradient(circle at 50% -10%, #eff6ff 0%, #ffffff 60%);
+  padding:32px 0 40px;
+}
+
+/* 가운데 큰 카드 래퍼 */
+.gpt-hero{
+  padding:12px 0 32px;
+}
+.gpt-shell{
+  position:relative;
+  max-width:780px;
+  margin:0 auto;
+  background:rgba(255,255,255,.8);
+  border:1px solid var(--line);
+  border-radius:24px;
+  padding:28px 24px 96px;
+  box-shadow:
+    0 30px 80px rgba(16,24,40,.12),
+    0 4px 20px rgba(16,24,40,.04);
+  backdrop-filter:blur(8px);
+
+  background-image:
+    radial-gradient(800px 300px at 0% 0%, rgba(14,165,255,.08) 0%, transparent 70%),
+    radial-gradient(800px 300px at 100% 100%, rgba(255,184,0,.08) 0%, transparent 70%),
+    #fff;
+}
+
+/* 상단 인사 */
+.gpt-head{ text-align:left; max-width:540px; }
+.gpt-heading-eyebrow{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+
+  font-size:12px;
+  font-weight:700;
+  color:#0ea5ff;
+
+  background:rgba(14,165,255,.08);
+  border:1px solid rgba(14,165,255,.2);
+  border-radius:999px;
+  padding:5px 10px;
+}
+.gpt-title{
+  font-size:32px;
+  line-height:1.2;
+  letter-spacing:-.03em;
+  font-weight:800;
+  color:#0f172a;
+  margin:12px 0 8px;
+}
+@media(min-width:768px){
+  .gpt-title{ font-size:36px; }
+}
+.grad{
+  background:linear-gradient(90deg,#0ea5ff 0%,#6366f1 50%,#0ea5ff 100%);
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
+}
+.gpt-desc{
+  font-size:15px;
+  line-height:1.5;
+  color:#4b5563;
+  margin:0 0 20px;
+}
+
+/* 추천 질문 카드 리스트 */
+.gpt-suggest-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(min(220px,100%),1fr));
+  gap:12px;
+  margin-bottom:24px;
+}
+.gpt-suggest-card{
+  text-align:left;
+  background:#fff;
+  border-radius:16px;
+  border:1px solid #e5e7eb;
+  box-shadow:0 16px 40px rgba(16,24,40,.06);
+
+  padding:14px 16px;
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+
+  cursor:pointer;
+  transition:box-shadow .12s ease,transform .12s ease,border-color .12s ease,background .12s ease;
+}
+.gpt-suggest-card:hover{
+  transform:translateY(-2px);
+  border-color:#c7dfff;
+  box-shadow:0 24px 60px rgba(16,24,40,.12);
+  background:linear-gradient(180deg,#fff 0%,#f9fbff 100%);
+}
+.gpt-card-icon{
+  font-size:18px;
+  line-height:1;
+  width:28px;
+  height:28px;
+  border-radius:8px;
+  background:#eef7ff;
+  color:#0ea5ff;
+  display:grid;
+  place-items:center;
+  font-weight:600;
+  border:1px solid #b7dfff;
+  box-shadow:0 8px 20px rgba(14,165,255,.18);
+}
+.gpt-card-title{
+  font-size:14px;
+  font-weight:700;
+  color:#0f172a;
+}
+.gpt-card-desc{
+  font-size:12.5px;
+  color:#6b7280;
+  line-height:1.4;
+}
+
+/* 하단 입력 영역 (ChatGPT 메시지바 느낌) */
+.gpt-input-wrap{
+  position:absolute;
+  left:0;
+  right:0;
+  bottom:24px;
+  padding:0 24px;
+}
+.gpt-input-row{
+  position:relative;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  width:100%;
+  background:#fff;
+  border:1.5px solid #dfe4ee;
+  border-radius:14px;
+  padding:12px 14px;
+  box-shadow:
+    0 24px 60px rgba(16,24,40,.12),
+    0 4px 16px rgba(16,24,40,.05);
+}
+.gpt-input-row:focus-within{
+  border-color:#b7dfff;
+  box-shadow:
+    0 0 0 4px rgba(14,165,255,.12),
+    0 24px 60px rgba(16,24,40,.12);
+}
+.gpt-input-row input{
+  flex:1;
+  border:0;
+  background:transparent;
+  font-size:15px;
+  line-height:1.4;
+  outline:none;
+  color:#0f172a;
+}
+.gpt-send-btn{
+  flex-shrink:0;
+  border:0;
+  border-radius:10px;
+  padding:8px 10px;
+  background:linear-gradient(90deg,#0ea5ff,#6366f1);
+  color:#fff;
+  box-shadow:0 12px 30px rgba(14,165,255,.35);
+  cursor:pointer;
+
+  display:grid;
+  place-items:center;
+  transition:filter .12s ease, transform .12s ease;
+}
+.gpt-send-btn:hover{
+  filter:brightness(.95);
+  transform:translateY(-1px);
+}
+.gpt-send-btn svg{
+  width:18px;
+  height:18px;
+  color:#fff;
+}
+.gpt-hint{
+  text-align:center;
+  font-size:11px;
+  line-height:1.4;
+  color:#94a3b8;
+  margin-top:8px;
+}
+
+/* =========================================================
+   기존 공용 스타일 (헤더, 검색 모달, 비교 등)
+   ======================================================= */
+
 /* ============= 헤더 ============= */
 .site-header{
   position:sticky; top:0; z-index:40;
@@ -86,7 +285,9 @@ button:focus-visible{ outline-offset:4px }
 .btn-primary{ border:0; background:#0ea5ff; color:#fff; border-radius:10px; padding:10px 16px; cursor:pointer; font-weight:800 }
 .btn-primary:hover{ filter:brightness(.95) }
 
-/* ============= 히어로 ============= */
+/* ============= 히어로 =============
+   (이제 index.html에서는 안 쓰지만 다른 레이아웃에서도 혹시 쓰일 수 있으니 유지)
+*/
 .hero{ background:#f2f4f8; border-bottom:1px solid var(--line) }
 .hero__wrap{ position:relative; padding:26px 0 }
 .hero__viewport{
@@ -138,6 +339,7 @@ button:focus-visible{ outline-offset:4px }
 .hero__dot[aria-selected="true"]{ background:#ffb200; transform:scale(1.15) }
 
 /* ============= 소개(About) ============= */
+/* (현재 index에선 안쓰지만 보존) */
 .about{ padding:40px 0 10px; background:linear-gradient(180deg,#f7f9fc 0%, #ffffff 100%) }
 .about .container{ position:relative }
 .about__card{
@@ -195,7 +397,7 @@ button:focus-visible{ outline-offset:4px }
 .about__stats{ display:grid; grid-template-columns:repeat(3,1fr); gap:10px; width:100% }
 .stat{ background:#fff; border:1px solid #eef2f6; border-radius:14px; padding:12px; display:flex; flex-direction:column; align-items:center; text-align:center }
 .stat__num{ font-weight:900; font-size:22px }
-.stat__label{ font-size:12px; color:#6b7280 }
+.stat__label{ font-size:12px; color:var(--muted) }
 
 /* ============= 혜택 가로 슬라이드 ============= */
 .benefit{ padding:26px 0 }
@@ -344,28 +546,25 @@ button:focus-visible{ outline-offset:4px }
   border:1px solid #e5e7ee;
   box-shadow:0 8px 16px rgba(40,50,70,.1);
   background:linear-gradient(135deg,var(--c1),var(--c2));
-  /* 크롭 제거: overflow를 숨기지 않음 (전체 이미지 보이게) */
   overflow: visible;
-  /* 중앙 정렬 */
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
 }
 
-/* 이미지 기본 스타일 — transition(회전 효과) 제거 */
+/* 비교 슬롯 안의 이미지 스타일 */
 .slot-mini img.slot-img{
   max-width: 100%;
   max-height: 100%;
   width: 100%;
   height: 100%;
-  object-fit: contain; /* 전체가 보이게 함 */
+  object-fit: contain;
   display: block;
-  transform: none;     /* JS에서 직접 변환할 경우 여기에 영향 없음 */
-  transition: none;    /* 회전/애니메이션 효과 제거 */
-  image-orientation: from-image; /* EXIF 보정이 가능하면 활용 (브라우저 지원에 따름) */
+  transform: none;
+  transition: none;
+  image-orientation: from-image;
 }
-
 
 .plus{ font-size:28px; line-height:1 }
 .slot-caption{ font-size:12px; color:#6b7280; margin:0 }
@@ -426,35 +625,23 @@ button:focus-visible{ outline-offset:4px }
 .picker-name{ font-size:14px; font-weight:700 }
 .picker-issuer{ font-size:12px; color:#92A0B2 }
 
-/* picker의 썸네일 내에서 이미지를 회전시키기 위한 규칙
-   - card-img에만 적용해서 다른 곳(slot-img 등)은 건드리지 않습니다. */
+/* picker thumb 이미지 (회전 처리될 수 있음) */
 .picker-thumb {
   position: relative;
   overflow: hidden;
 }
-
-/* 기본: thumb 안에서 이미지가 컨테이너에 맞게 채워지도록 설정 */
 .picker-thumb .card-img {
   width: 100%;
   height: 100%;
-  object-fit: cover;        /* 필요에 따라 contain으로 바꿀 수 있음 */
+  object-fit: cover;
   display: block;
   transform-origin: center center;
   transition: transform .16s ease;
   will-change: transform;
 }
-
-/* 로드 완료 시 적용되는 회전 클래스: 왼쪽으로 90도 */
 /* .picker-thumb .card-img.rotate-left {
-  transform: rotate(-90deg);
+   transform: rotate(-90deg);
 } */
-
-/* (선택) 데스크탑/작은 썸네일에서 회전했을 때 더 잘 보이게 조정하고 싶으면 주석 해제 후 사용
-.picker-thumb .card-img.rotate-left {
-  transform: rotate(-90deg) scale(1.05); 
-}
-*/
-
 
 /* ============= 플로팅 챗봇 위젯 ============= */
 .cp-chat-fab{

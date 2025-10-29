@@ -5,19 +5,15 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>CARD PICK</title>
 
-  <!-- 공용 CSS / JS (Flask/Jinja 경로) -->
+  <!-- 공용 CSS / JS -->
   <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}" />
   <script defer src="{{ url_for('static', filename='js/app.js') }}"></script>
-  <!-- app2.js도 쓰면 아래 줄 활성화 -->
-  <!-- <script defer src="{{ url_for('static', filename='js/app2.js') }}"></script> -->
 </head>
 <body>
-  <!-- ================= Header ================= -->
+  <!-- ================= Header (사이트 공통: JS에서 동일하게 치환/업데이트됨) ================= -->
   <header class="site-header">
     <div class="container header__inner">
-      <!-- 브랜드 -->
       <a href="{{ url_for('index') }}" class="brand" aria-label="CARD PICK 홈">
-        <!-- 카드 아이콘 -->
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
           <rect x="2" y="5" width="20" height="14" rx="3" fill="#111827"></rect>
           <rect x="4" y="9"  width="16" height="2" rx="1" fill="#fff" opacity=".75"></rect>
@@ -26,9 +22,8 @@
         <strong class="brand__text">CARD PICK</strong>
       </a>
 
-      <!-- 내비게이션 -->
       <nav class="nav" aria-label="주요">
-        <!-- ✅ 카드픽봇: 클릭 시 챗봇 열림 -->
+        <!-- 이 "카드픽봇"은 JS에서 챗봇을 바로 띄워줌 -->
         <a href="#" class="nav-bot" data-nav="bot" id="navBot" title="대화형 추천 챗봇 열기">카드픽봇</a>
 
         <a href="{{ url_for('recommend') }}" data-nav="recommend">카드픽추천</a>
@@ -38,7 +33,6 @@
         <a href="{{ url_for('compare') }}"   data-nav="compare">비교함</a>
       </nav>
 
-      <!-- 우측 아이콘 -->
       <div class="header__icons">
         <!-- 검색 열기 -->
         <button id="openSearch" class="icon-btn" aria-label="검색 열기">
@@ -61,96 +55,96 @@
     </div>
   </header>
 
-  <main>
-    <!-- ================= Hero ================= -->
-    <section class="hero" id="hero">
-      <div class="container hero__wrap">
-        <div class="hero__viewport">
-          <button class="hero__nav hero__nav--prev" aria-label="이전 배너">‹</button>
-          <div id="heroTrack" class="hero__track"></div>
-          <button class="hero__nav hero__nav--next" aria-label="다음 배너">›</button>
-          <div id="heroDots" class="hero__dots"></div>
-        </div>
-      </div>
-    </section>
 
-    <!-- ================= About: 챗봇 중심 소개/장점 ================= -->
-    <section class="about">
+  <!-- ================= 메인 =================
+       헤더는 그대로 두고, 가운데 부분만 ChatGPT 홈 느낌으로 새로 구성한 영역
+  -->
+  <main class="home-main">
+    <!-- ChatGPT 홈 느낌: 인사 + 추천 질문 카드 + 큰 입력창 -->
+    <section class="gpt-hero">
       <div class="container">
-        <div class="about__card">
-          <div class="about__wrap">
-            <!-- 왼쪽: 카피/장점 -->
-            <div class="about__left">
-              <div class="kicker">대화로 끝내는 카드 추천</div>
-              <h2 class="about__title">챗봇에게 말하면,<br>내게 맞는 카드가 뚝딱!</h2>
-              <p class="about__desc">
-                <strong>CARD PICK BOT</strong>은 몇 마디 대화만으로 실사용 혜택을 비교·추천해 줍니다.
-                조건을 바꾸며 대화하면, 추천이 <strong>실시간</strong>으로 정교해져요.
-              </p>
-
-              <ul class="tick-list" aria-label="CARD PICK 장점">
-                <li>
-                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4 4 10-10" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-                  대화형 맞춤 추천 — “카페 많이 써요”, “연회비 1만원 이하”
-                </li>
-                <li>
-                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4 4 10-10" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-                  추천 사유/핵심 혜택을 <strong>한눈 비교</strong>로 즉시 확인
-                </li>
-                <li>
-                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4 4 10-10" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-                  대화 내에서 <strong>비교함 담기</strong>까지 한번에
-                </li>
-              </ul>
-
-              <div class="about__actions">
-                <a href="{{ url_for('recommend') }}" class="btn-primary about__btn">추천 보기</a>
-                <a href="{{ url_for('compare') }}" class="btn-outline about__btn">비교 시작</a>
-              </div>
+        <div class="gpt-shell">
+          <!-- 상단 인사 / 타이틀 -->
+          <header class="gpt-head">
+            <div class="gpt-heading-eyebrow">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M12 3l2.09 4.24L18 8.27l-3 2.92.71 4.28L12 13.77l-3.71 1.7L9 11.19 6 8.27l3.91-1.03L12 3z"
+                      stroke="#0ea5ff" stroke-width="1.5" stroke-linejoin="round" fill="none"/>
+              </svg>
+              <span>맞춤 카드 탐색</span>
             </div>
 
-            <!-- 오른쪽: 챗 미리보기 -->
-            <div class="about__right" aria-hidden="true">
-              <div class="about__chat">
-                <div class="about__chat-header">
-                  <div class="bot-dot"></div>
-                  <span>Card Pick Bot</span>
-                </div>
-                <div class="about__chat-body">
-                  <div class="bubble bot">안녕하세요! 어떤 소비에 혜택을 원하세요?</div>
-                  <div class="bubble user">카페/배달 많이 쓰고, 연회비는 저렴했으면 해요.</div>
-                  <div class="bubble bot">
-                    <strong>추천: taptap O</strong><br>
-                    • 카페/배달 상시 적립<br>
-                    • 간편결제 추가 혜택<br>
-                    <em>비교함</em>에 담아 드릴까요?
-                  </div>
-                </div>
-              </div>
+            <h1 class="gpt-title">
+              오늘은 어떤 혜택이<br/>
+              <span class="grad">필요해요?</span>
+            </h1>
 
-              <!-- 신뢰 지표 -->
-              <div class="about__stats">
-                <div class="stat">
-                  <div class="stat__num">3분</div>
-                  <div class="stat__label">평균 추천 완료</div>
-                </div>
-                <div class="stat">
-                  <div class="stat__num">94%</div>
-                  <div class="stat__label">추천 만족도</div>
-                </div>
-                <div class="stat">
-                  <div class="stat__num">50만+</div>
-                  <div class="stat__label">월간 비교조회</div>
-                </div>
-              </div>
+            <p class="gpt-desc">
+              “카페/배달 많이 써요”, “연회비 1만원 이하”, “해외 결제 자주 해요”<br/>
+              그냥 말해주면 카드픽봇이 바로 골라줘요.
+            </p>
+          </header>
+
+          <!-- 추천 질문 카드 (ChatGPT의 '프롬프트 카드' 느낌) -->
+          <div class="gpt-suggest-grid">
+            <button class="gpt-suggest-card"
+                    data-q="카페/배달 많이 쓰고 연회비는 저렴했으면 해요. 어떤 카드가 좋을까요?">
+              <div class="gpt-card-icon">☕</div>
+              <div class="gpt-card-title">카페/배달 많이 써요</div>
+              <div class="gpt-card-desc">연회비는 최대한 저렴했으면 해요</div>
+            </button>
+
+            <button class="gpt-suggest-card"
+                    data-q="해외 결제 수수료 적고 공항 라운지 가능한 카드 추천해 줘.">
+              <div class="gpt-card-icon">✈️</div>
+              <div class="gpt-card-title">해외/여행 자주 가요</div>
+              <div class="gpt-card-desc">라운지 · 해외 적립 위주로 보고 싶어요</div>
+            </button>
+
+            <button class="gpt-suggest-card"
+                    data-q="교통/통신 요금 줄이고 싶은데 생활형 카드 뭐가 좋아요?">
+              <div class="gpt-card-icon">🚇</div>
+              <div class="gpt-card-title">교통/통신 아끼고 싶어요</div>
+              <div class="gpt-card-desc">생활비 절약 위주 카드 알려줘요</div>
+            </button>
+
+            <button class="gpt-suggest-card"
+                    data-q="연회비 1만원 이하에 무실적 혜택 카드 알려줘.">
+              <div class="gpt-card-icon">💳</div>
+              <div class="gpt-card-title">연회비 1만원 이하</div>
+              <div class="gpt-card-desc">실적 없어도 혜택 있으면 최고</div>
+            </button>
+          </div>
+
+          <!-- 하단 큰 입력창 (ChatGPT 메시지 입력바 느낌) -->
+          <div class="gpt-input-wrap">
+            <form class="gpt-input-row" id="homeAskForm">
+              <input
+                id="homeAskInput"
+                type="text"
+                placeholder="카드픽봇에게 물어보기: 예) 해외 결제 수수료 적은 카드 추천해 줘"
+                aria-label="카드픽봇에게 질문하기"
+              />
+              <button id="homeAskSend" class="gpt-send-btn" type="submit" aria-label="보내기">
+                <svg viewBox="0 0 24 24" fill="none"
+                     stroke="currentColor" stroke-width="2"
+                     stroke-linecap="round" stroke-linejoin="round"
+                     aria-hidden="true">
+                  <path d="M5 12L3 3l18 9-18 9 2-9z"></path>
+                  <path d="M3 3l10 9"></path>
+                </svg>
+              </button>
+            </form>
+
+            <div class="gpt-hint">
+              카드픽봇은 데모 서비스입니다. 실제 혜택/한도는 각 카드사 최신 약관을 확인하세요.
             </div>
-            <!-- // 오른쪽 -->
           </div>
         </div>
       </div>
     </section>
 
-    <!-- ================= Benefit Row ================= -->
+    <!-- 아래는 기존 '지금 많이 찾고 있어요' 캐러셀 섹션 유지 -->
     <section class="benefit">
       <div class="container">
         <div class="benefit__head">
@@ -169,20 +163,26 @@
     </section>
   </main>
 
-  <!-- ================= Search Modal(공통) ================= -->
+
+  <!-- ================= Search Modal (공통) ================= -->
   <div id="searchModal" class="search-modal" aria-hidden="true" role="dialog" aria-modal="true">
     <div id="searchBackdrop" class="modal-backdrop"></div>
     <div class="search-dialog" role="document">
       <div class="search-top">
         <div class="search-input">
-          <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"></circle><path d="M20 20L16.65 16.65" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path></svg>
+          <svg viewBox="0 0 24 24">
+            <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"></circle>
+            <path d="M20 20L16.65 16.65" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>
+          </svg>
           <input id="searchInput" type="text" placeholder="메뉴, 카드, 혜택을 검색해보세요" />
         </div>
         <button id="searchClose" class="search-close" aria-label="닫기">닫기</button>
       </div>
+
       <div class="search-titlebar">
         <h2 class="search-title">통합 검색</h2>
       </div>
+
       <section class="search-section">
         <div class="section-head">
           <h3>최근 검색어</h3>
@@ -194,14 +194,17 @@
         </div>
         <div id="recentList" class="chip-row"></div>
       </section>
+
       <section class="search-section">
         <h3>지금 많이 찾고 있어요</h3>
         <div id="hotList" class="chip-row"></div>
       </section>
+
       <section class="search-section">
         <h3>이런 정보를 찾고 계세요?</h3>
         <div id="suggestList" class="suggest-row"></div>
       </section>
+
       <div class="search-bottom">
         <button id="searchSubmit" class="btn-primary">검색</button>
       </div>
