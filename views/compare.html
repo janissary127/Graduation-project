@@ -101,13 +101,17 @@
           <p class="slot-caption" id="slot-name-2">카드를 선택해 주세요.</p>
         </div>
       </section>
-
-      <!-- (선택 후) 비교 요약이나 CTA를 배치할 자리 -->
-      <section style="text-align:center; margin-top:20px;">
-        <a href="#" class="btn-primary" onclick="alert('데모: 선택을 기반으로 비교 테이블을 만들 수 있어요!');return false;">선택한 카드 비교하기</a>
-      </section>
     </div>
   </main>
+
+  <!-- 비교 요약 / 혜택 테이블 (추가) -->
+  <section id="compareSummary" class="compare-summary" aria-label="카드 비교 상세">
+    <div class="container compare-summary__inner">
+      <div class="compare-grid" id="compareGrid">
+        <!-- JS에서 칼럼(3개) 렌더 -->
+      </div>
+    </div>
+  </section>
 
   <!-- 카드 선택 피커 모달 -->
   <div id="pickerModal" class="picker-modal" aria-hidden="true" role="dialog" aria-modal="true">

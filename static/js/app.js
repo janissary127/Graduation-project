@@ -32,12 +32,12 @@ let heroIndex = 0, heroTimer = null;
 /* ------------------------ 유틸 ------------------------ */
 const esc = (s) => (s || s === 0)
   ? String(s).replace(/[&<>"']/g, c => ({
-      '&': '&amp;',
-      '<': '&lt;',
-      '>': '&gt;',
-      '"': '&quot;',
-      "'": '&#39;'
-    }[c]))
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;'
+  }[c]))
   : "";
 
 const $ = (q, sc = document) => sc.querySelector(q);
@@ -196,8 +196,8 @@ function renderHero() {
           <div class="hero__inner">
             <div class="hero__image">
               ${s.image
-                ? `<img src="${esc(s.image)}" alt="${esc(s.name)}">`
-                : `<div class="hero-image-placeholder" aria-hidden="true">${esc(s.name)}</div>`}
+          ? `<img src="${esc(s.image)}" alt="${esc(s.name)}">`
+          : `<div class="hero-image-placeholder" aria-hidden="true">${esc(s.name)}</div>`}
             </div>
             <div class="hero__copy">
               <div class="kicker">${esc(s.issuer)}</div>
@@ -228,7 +228,7 @@ function renderHero() {
             ${s.stack.map((c, i) => `
               <div class="card"
                    style="--c1:${c.c1};--c2:${c.c2};--r:${c.r};z-index:${10 - i}"></div>`
-            ).join("")}
+  ).join("")}
           </div>
         </div>
         <div class="hero__copy">
@@ -296,15 +296,15 @@ function stopHeroAuto() { if (heroTimer) clearInterval(heroTimer); }
  * (D) 혜택 라인 (지금 많이 찾고 있어요)
  * =======================================================*/
 const dummyBenefit = [
-  { short: "S",    name: "삼성카드",     label: "최대 93.8만원 받기",    color: "#0066ff" },
-  { short: "LOCA", name: "롯데카드",     label: "최대 45만원 받기",      color: "#6a5de3" },
-  { short: "우리", name: "우리카드",     label: "최대 32.5만원 받기",     color: "#0071c2" },
-  { short: "신한", name: "신한카드",     label: "최대 29만원 받기",      color: "#3762ff" },
-  { short: "KB",   name: "KB국민카드",   label: "최대 23만원 받기",      color: "#8b6a45" },
-  { short: "현대", name: "현대카드",     label: "최대 20만원 받기",      color: "#1f2937" },
-  { short: "IBK",  name: "IBK기업은행",  label: "최대 17.5만원 받기",    color: "#0090ff" },
-  { short: "NH",   name: "NH농협카드",   label: "최대 12만원 받기",      color: "#0f62ae" },
-  { short: "쿠팡", name: "쿠팡 와우카드", label: "연 최대 62만원 혜택",  color: "#ef4444" },
+  { short: "S", name: "삼성카드", label: "최대 93.8만원 받기", color: "#0066ff" },
+  { short: "LOCA", name: "롯데카드", label: "최대 45만원 받기", color: "#6a5de3" },
+  { short: "우리", name: "우리카드", label: "최대 32.5만원 받기", color: "#0071c2" },
+  { short: "신한", name: "신한카드", label: "최대 29만원 받기", color: "#3762ff" },
+  { short: "KB", name: "KB국민카드", label: "최대 23만원 받기", color: "#8b6a45" },
+  { short: "현대", name: "현대카드", label: "최대 20만원 받기", color: "#1f2937" },
+  { short: "IBK", name: "IBK기업은행", label: "최대 17.5만원 받기", color: "#0090ff" },
+  { short: "NH", name: "NH농협카드", label: "최대 12만원 받기", color: "#0f62ae" },
+  { short: "쿠팡", name: "쿠팡 와우카드", label: "연 최대 62만원 혜택", color: "#ef4444" },
 ];
 
 function renderBenefit() {
@@ -894,10 +894,12 @@ function applyCard(card) {
     selectedIds[currentSlot] = card.id;
     renderSlot(currentSlot);
     saveSelected();
+    renderComparisonTable();
   } else {
     selectedObjs[currentSlot] = card;
     renderSlot(currentSlot);
     saveSelected();
+    renderComparisonTable();
   }
 }
 
@@ -961,6 +963,7 @@ function clearSlot(idx) {
   else { selectedObjs[idx] = null; }
   renderSlot(idx);
   saveSelected();
+  renderComparisonTable();
 }
 
 function initCompareSlots() {
@@ -984,6 +987,162 @@ function initCompareSlots() {
       clearSlot(Number(btn.getAttribute("data-clear")));
     });
   });
+  renderComparisonTable();
+}
+
+/* -------------------- 비교 테이블 렌더링: renderComparisonTable -------------------- */
+function fmt(s) { return (s === null || s === undefined) ? "" : String(s); }
+
+function getCardDataForSlot(i) {
+  if (useDataMode) {
+    const id = selectedIds[i];
+    if (!id) return null;
+    return CARDS.find(c => c.id === id) || null;
+  } else {
+    return selectedObjs[i] || null;
+  }
+}
+
+function renderComparisonTable() {
+  const wrap = $("#compareGrid");
+  if (!wrap) return;
+
+  // 3개의 칼럼 HTML을 만듬
+  const cols = [0, 1, 2].map(i => {
+    const card = getCardDataForSlot(i);
+    if (!card) {
+      return `
+        <div class="compare-column">
+          <div class="compare-col__head">
+            <div class="compare-col__thumb"><div style="width:72px;height:72px;border-radius:6px;background:#f5f5f5;display:inline-block;"></div></div>
+            <div class="compare-col__name">카드를 선택해 주세요.</div>
+            <div class="compare-col__issuer">&nbsp;</div>
+          </div>
+          <div class="compare-rows">
+            <div class="compare-row"><div class="row-title">이벤트</div><div class="row-content muted">-</div></div>
+            <div class="compare-row"><div class="row-title">연회비</div><div class="row-content muted">-</div></div>
+            <div class="compare-row"><div class="row-title">전월실적</div><div class="row-content muted">-</div></div>
+            <div class="compare-row"><div class="row-title">주요혜택</div><div class="row-content muted">-</div></div>
+          </div>
+        </div>`;
+    }
+
+    // 데이터 모드의 필드명이 RAW에서 온 구조가 다양할 수 있어 범용적으로 접근
+    // CARDS에서 만들어둔 필드 외에 원본 RAW에서 필요한 필드를 가져오면 좋음.
+    // RAW에는 원문 object이 있으므로 찾아서 사용
+    // 기존: let raw = null; if (useDataMode && RAW && RAW.length) { raw = RAW.find(...); }
+    // 대체:
+    let raw = null;
+    if (useDataMode && Array.isArray(RAW) && RAW.length) {
+      raw = findRawForCard(card, RAW);
+    }
+
+
+    // 유효한 이미지(이미지 경로가 이미 app.js 전처리로 들어있다면 card.image 사용)
+    const imgSrc = card.image && card.image.length ? card.image : imagePathForName(card.name, ".jpg");
+
+    // 주요 혜택(예시: benefits 배열) — RAW 우선, CARDS.desc 보조
+    let benefits = [];
+    if (raw && Array.isArray(raw.benefits) && raw.benefits.length) benefits = raw.benefits;
+    else if (Array.isArray(card.benefits) && card.benefits.length) benefits = card.benefits;
+    else if (card.desc) benefits = [card.desc];
+
+    // 연회비 / 프로모 / performance
+    const promo = raw?.promo ?? card.promo ?? "";
+    const perf = (raw && (raw.performance || raw['전월실적'] || raw.performanceText)) || card?.performance || "";
+
+    // raw 일 경우 desc1/desc2
+    const desc1 = raw?.desc1 ?? raw?.description ?? card.desc ?? "";
+
+    // 상세(원문 details) 렌더 — 간단히 dt_i 타이틀과 첫 1-2줄 dd_paragraphs 노출
+    let detailHtml = "";
+    const details = (raw && Array.isArray(raw.details) && raw.details.length) ? raw.details : (Array.isArray(card.details) ? card.details : []);
+    if (details.length) {
+      detailHtml = details.slice(0, 3).map(d => {
+        const title = d.dt_i || (d.dt_texts && d.dt_texts.join(", ")) || "";
+        const paras = (Array.isArray(d.dd_paragraphs) ? d.dd_paragraphs : []);
+        const snippet = paras.slice(0, 2).join(" / ");
+        return `<div class="detail-block"><strong>${esc(title)}</strong><div>${esc(snippet)}</div></div>`;
+      }).join("");
+    }
+
+    const benefitsHtml = benefits.length
+      ? `<ul class="benefit-list">${benefits.slice(0, 6).map(b => `<li>${esc(b)}</li>`).join("")}</ul>`
+      : `<div class="row-content muted">세부 혜택 정보 없음</div>`;
+
+    return `
+      <div class="compare-column" data-slot="${i}">
+        <div class="compare-col__head">
+          <div class="compare-col__name">${esc(card.name)}</div>
+          <div class="compare-col__issuer">${esc(card.issuer || "")}</div>
+          ${promo ? `<div class="compare-col__promo">${esc(promo)}</div>` : ""}
+        </div>
+
+        <div class="compare-rows">
+          <div class="compare-row">
+            <div class="row-title">이벤트</div>
+            <div class="row-content">${promo ? esc(promo) : (desc1 ? esc(desc1) : "—")}</div>
+          </div>
+
+          <div class="compare-row">
+            <div class="row-title">연회비</div>
+            <div class="row-content">${esc(raw?.annual_fee ?? raw?.연회비 ?? raw?.fee ?? "정보 없음")}</div>
+          </div>
+
+          <div class="compare-row">
+            <div class="row-title">전월실적</div>
+            <div class="row-content">${esc(perf || raw?.performance || raw?.전월실적 || "정보 없음")}</div>
+          </div>
+
+          <div class="compare-row">
+            <div class="row-title">주요혜택</div>
+            <div class="row-content">${benefitsHtml}</div>
+          </div>
+
+          ${detailHtml ? `<div class="compare-row"><div class="row-title">상세</div><div class="row-content">${detailHtml}</div></div>` : ""}
+        </div>
+      </div>`;
+  });
+
+  wrap.innerHTML = cols.join("");
+}
+
+// 안전한 RAW 매칭 헬퍼 함수
+function findRawForCard(card, RAW) {
+  if (!card || !Array.isArray(RAW)) return null;
+
+  // 1) card에 rawId가 있으면 우선 사용 (권장: CARDS 생성 시 rawId를 넣어두기)
+  if (card.rawId) {
+    const byRawId = RAW.find(r => String(r.id ?? r.team_id ?? r.rawId) === String(card.rawId));
+    if (byRawId) return byRawId;
+  }
+
+  // 정규화 함수: 소문자, 양끝 공백 제거
+  const norm = str => (str || "").toString().trim().toLowerCase();
+
+  const cardName = norm(card.name);
+
+  // 2) 정확한 이름 매칭 (가장 안전)
+  const byName = RAW.find(r => norm(r.name) === cardName);
+  if (byName) return byName;
+
+  // 3) team_id / id 기반 매칭 (RAW에 team_id가 있으면 이를 문자열로 비교)
+  const byTeam = RAW.find(r => {
+    const rid = r.team_id ?? r.id ?? r.teamId ?? "";
+    if (!rid) return false;
+    // 카드의 id가 "teamid_..." 같은 형태라면 포함 검사
+    if (card.id && String(card.id).indexOf(String(rid)) === 0) return true;
+    // 또는 card에 issuer/회사명 등이 있을 때 추가 검사(선택)
+    return false;
+  });
+  if (byTeam) return byTeam;
+
+  // 4) 부분 이름 포함 매칭(최후의 수단) — 너무 느슨하면 삭제 가능
+  const byPartial = RAW.find(r => norm(r.name).includes(cardName) || cardName.includes(norm(r.name)));
+  if (byPartial) return byPartial;
+
+  // 매칭 실패하면 null 반환 (절대 RAW[0]로 바로 반환하지 않음)
+  return null;
 }
 
 /* =========================================================
@@ -1265,16 +1424,16 @@ const CARD_ISSUERS = [
 ];
 
 const CARD_PRODUCTS = [
-  { id: "mr-life",       name: "신한카드 Mr.Life",           issuer: "신한카드",    type: "credit", c1: "#ffeded", c2: "#ffc3c3" },
-  { id: "taptap-o",      name: "삼성카드 taptap O",          issuer: "삼성카드",    type: "credit", c1: "#ffe6f1", c2: "#ffc7de" },
-  { id: "sky-miles",     name: "삼성 & MILEAGE PLATINUM (스카이패스)", issuer: "삼성카드", type: "credit", c1: "#eaf2ff", c2: "#cfe0ff" },
-  { id: "id-select-all", name: "삼성 iD SELECT ALL",         issuer: "삼성카드",    type: "credit", c1: "#eef2f7", c2: "#dde6f3" },
-  { id: "kb-wesh",       name: "KB국민 My WE:SH",            issuer: "KB국민카드",  type: "credit", c1: "#f9f4e7", c2: "#ead9b6" },
-  { id: "hy-zero2",      name: "현대 ZERO Edition2",         issuer: "현대카드",    type: "credit", c1: "#e8f0ff", c2: "#c7d8ff" },
-  { id: "lotte-loca",    name: "롯데 LOCA Likit",            issuer: "롯데카드",    type: "credit", c1: "#e8f8ff", c2: "#bdf0ff" },
-  { id: "woori-point",   name: "우리 카드의정석 POINT",      issuer: "우리카드",    type: "credit", c1: "#e6fff4", c2: "#b9fbe0" },
-  { id: "hana-clubsk",   name: "하나카드 CLUB SK",           issuer: "하나카드",    type: "credit", c1: "#eafff9", c2: "#c5fff0" },
-  { id: "nh-good",       name: "NH농협 올바른 체크",         issuer: "NH농협카드",  type: "check",  c1: "#f5fff0", c2: "#e0ffd1" },
-  { id: "ibk-daily",     name: "IBK 일상의기쁨 체크",        issuer: "IBK기업은행", type: "check",  c1: "#f0f7ff", c2: "#d7e7ff" },
-  { id: "kb-simple",     name: "KB국민 탄탄대로 체크",       issuer: "KB국민카드",  type: "check",  c1: "#fff4eb", c2: "#ffe0c8" },
+  { id: "mr-life", name: "신한카드 Mr.Life", issuer: "신한카드", type: "credit", c1: "#ffeded", c2: "#ffc3c3" },
+  { id: "taptap-o", name: "삼성카드 taptap O", issuer: "삼성카드", type: "credit", c1: "#ffe6f1", c2: "#ffc7de" },
+  { id: "sky-miles", name: "삼성 & MILEAGE PLATINUM (스카이패스)", issuer: "삼성카드", type: "credit", c1: "#eaf2ff", c2: "#cfe0ff" },
+  { id: "id-select-all", name: "삼성 iD SELECT ALL", issuer: "삼성카드", type: "credit", c1: "#eef2f7", c2: "#dde6f3" },
+  { id: "kb-wesh", name: "KB국민 My WE:SH", issuer: "KB국민카드", type: "credit", c1: "#f9f4e7", c2: "#ead9b6" },
+  { id: "hy-zero2", name: "현대 ZERO Edition2", issuer: "현대카드", type: "credit", c1: "#e8f0ff", c2: "#c7d8ff" },
+  { id: "lotte-loca", name: "롯데 LOCA Likit", issuer: "롯데카드", type: "credit", c1: "#e8f8ff", c2: "#bdf0ff" },
+  { id: "woori-point", name: "우리 카드의정석 POINT", issuer: "우리카드", type: "credit", c1: "#e6fff4", c2: "#b9fbe0" },
+  { id: "hana-clubsk", name: "하나카드 CLUB SK", issuer: "하나카드", type: "credit", c1: "#eafff9", c2: "#c5fff0" },
+  { id: "nh-good", name: "NH농협 올바른 체크", issuer: "NH농협카드", type: "check", c1: "#f5fff0", c2: "#e0ffd1" },
+  { id: "ibk-daily", name: "IBK 일상의기쁨 체크", issuer: "IBK기업은행", type: "check", c1: "#f0f7ff", c2: "#d7e7ff" },
+  { id: "kb-simple", name: "KB국민 탄탄대로 체크", issuer: "KB국민카드", type: "check", c1: "#fff4eb", c2: "#ffe0c8" },
 ];
