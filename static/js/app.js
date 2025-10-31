@@ -45,6 +45,9 @@ const $$ = (q, sc = document) => [...sc.querySelectorAll(q)];
 
 /* =========================================================
  * (A) 공통 헤더 템플릿 & 주입
+ *   └ 요청사항 반영:
+ *      - 카드픽봇/인기차트/혜택·이벤트 제거
+ *      - 검색 아이콘, 비교함 아이콘 제거
  * =======================================================*/
 function buildGlobalHeaderHTML() {
   return `
@@ -60,31 +63,13 @@ function buildGlobalHeaderHTML() {
       </a>
 
       <nav class="nav" aria-label="주요">
-        <a href="#" class="nav-bot" data-nav="bot" id="navBot" title="대화형 추천 챗봇 열기">카드픽봇</a>
         <a href="/recommend" data-nav="recommend">카드픽추천</a>
         <a href="/browse"    data-nav="browse">카드찾기</a>
-        <a href="/charts"    data-nav="charts">인기차트</a>
-        <a href="/deals"     data-nav="deals">혜택·이벤트</a>
         <a href="/compare"   data-nav="compare">비교함</a>
       </nav>
 
-      <div class="header__icons">
-        <button id="openSearch" class="icon-btn" aria-label="검색 열기">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <circle cx="11" cy="11" r="7" stroke="#111827" stroke-width="2"></circle>
-            <path d="M20 20L16.65 16.65" stroke="#111827" stroke-width="2" stroke-linecap="round"></path>
-          </svg>
-        </button>
-        <a href="/compare" class="icon-btn" aria-label="비교함">
-          <span class="icon-with-badge">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <path d="M7 3v18M17 3v18M4 7h6M14 17h6"
-                    stroke="#111827" stroke-width="2" stroke-linecap="round"></path>
-            </svg>
-            <span id="compareBadge" class="badge" style="display:none">0</span>
-          </span>
-        </a>
-      </div>
+      <!-- 아이콘 영역은 비움(레이아웃 유지용) -->
+      <div class="header__icons"></div>
     </div>
   </header>`;
 }
@@ -294,6 +279,8 @@ function stopHeroAuto() { if (heroTimer) clearInterval(heroTimer); }
 
 /* =========================================================
  * (D) 혜택 라인 (지금 많이 찾고 있어요)
+ *   └ index.html에서 섹션을 제거했으므로
+ *      해당 DOM이 없으면 조용히 return
  * =======================================================*/
 const dummyBenefit = [
   { short: "S",    name: "삼성카드",     label: "최대 93.8만원 받기",    color: "#0066ff" },
@@ -372,6 +359,8 @@ function bindBenefitNav() {
 
 /* =========================================================
  * (E) 검색 모달
+ *  └ 헤더에서 검색 버튼 제거됨. 모달은 그대로 두되
+ *     버튼이 없으면 자동으로 동작하지 않음.
  * =======================================================*/
 function initSearchModal() {
   const openBtn = $("#openSearch");
@@ -988,6 +977,7 @@ function initCompareSlots() {
 
 /* =========================================================
  * (G) 헤더 상태(비교함 뱃지 & 현재 페이지 active)
+ *   └ compareBadge 요소가 없으면 자동으로 스킵
  * =======================================================*/
 function initHeaderState() {
   const badge = $("#compareBadge");
@@ -1222,7 +1212,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   // 2) 챗봇 위젯 (미리 붙여두면 홈 입력바에서 바로 전송 가능)
   insertChatWidget();
 
-  // nav의 "카드픽봇" 버튼도 챗봇 열도록
+  // nav의 "카드픽봇" 버튼은 제거되었으나 방어적으로 유지
   const navBot = $("#navBot");
   if (navBot) {
     navBot.setAttribute("aria-expanded", "false");
@@ -1240,7 +1230,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   // 4) 카드 데이터 로드 → UI (혜택 슬라이더 등)
   await loadCards();
   if ($("#heroTrack")) renderHero();      // index에선 없음
-  if ($("#benefitList")) renderBenefit(); // index에서 존재
+  if ($("#benefitList")) renderBenefit(); // index에서 섹션 제거했으므로 대부분 없음
   if ($(".compare-page")) initCompareSlots();
 
   // 5) 히어로 좌우 키보드 (해당 섹션 있는 페이지에서만 작동)
