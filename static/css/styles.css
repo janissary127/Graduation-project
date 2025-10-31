@@ -253,7 +253,7 @@ button:focus-visible{ outline-offset:4px }
 .nav a:hover{ background:#f2f4f8 }
 .nav a.is-active{ color:#0b6eff; background:#eef7ff }
 
-/* ✅ ‘카드픽봇’ 강조 버튼 */
+/* ✅ ‘카드픽봇’ 강조 버튼(현재 미사용이지만 보존) */
 .nav a.nav-bot{
   background:linear-gradient(90deg,#0ea5ff,#2563eb);
   color:#fff; font-weight:900;
@@ -262,16 +262,28 @@ button:focus-visible{ outline-offset:4px }
 }
 .nav a.nav-bot:hover{ filter:brightness(.95); transform:translateY(-1px) }
 
-/* 우측 아이콘 버튼 */
+/* 우측 인증 영역 + 아이콘(보존) */
 .header__icons{ display:flex; gap:8px }
+.header__auth{ display:flex; gap:8px; align-items:center; margin-left:8px }
+.hello{ font-size:13px; color:#6b7280 }
+
+/* 공용 버튼 */
+.btn-outline{ border:1px solid var(--line); border-radius:999px; padding:8px 14px; background:#fff; cursor:pointer }
+.btn-primary{ border:0; background:#0ea5ff; color:#fff; border-radius:10px; padding:10px 16px; cursor:pointer; font-weight:800 }
+.btn-primary:hover{ filter:brightness(.95) }
+.btn-outline.small, .btn-primary.small{ padding:6px 10px; font-size:13px }
+.btn-link{
+  background:transparent; border:0; padding:8px 10px; border-radius:10px; cursor:pointer; font-weight:800;
+}
+.btn-link:hover{ background:#f2f4f8 }
+
+/* 아이콘 버튼(보존) */
 .icon-btn{
   border:1px solid var(--line); background:#fff; border-radius:12px;
   height:38px; min-width:38px; display:grid; place-items:center;
   cursor:pointer; transition:transform .12s ease, box-shadow .12s ease, border-color .12s ease;
 }
 .icon-btn:hover{ transform:translateY(-1px); box-shadow:0 8px 22px rgba(16,24,40,.12); border-color:#e3e8f0 }
-
-/* 비교함 뱃지 */
 .icon-with-badge{ position:relative; display:inline-grid; place-items:center }
 .badge{
   position:absolute; top:-6px; right:-8px;
@@ -280,14 +292,7 @@ button:focus-visible{ outline-offset:4px }
   box-shadow:0 6px 16px rgba(14,165,255,.35);
 }
 
-/* ============= 버튼 ============= */
-.btn-outline{ border:1px solid var(--line); border-radius:999px; padding:8px 14px; background:#fff; cursor:pointer }
-.btn-primary{ border:0; background:#0ea5ff; color:#fff; border-radius:10px; padding:10px 16px; cursor:pointer; font-weight:800 }
-.btn-primary:hover{ filter:brightness(.95) }
-
-/* ============= 히어로 =============
-   (이제 index.html에서는 안 쓰지만 다른 레이아웃에서도 혹시 쓰일 수 있으니 유지)
-*/
+/* ============= 히어로(보존) ============= */
 .hero{ background:#f2f4f8; border-bottom:1px solid var(--line) }
 .hero__wrap{ position:relative; padding:26px 0 }
 .hero__viewport{
@@ -299,7 +304,6 @@ button:focus-visible{ outline-offset:4px }
 .hero__inner{ display:grid; grid-template-columns:420px 1fr; gap:40px; align-items:center }
 @media(max-width:980px){ .hero__inner{ grid-template-columns:1fr } }
 
-/* 오른쪽 카드 스택 */
 .hero__image{ display:grid; place-items:center }
 .stack{ position:relative; width:300px; height:200px }
 .stack .card{
@@ -310,12 +314,10 @@ button:focus-visible{ outline-offset:4px }
   background:linear-gradient(135deg,var(--c1),var(--c2));
 }
 
-/* 왼쪽 카피 */
 .hero__copy .kicker{ color:var(--accent); font-weight:800; margin-bottom:6px }
 .hero__copy h2{ font-size:36px; line-height:1.15; margin:.1em 0 .3em 0 }
 .hero__copy p{ color:#475569; margin:0 }
 
-/* 히어로 좌우 버튼 */
 .hero__nav{
   position:absolute; top:50%; transform:translateY(-50%);
   width:52px; height:52px; border-radius:999px;
@@ -330,7 +332,6 @@ button:focus-visible{ outline-offset:4px }
 .hero__viewport:hover .hero__nav{ opacity:1 }
 .hero__nav:hover{ transform:translateY(-50%) scale(1.05); box-shadow:0 14px 40px rgba(16,24,40,.22) }
 
-/* 히어로 점 */
 .hero__dots{
   position:absolute; left:50%; bottom:14px; transform:translateX(-50%);
   display:flex; gap:8px; justify-content:center; z-index:5;
@@ -338,8 +339,7 @@ button:focus-visible{ outline-offset:4px }
 .hero__dot{ width:9px; height:9px; border:0; border-radius:999px; background:#cfd6e4; cursor:pointer; transition:transform .15s ease }
 .hero__dot[aria-selected="true"]{ background:#ffb200; transform:scale(1.15) }
 
-/* ============= 소개(About) ============= */
-/* (현재 index에선 안쓰지만 보존) */
+/* ============= 소개(보존) ============= */
 .about{ padding:40px 0 10px; background:linear-gradient(180deg,#f7f9fc 0%, #ffffff 100%) }
 .about .container{ position:relative }
 .about__card{
@@ -356,7 +356,6 @@ button:focus-visible{ outline-offset:4px }
 .about__title{ font-size:30px; line-height:1.2; margin:.2em 0 .35em; letter-spacing:-.3px; font-weight:900 }
 .about__desc{ color:#4b5563; margin:0 0 14px }
 
-/* 체크 리스트 */
 .tick-list{ list-style:none; padding:0; margin:0 0 16px; display:grid; gap:10px }
 .tick-list li{
   display:flex; align-items:flex-start; gap:10px;
@@ -365,7 +364,6 @@ button:focus-visible{ outline-offset:4px }
 .tick-list svg{ width:18px; height:18px; margin-top:2px; color:#16a34a }
 .about__actions{ display:flex; gap:10px; margin-top:6px }
 
-/* 오른쪽 챗 미리보기 */
 .about__right{ display:flex; flex-direction:column; gap:14px; align-items:center; justify-content:center }
 .about__chat{
   width:min(480px,100%); border:1px solid #e6ebf3; border-radius:16px; background:#f9fbff;
@@ -393,7 +391,6 @@ button:focus-visible{ outline-offset:4px }
 .bubble.user{ background:#eef7ff; margin-left:auto; border-color:#d4e9ff }
 .bubble em{ font-style:normal; color:#0ea5ff; font-weight:800 }
 
-/* 신뢰 지표 */
 .about__stats{ display:grid; grid-template-columns:repeat(3,1fr); gap:10px; width:100% }
 .stat{ background:#fff; border:1px solid #eef2f6; border-radius:14px; padding:12px; display:flex; flex-direction:column; align-items:center; text-align:center }
 .stat__num{ font-weight:900; font-size:22px }
@@ -421,7 +418,6 @@ button:focus-visible{ outline-offset:4px }
 .benefit__label{ font-size:14px; text-align:center; line-height:1.35; margin-top:2px }
 .benefit__issuer{ font-size:12px; color:var(--muted) }
 
-/* 좌우 화살표 */
 .benefit__arrow{
   position:absolute; top:50%; transform:translateY(-50%);
   border:none; background:rgba(255,255,255,.96); border:1px solid rgba(17,24,39,.08);
@@ -624,24 +620,11 @@ button:focus-visible{ outline-offset:4px }
 }
 .picker-name{ font-size:14px; font-weight:700 }
 .picker-issuer{ font-size:12px; color:#92A0B2 }
-
-/* picker thumb 이미지 (회전 처리될 수 있음) */
-.picker-thumb {
-  position: relative;
-  overflow: hidden;
-}
+.picker-thumb { position: relative; overflow: hidden; }
 .picker-thumb .card-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-  transform-origin: center center;
-  transition: transform .16s ease;
-  will-change: transform;
+  width: 100%; height: 100%; object-fit: cover; display: block;
+  transform-origin: center center; transition: transform .16s ease; will-change: transform;
 }
-/* .picker-thumb .card-img.rotate-left {
-   transform: rotate(-90deg);
-} */
 
 /* ============= 플로팅 챗봇 위젯 ============= */
 .cp-chat-fab{
@@ -721,10 +704,7 @@ button:focus-visible{ outline-offset:4px }
 @media (max-width:640px){
   .header__inner{ height:60px }
   .nav{ display:none } /* 모바일에선 상단 메뉴 감춤(햄버거 예정) */
-  .hero__slide{ padding:26px }
-  .hero__copy h2{ font-size:24px }
-  .hero__nav{ width:44px; height:44px }
-  .benefit__item{ min-width:140px }
+  .header__auth{ margin-left:auto }
 }
 
 /* 모션 최소화 고려 */
@@ -758,7 +738,7 @@ button:focus-visible{ outline-offset:4px }
   border: 1px solid #f0f0f0;
 }
 
-/* 헤더: 카드 썸네일 + 버튼 */
+/* 헤더 */
 .compare-col__head {
   padding: 22px;
   text-align: center;
@@ -776,12 +756,12 @@ button:focus-visible{ outline-offset:4px }
 }
 .compare-col__thumb img { max-width: 100%; max-height: 100%; object-fit: contain; display:block; }
 
-/* 이름, 발급사, 프로모(오렌지) */
+/* 이름, 발급사, 프로모 */
 .compare-col__name { font-weight:700; margin-bottom:6px; font-size:15px; }
 .compare-col__issuer { color: #777; font-size:13px; margin-bottom:8px; }
 .compare-col__promo { color:#d97706; font-weight:700; font-size:14px; margin-bottom:12px; }
 
-/* 요약 행(이벤트, 연회비, 전월실적 등) */
+/* 요약 행 */
 .compare-rows { padding: 18px; }
 .compare-row {
   padding: 14px 0;
@@ -792,11 +772,9 @@ button:focus-visible{ outline-offset:4px }
 .row-title { font-weight:600; font-size:13px; color:#333; margin-bottom:8px; }
 .row-content { font-size:14px; color:#444; }
 
-/* 주요혜택은 리스트 스타일 */
 .benefit-list { margin:0; padding:0; list-style:none; display:block; }
 .benefit-list li { padding:4px 0; font-size:13px; color:#333; }
 
-/* 상세(디테일) - 접히는 형식 말고 간단히 노출 */
 .detail-block { font-size:13px; color:#555; margin-top:10px; }
 
 /* 반응형 */
@@ -806,3 +784,22 @@ button:focus-visible{ outline-offset:4px }
 @media (max-width: 640px) {
   .compare-grid { grid-template-columns: 1fr; }
 }
+
+/* ===== Auth 페이지 폼 ===== */
+.auth-wrap{ padding:36px 0 }
+.auth-card{
+  max-width:480px; margin:20px auto; background:#fff; border:1px solid var(--line);
+  border-radius:16px; box-shadow:var(--shadow); padding:22px;
+}
+.auth-card h1{ margin:0 0 8px; font-size:22px; }
+.auth-card p.muted{ margin:0 0 16px; }
+.auth-row{ display:flex; flex-direction:column; gap:6px; margin-bottom:12px }
+.auth-row label{ font-size:13px; color:#475569; font-weight:600 }
+.auth-row input{
+  border:1.5px solid #e7ebf3; border-radius:12px; padding:10px 12px; font-size:14px; outline:none;
+}
+.auth-row input:focus{ border-color:#b7dfff; box-shadow:0 0 0 4px #e9f5ff }
+.auth-actions{ display:flex; gap:8px; align-items:center; justify-content:space-between; margin-top:8px }
+.auth-actions .left{ display:flex; gap:8px; align-items:center }
+.auth-actions .right{ display:flex; gap:8px; align-items:center }
+.auth-note{ font-size:12.5px; color:#6b7280 }
