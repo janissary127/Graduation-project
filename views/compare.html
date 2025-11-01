@@ -1,16 +1,22 @@
 <!DOCTYPE html>
 <html lang="ko">
+
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>CARD PICK · 비교함</title>
 
   <!-- 정적 파일: Flask/Jinja 경로 -->
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/common.css') }}" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/cards.css') }}" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/compare.css') }}" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/picker.css') }}" />
+
   <script defer src="{{ url_for('static', filename='js/app.js') }}"></script>
   <!-- 필요 시 활성화 -->
   <!-- <script defer src="{{ url_for('static', filename='js/app2.js') }}"></script> -->
 </head>
+
 <body>
   <!-- Header (간소화 버전: 카드픽봇/차트/혜택/검색/비교 아이콘 제거) -->
   <header class="site-header">
@@ -18,15 +24,15 @@
       <a href="{{ url_for('index') }}" class="brand" aria-label="CARD PICK 홈">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
           <rect x="2" y="5" width="20" height="14" rx="3" fill="#111827"></rect>
-          <rect x="4" y="9"  width="16" height="2" rx="1" fill="#fff" opacity=".75"></rect>
-          <rect x="4" y="13" width="6"  height="2" rx="1" fill="#fff" opacity=".75"></rect>
+          <rect x="4" y="9" width="16" height="2" rx="1" fill="#fff" opacity=".75"></rect>
+          <rect x="4" y="13" width="6" height="2" rx="1" fill="#fff" opacity=".75"></rect>
         </svg>
         <strong class="brand__text">CARD PICK</strong>
       </a>
       <nav class="nav" aria-label="주요">
         <a href="{{ url_for('recommend') }}" data-nav="recommend">카드픽추천</a>
-        <a href="{{ url_for('browse') }}"    data-nav="browse">카드찾기</a>
-        <a href="{{ url_for('compare') }}"   data-nav="compare">비교함</a>
+        <a href="{{ url_for('browse') }}" data-nav="browse">카드찾기</a>
+        <a href="{{ url_for('compare') }}" data-nav="compare">비교함</a>
       </nav>
       <!-- 아이콘 영역 비움(레이아웃 유지용) -->
       <div class="header__icons"></div>
@@ -180,4 +186,5 @@
     <div class="container muted">© 2025 CARD PICK — 데모 페이지입니다.</div>
   </footer>
 </body>
+
 </html>

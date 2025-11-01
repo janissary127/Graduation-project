@@ -7,7 +7,7 @@
  *  - 인기/혜택 가로 슬라이더
  *  - 비교 페이지 카드 선택(피커) + 로컬스토리지 저장
  *  - 비교함 뱃지
- *  - 플로팅 챗봇 위젯 (+ 홈화면 큰 입력바랑 연동)
+ *  - 플로팅 챗봇 위젯은 분리(chatbot.js)
  *
  *  - 히어로 배너/슬라이드 관련 코드도 남겨두었지만
  *    index.html에서는 현재 사용 X. (#heroTrack 없으면 그냥 안 돈다)
@@ -45,10 +45,6 @@ const $$ = (q, sc = document) => [...sc.querySelectorAll(q)];
 
 /* =========================================================
  * (A) 공통 헤더 템플릿 & 주입
- *   └ 요청사항 반영:
- *      - 카드픽봇/인기차트/혜택·이벤트 제거
- *      - 검색 아이콘, 비교함 아이콘 제거
- *      - 로그인/회원가입 버튼 추가(오른쪽 상단)
  * =======================================================*/
 function buildGlobalHeaderHTML() {
   return `
@@ -91,13 +87,13 @@ function mountGlobalHeader() {
 /* =========================================================
  * (A2) 로그인 상태 UI 갱신
  * =======================================================*/
-async function initAuthUI(){
-  try{
-    const r = await fetch("/api/auth/status", { cache:"no-store" });
+async function initAuthUI() {
+  try {
+    const r = await fetch("/api/auth/status", { cache: "no-store" });
     const s = await r.json();
     const box = document.querySelector("#authLinks");
-    if(!box) return;
-    if(s.logged_in){
+    if (!box) return;
+    if (s.logged_in) {
       const who = s.name || s.email || "사용자";
       box.innerHTML = `
         <span class="hello">안녕하세요, <strong>${esc(who)}</strong>님</span>
@@ -105,22 +101,21 @@ async function initAuthUI(){
           <button type="submit" class="btn-outline small">로그아웃</button>
         </form>`;
       const form = document.querySelector("#logoutForm");
-      form?.addEventListener("submit", async (e)=>{
+      form?.addEventListener("submit", async (e) => {
         e.preventDefault();
-        await fetch("/logout", { method:"POST" });
+        await fetch("/logout", { method: "POST" });
         location.href = "/";
       });
-    }else{
+    } else {
       box.innerHTML = `
         <a href="/login"  class="btn-link">로그인</a>
         <a href="/signup" class="btn-primary small">회원가입</a>`;
     }
-  }catch(e){ /* noop */ }
+  } catch (e) { /* noop */ }
 }
 
 /* =========================================================
  * (B) 카드 데이터 로드
- *    /api/cards 실패 시 /static/data/card_list.json 로 폴백
  * =======================================================*/
 async function loadCards() {
   async function j(url) {
@@ -312,7 +307,6 @@ function stopHeroAuto() { if (heroTimer) clearInterval(heroTimer); }
 
 /* =========================================================
  * (D) 혜택 라인 (지금 많이 찾고 있어요)
- *   └ index.html 섹션을 제거했으면 DOM 없으므로 조용히 return
  * =======================================================*/
 const dummyBenefit = [
   { short: "S", name: "삼성카드", label: "최대 93.8만원 받기", color: "#0066ff" },
@@ -391,8 +385,6 @@ function bindBenefitNav() {
 
 /* =========================================================
  * (E) 검색 모달
- *  └ 헤더에서 검색 버튼 제거됨. 모달은 그대로 두되
- *     버튼이 없으면 자동으로 동작하지 않음.
  * =======================================================*/
 function initSearchModal() {
   const openBtn = $("#openSearch");
@@ -1035,7 +1027,6 @@ function renderComparisonTable() {
       return `
         <div class="compare-column">
           <div class="compare-col__head">
-            <div class="compare-col__thumb"><div style="width:72px;height:72px;border-radius:6px;background:#f5f5f5;display:inline-block;"></div></div>
             <div class="compare-col__name">카드를 선택해 주세요.</div>
             <div class="compare-col__issuer">&nbsp;</div>
           </div>
@@ -1193,136 +1184,9 @@ function initHeaderState() {
 }
 
 /* =========================================================
- * (H) 플로팅 챗봇 위젯
+ * (H) 플로팅 챗봇 위젯 관련 코드는 chatbot.js로 분리되었습니다.
+ *     app.js에서는 chatbot.js가 로드되어 있다면 init()을 호출합니다.
  * =======================================================*/
-function insertChatWidget() {
-  if ($("#cpChatDrawer")) return;
-
-  // FAB
-  const fab = document.createElement("button");
-  fab.className = "cp-chat-fab";
-  fab.id = "cpChatFab";
-  fab.setAttribute("aria-label", "챗봇 열기");
-  fab.innerHTML = `
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-      <path d="M4 6a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4v6a4 4 0 0 1-4 4h-4l-4 4v-4H8a4 4 0 0 1-4-4V6z"
-            stroke="currentColor" stroke-width="2" fill="none"
-            stroke-linecap="round" stroke-linejoin="round"></path>
-    </svg>`;
-  document.body.appendChild(fab);
-
-  // Drawer
-  const drawer = document.createElement("section");
-  drawer.className = "cp-chat-drawer";
-  drawer.id = "cpChatDrawer";
-  drawer.setAttribute("role", "dialog");
-  drawer.setAttribute("aria-modal", "false");
-  drawer.setAttribute("aria-hidden", "true");
-  drawer.innerHTML = `
-    <div class="cp-chat-head">
-      <div class="cp-chat-title"><span class="dot"></span> CARD PICK BOT</div>
-      <button class="cp-chat-close" id="cpChatClose" aria-label="닫기">닫기</button>
-    </div>
-    <div class="cp-chat-log" id="cpChatLog" aria-live="polite"></div>
-    <div class="cp-chat-suggest" id="cpChatSuggest"></div>
-    <form class="cp-chat-input" id="cpChatForm">
-      <input id="cpChatInput" type="text"
-             placeholder="예) 카페/배달 자주 쓰고, 연회비는 저렴하게" />
-      <button class="cp-chat-send" type="submit">보내기</button>
-    </form>`;
-  document.body.appendChild(drawer);
-
-  // 내부 핸들러
-  const log = $("#cpChatLog");
-  const suggest = $("#cpChatSuggest");
-  const form = $("#cpChatForm");
-  const input = $("#cpChatInput");
-  const closeBtn = $("#cpChatClose");
-
-  const SUG = [
-    "카페/배달 많이 써요",
-    "연회비 1만원 이하",
-    "해외 결제 자주해요",
-    "교통/통신 절약",
-    "간편결제 많이 써요"
-  ];
-  suggest.innerHTML = SUG.map(s =>
-    `<button type="button" class="cp-chip" data-msg="${esc(s)}">${esc(s)}</button>`
-  ).join("");
-
-  function addUser(t) {
-    const el = document.createElement("div");
-    el.className = "cp-msg user";
-    el.textContent = t;
-    log.appendChild(el);
-    log.scrollTop = log.scrollHeight;
-  }
-  function addBot(h) {
-    const el = document.createElement("div");
-    el.className = "cp-msg bot";
-    el.innerHTML = h;
-    log.appendChild(el);
-    log.scrollTop = log.scrollHeight;
-  }
-  function genAnswer(q) {
-    const s = q.toLowerCase();
-    if (/카페|배달|편의점/.test(s)) {
-      return `<strong>추천: 삼성 taptap O</strong><br/>• 카페/배달 상시 적립 · 간편결제 추가<br/>→ <a href="/compare">비교함</a>에서 더 보기`;
-    }
-    if (/해외|여행|라운지|마일/.test(s)) {
-      return `<strong>추천: 스카이패스 계열</strong><br/>• 해외 적립/라운지 강점<br/>→ <a href="/compare">비교함</a>에서 조건 비교`;
-    }
-    if (/교통|통신|구독/.test(s)) {
-      return `<strong>추천: KB My WE:SH</strong><br/>• 교통/통신/구독 생활영역 특화<br/>→ <a href="/compare">비교함</a> 이동`;
-    }
-    if (/연회비|만원|저렴/.test(s)) {
-      return `<strong>추천: 현대 ZERO Edition2</strong><br/>• 무실적/낮은 연회비 구간<br/>→ <a href="/compare">비교함</a>에서 대안도 확인`;
-    }
-    return `원하시는 혜택 키워드를 알려주세요. 예) "카페/배달", "해외 적립", "교통/통신", "연회비 1만원 이하"`;
-  }
-
-  function open() {
-    drawer.classList.add("is-open");
-    drawer.setAttribute("aria-hidden", "false");
-    setTimeout(() => input.focus(), 0);
-    if (!log.dataset.welcome) {
-      addBot("안녕하세요! 소비 패턴을 알려주시면 맞춤 카드를 추천해 드릴게요. 예) 카페/배달, 연회비 1만원 이하");
-      log.dataset.welcome = "1";
-    }
-  }
-  function close() {
-    drawer.classList.remove("is-open");
-    drawer.setAttribute("aria-hidden", "true");
-    fab.focus();
-  }
-
-  function sendExternal(q) {
-    addUser(q);
-    setTimeout(() => addBot(genAnswer(q)), 350);
-  }
-
-  fab.addEventListener("click", () => {
-    open();
-  });
-  closeBtn.addEventListener("click", close);
-
-  suggest.addEventListener("click", (e) => {
-    const b = e.target.closest(".cp-chip"); if (!b) return;
-    input.value = b.getAttribute("data-msg");
-    form.requestSubmit();
-  });
-
-  form.addEventListener("submit", (e) => {
-    e.preventDefault();
-    const q = (input.value || "").trim();
-    if (!q) return input.focus();
-    addUser(q);
-    input.value = "";
-    setTimeout(() => addBot(genAnswer(q)), 350);
-  });
-
-  window.CPChat = { open, close, sendExternal };
-}
 
 /* =========================================================
  * (I) 홈화면 전용: 큰 입력창 & 추천카드 → 챗봇과 연결
@@ -1335,9 +1199,17 @@ function initHomeAsk() {
   if (!form || !input) return;
 
   function launchChatWith(q) {
-    if (!window.CPChat) insertChatWidget();
-    window.CPChat.open();
-    window.CPChat.sendExternal(q);
+    // chatbot.js가 노출해 둔 window.Chatbot API를 사용
+    // (초기화가 되어 있지 않다면 init 시도)
+    if (!window.Chatbot) {
+      if (window.Chatbot && typeof window.Chatbot.init === 'function') window.Chatbot.init();
+    } else if (typeof window.Chatbot.init === 'function' && !window.Chatbot.__inited) {
+      // 안전하게 한 번 init 호출 (chatbot.js 내부에서 __inited 플래그 관리 가능)
+      try { window.Chatbot.init(); } catch (e) { /* noop */ }
+    }
+
+    if (window.Chatbot?.open) window.Chatbot.open();
+    if (window.Chatbot?.sendExternal) window.Chatbot.sendExternal(q);
   }
 
   form.addEventListener("submit", (e) => {
@@ -1371,8 +1243,12 @@ document.addEventListener("DOMContentLoaded", async () => {
   // 1-1) 인증 UI 상태 반영
   initAuthUI();
 
-  // 2) 챗봇 위젯
-  insertChatWidget();
+  // 2) 챗봇 위젯 (분리된 chatbot.js에서 init 함수가 있다면 호출)
+  try {
+    if (window.Chatbot && typeof window.Chatbot.init === 'function') {
+      window.Chatbot.init();
+    }
+  } catch (e) { /* noop */ }
 
   // 3) 검색 모달
   initSearchModal();

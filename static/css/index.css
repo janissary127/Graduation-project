@@ -1,0 +1,192 @@
+/* index.css
+   - GPT 홈 전용(인사/추천 질문 카드/하단 입력창)
+   Citation: original styles.css parts. :contentReference[oaicite:3]{index=3}
+*/
+
+.home-main{
+  background:
+    radial-gradient(circle at 50% -10%, #eff6ff 0%, #ffffff 60%);
+  padding:32px 0 40px;
+}
+
+.gpt-hero{
+  padding:12px 0 32px;
+}
+.gpt-shell{
+  position:relative;
+  max-width:780px;
+  margin:0 auto;
+  background:rgba(255,255,255,.8);
+  border:1px solid var(--line);
+  border-radius:24px;
+  padding:28px 24px 96px;
+  box-shadow:
+    0 30px 80px rgba(16,24,40,.12),
+    0 4px 20px rgba(16,24,40,.04);
+  backdrop-filter:blur(8px);
+
+  background-image:
+    radial-gradient(800px 300px at 0% 0%, rgba(14,165,255,.08) 0%, transparent 70%),
+    radial-gradient(800px 300px at 100% 100%, rgba(255,184,0,.08) 0%, transparent 70%),
+    #fff;
+}
+
+.gpt-head{ text-align:left; max-width:540px; }
+.gpt-heading-eyebrow{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+
+  font-size:12px;
+  font-weight:700;
+  color:#0ea5ff;
+
+  background:rgba(14,165,255,.08);
+  border:1px solid rgba(14,165,255,.2);
+  border-radius:999px;
+  padding:5px 10px;
+}
+.gpt-title{
+  font-size:32px;
+  line-height:1.2;
+  letter-spacing:-.03em;
+  font-weight:800;
+  color:#0f172a;
+  margin:12px 0 8px;
+}
+@media(min-width:768px){
+  .gpt-title{ font-size:36px; }
+}
+.grad{
+  background:linear-gradient(90deg,#0ea5ff 0%,#6366f1 50%,#0ea5ff 100%);
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
+}
+.gpt-desc{
+  font-size:15px;
+  line-height:1.5;
+  color:#4b5563;
+  margin:0 0 20px;
+}
+
+/* 추천 질문 카드 리스트 */
+.gpt-suggest-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(min(220px,100%),1fr));
+  gap:12px;
+  margin-bottom:24px;
+}
+.gpt-suggest-card{
+  text-align:left;
+  background:#fff;
+  border-radius:16px;
+  border:1px solid #e5e7eb;
+  box-shadow:0 16px 40px rgba(16,24,40,.06);
+
+  padding:14px 16px;
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+
+  cursor:pointer;
+  transition:box-shadow .12s ease,transform .12s ease,border-color .12s ease,background .12s ease;
+}
+.gpt-suggest-card:hover{
+  transform:translateY(-2px);
+  border-color:#c7dfff;
+  box-shadow:0 24px 60px rgba(16,24,40,.12);
+  background:linear-gradient(180deg,#fff 0%,#f9fbff 100%);
+}
+.gpt-card-icon{
+  font-size:18px;
+  line-height:1;
+  width:28px;
+  height:28px;
+  border-radius:8px;
+  background:#eef7ff;
+  color:#0ea5ff;
+  display:grid;
+  place-items:center;
+  font-weight:600;
+  border:1px solid #b7dfff;
+  box-shadow:0 8px 20px rgba(14,165,255,.18);
+}
+.gpt-card-title{
+  font-size:14px;
+  font-weight:700;
+  color:#0f172a;
+}
+.gpt-card-desc{
+  font-size:12.5px;
+  color:#6b7280;
+  line-height:1.4;
+}
+
+/* 하단 입력 영역 (ChatGPT 메시지바 느낌) */
+.gpt-input-wrap{
+  position:absolute;
+  left:0;
+  right:0;
+  bottom:24px;
+  padding:0 24px;
+}
+.gpt-input-row{
+  position:relative;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  width:100%;
+  background:#fff;
+  border:1.5px solid #dfe4ee;
+  border-radius:14px;
+  padding:12px 14px;
+  box-shadow:
+    0 24px 60px rgba(16,24,40,.12),
+    0 4px 16px rgba(16,24,40,.05);
+}
+.gpt-input-row:focus-within{
+  border-color:#b7dfff;
+  box-shadow:
+    0 0 0 4px rgba(14,165,255,.12),
+    0 24px 60px rgba(16,24,40,.12);
+}
+.gpt-input-row input{
+  flex:1;
+  border:0;
+  background:transparent;
+  font-size:15px;
+  line-height:1.4;
+  outline:none;
+  color:#0f172a;
+}
+.gpt-send-btn{
+  flex-shrink:0;
+  border:0;
+  border-radius:10px;
+  padding:8px 10px;
+  background:linear-gradient(90deg,#0ea5ff,#6366f1);
+  color:#fff;
+  box-shadow:0 12px 30px rgba(14,165,255,.35);
+  cursor:pointer;
+
+  display:grid;
+  place-items:center;
+  transition:filter .12s ease, transform .12s ease;
+}
+.gpt-send-btn:hover{
+  filter:brightness(.95);
+  transform:translateY(-1px);
+}
+.gpt-send-btn svg{
+  width:18px;
+  height:18px;
+  color:#fff;
+}
+.gpt-hint{
+  text-align:center;
+  font-size:11px;
+  line-height:1.4;
+  color:#94a3b8;
+  margin-top:8px;
+}

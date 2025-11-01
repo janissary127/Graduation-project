@@ -1,47 +1,51 @@
 <!DOCTYPE html>
 <html lang="ko">
+
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>CARD PICK — 카드찾기</title>
 
   <!-- 정적 파일: Flask/Jinja 경로 -->
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/common.css') }}" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/cards.css') }}" />
+  <!-- browse 전용 스타일이 더 필요하면 cards.css 만으로 충분할 수도 있음 -->
+
   <script defer src="{{ url_for('static', filename='js/app.js') }}"></script>
   <!-- 필요 시 활성화 -->
   <!-- <script defer src="{{ url_for('static', filename='js/app2.js') }}"></script> -->
 </head>
+
 <body>
   <!-- Header (공통) -->
   <header class="site-header">
     <div class="container header__inner">
       <a href="{{ url_for('index') }}" class="brand" aria-label="CARD PICK 홈">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-          <rect x="2" y="5" width="20" height="14" rx="3" fill="#111827"/>
-          <rect x="4" y="9" width="16" height="2" rx="1" fill="#fff" opacity=".75"/>
-          <rect x="4" y="13" width="6" height="2" rx="1" fill="#fff" opacity=".75"/>
+          <rect x="2" y="5" width="20" height="14" rx="3" fill="#111827" />
+          <rect x="4" y="9" width="16" height="2" rx="1" fill="#fff" opacity=".75" />
+          <rect x="4" y="13" width="6" height="2" rx="1" fill="#fff" opacity=".75" />
         </svg>
         <strong class="brand__text">CARD PICK</strong>
       </a>
       <nav class="nav" aria-label="주요">
         <a href="{{ url_for('recommend') }}" data-nav="recommend">카드픽추천</a>
-        <a href="{{ url_for('browse') }}"    data-nav="browse">카드찾기</a>
-        <a href="{{ url_for('charts') }}"    data-nav="charts">인기차트</a>
-        <a href="{{ url_for('deals') }}"     data-nav="deals">혜택·이벤트</a>
-        <a href="{{ url_for('compare') }}"   data-nav="compare">비교함</a>
+        <a href="{{ url_for('browse') }}" data-nav="browse">카드찾기</a>
+        <a href="{{ url_for('charts') }}" data-nav="charts">인기차트</a>
+        <a href="{{ url_for('deals') }}" data-nav="deals">혜택·이벤트</a>
+        <a href="{{ url_for('compare') }}" data-nav="compare">비교함</a>
       </nav>
       <div class="header__icons">
         <button id="openSearch" class="icon-btn" aria-label="검색 열기">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <circle cx="11" cy="11" r="7" stroke="#111827" stroke-width="2"/>
-            <path d="M20 20L16.65 16.65" stroke="#111827" stroke-width="2" stroke-linecap="round"/>
+            <circle cx="11" cy="11" r="7" stroke="#111827" stroke-width="2" />
+            <path d="M20 20L16.65 16.65" stroke="#111827" stroke-width="2" stroke-linecap="round" />
           </svg>
         </button>
         <a href="{{ url_for('compare') }}" class="icon-btn" aria-label="비교함">
           <span class="icon-with-badge">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <path d="M7 3v18M17 3v18M4 7h6M14 17h6"
-                    stroke="#111827" stroke-width="2" stroke-linecap="round"/>
+              <path d="M7 3v18M17 3v18M4 7h6M14 17h6" stroke="#111827" stroke-width="2" stroke-linecap="round" />
             </svg>
             <span id="compareBadge" class="badge" style="display:none">0</span>
           </span>
@@ -55,8 +59,8 @@
     <div class="container">
       <div class="compare-hero">
         <svg width="48" height="48" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-          <rect x="3" y="4" width="18" height="16" rx="2" stroke="#111827" stroke-width="2"/>
-          <path d="M7 9h10M7 13h6" stroke="#111827" stroke-width="2" stroke-linecap="round"/>
+          <rect x="3" y="4" width="18" height="16" rx="2" stroke="#111827" stroke-width="2" />
+          <path d="M7 9h10M7 13h6" stroke="#111827" stroke-width="2" stroke-linecap="round" />
         </svg>
         <h1>카드 찾기</h1>
         <p>발급사/혜택/연회비로 빠르게 필터링해 보세요.</p>
@@ -108,7 +112,10 @@
     <div class="search-dialog" role="document">
       <div class="search-top">
         <div class="search-input">
-          <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/><path d="M20 20L16.65 16.65" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          <svg viewBox="0 0 24 24">
+            <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2" />
+            <path d="M20 20L16.65 16.65" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+          </svg>
           <input id="searchInput" type="text" placeholder="메뉴, 카드, 혜택을 검색해보세요" />
         </div>
         <button id="searchClose" class="search-close" aria-label="닫기">닫기</button>
@@ -145,4 +152,5 @@
     <div class="container muted">© 2025 CARD PICK — 데모 페이지입니다.</div>
   </footer>
 </body>
+
 </html>

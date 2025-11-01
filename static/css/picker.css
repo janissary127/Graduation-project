@@ -1,0 +1,44 @@
+/* picker.css
+   - 카드 선택 피커 모달 전용 스타일
+   Citation: original styles.css parts. :contentReference[oaicite:5]{index=5}
+*/
+
+.picker-modal{ position:fixed; inset:0; display:none; align-items:center; justify-content:center; z-index:1000 }
+.picker-modal.is-open{ display:flex }
+.picker-modal .modal-backdrop{ position:absolute; inset:0; background:rgba(17,24,39,.55); backdrop-filter:blur(2px); z-index:0 }
+
+.picker-dialog{
+  position:relative; z-index:1; width:min(760px, 92vw); max-height:min(86vh,780px);
+  background:#fff; border:1px solid var(--line); border-radius:18px;
+  box-shadow:0 30px 80px rgba(16,24,40,.28); display:flex; flex-direction:column; overflow:hidden;
+  animation:sd-pop .14s ease;
+}
+.picker-header{ display:flex; align-items:center; justify-content:space-between; padding:14px 18px; border-bottom:1px solid #f1f4f8 }
+.picker-tabs{ display:flex; gap:8px }
+.picker-tab{ border:1px solid #e7ebf3; background:#fff; border-radius:10px; padding:8px 12px; font-weight:800; cursor:pointer }
+.picker-tab.is-active{ background:#eef7ff; border-color:#b7dfff; color:#0b6eff }
+.picker-close{ border:1px solid #e7ebf3; background:#fff; border-radius:10px; padding:6px 10px; cursor:pointer }
+
+.picker-titlebar{ padding:10px 18px 0 }
+.picker-title{ margin:0; font-size:18px; font-weight:900 }
+
+.picker-filters{ padding:10px 18px }
+.picker-filters .chip{ font-weight:700 }
+.chip.on{ background:#eef7ff; border-color:#b7dfff; color:#0b6eff }
+
+.picker-search{ padding:0 18px 12px }
+.picker-list-wrap{ padding:0 2px 16px 18px }
+.picker-list{ max-height:420px; overflow:auto; padding-right:18px }
+.picker-item{ display:flex; align-items:center; gap:12px; padding:10px 8px; border-radius:10px; cursor:pointer }
+.picker-item:hover{ background:#f7f9fc }
+.picker-thumb{
+  width:44px; height:28px; border-radius:6px; border:1px solid #e5e7ee;
+  box-shadow:0 6px 14px rgba(40,50,70,.08); background:linear-gradient(135deg,var(--c1),var(--c2));
+}
+.picker-name{ font-size:14px; font-weight:700 }
+.picker-issuer{ font-size:12px; color:#92A0B2 }
+.picker-thumb { position: relative; overflow: hidden; }
+.picker-thumb .card-img {
+  width: 100%; height: 100%; object-fit: cover; display: block;
+  transform-origin: center center; transition: transform .16s ease; will-change: transform;
+}

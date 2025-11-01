@@ -1,14 +1,20 @@
 <!DOCTYPE html>
 <html lang="ko">
+
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>CARD PICK</title>
 
   <!-- 공용 CSS / JS -->
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/common.css') }}" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/cards.css') }}" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/chatbot.css') }}" />
+
   <script defer src="{{ url_for('static', filename='js/app.js') }}"></script>
 </head>
+
 <body>
   <!-- ================= Header (사이트 공통: JS에서 동일하게 치환/업데이트됨) ================= -->
   <header class="site-header">
@@ -16,8 +22,8 @@
       <a href="{{ url_for('index') }}" class="brand" aria-label="CARD PICK 홈">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
           <rect x="2" y="5" width="20" height="14" rx="3" fill="#111827"></rect>
-          <rect x="4" y="9"  width="16" height="2" rx="1" fill="#fff" opacity=".75"></rect>
-          <rect x="4" y="13" width="6"  height="2" rx="1" fill="#fff" opacity=".75"></rect>
+          <rect x="4" y="9" width="16" height="2" rx="1" fill="#fff" opacity=".75"></rect>
+          <rect x="4" y="13" width="6" height="2" rx="1" fill="#fff" opacity=".75"></rect>
         </svg>
         <strong class="brand__text">CARD PICK</strong>
       </a>
@@ -25,8 +31,8 @@
       <!-- 요청사항 반영: 카드픽봇/인기차트/혜택·이벤트 제거, 아이콘 제거 -->
       <nav class="nav" aria-label="주요">
         <a href="{{ url_for('recommend') }}" data-nav="recommend">카드픽추천</a>
-        <a href="{{ url_for('browse') }}"    data-nav="browse">카드찾기</a>
-        <a href="{{ url_for('compare') }}"   data-nav="compare">비교함</a>
+        <a href="{{ url_for('browse') }}" data-nav="browse">카드찾기</a>
+        <a href="{{ url_for('compare') }}" data-nav="compare">비교함</a>
       </nav>
 
       <div class="header__icons"></div>
@@ -46,47 +52,43 @@
             <div class="gpt-heading-eyebrow">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                 <path d="M12 3l2.09 4.24L18 8.27l-3 2.92.71 4.28L12 13.77l-3.71 1.7L9 11.19 6 8.27l3.91-1.03L12 3z"
-                      stroke="#0ea5ff" stroke-width="1.5" stroke-linejoin="round" fill="none"/>
+                  stroke="#0ea5ff" stroke-width="1.5" stroke-linejoin="round" fill="none" />
               </svg>
               <span>맞춤 카드 탐색</span>
             </div>
 
             <h1 class="gpt-title">
-              오늘은 어떤 혜택이<br/>
+              오늘은 어떤 혜택이<br />
               <span class="grad">필요해요?</span>
             </h1>
 
             <p class="gpt-desc">
-              “카페/배달 많이 써요”, “연회비 1만원 이하”, “해외 결제 자주 해요”<br/>
+              “카페/배달 많이 써요”, “연회비 1만원 이하”, “해외 결제 자주 해요”<br />
               그냥 말해주면 카드픽봇이 바로 골라줘요.
             </p>
           </header>
 
           <!-- 추천 질문 카드 -->
           <div class="gpt-suggest-grid">
-            <button class="gpt-suggest-card"
-                    data-q="카페/배달 많이 쓰고 연회비는 저렴했으면 해요. 어떤 카드가 좋을까요?">
+            <button class="gpt-suggest-card" data-q="카페/배달 많이 쓰고 연회비는 저렴했으면 해요. 어떤 카드가 좋을까요?">
               <div class="gpt-card-icon">☕</div>
               <div class="gpt-card-title">카페/배달 많이 써요</div>
               <div class="gpt-card-desc">연회비는 최대한 저렴했으면 해요</div>
             </button>
 
-            <button class="gpt-suggest-card"
-                    data-q="해외 결제 수수료 적고 공항 라운지 가능한 카드 추천해 줘.">
+            <button class="gpt-suggest-card" data-q="해외 결제 수수료 적고 공항 라운지 가능한 카드 추천해 줘.">
               <div class="gpt-card-icon">✈️</div>
               <div class="gpt-card-title">해외/여행 자주 가요</div>
               <div class="gpt-card-desc">라운지 · 해외 적립 위주로 보고 싶어요</div>
             </button>
 
-            <button class="gpt-suggest-card"
-                    data-q="교통/통신 요금 줄이고 싶은데 생활형 카드 뭐가 좋아요?">
+            <button class="gpt-suggest-card" data-q="교통/통신 요금 줄이고 싶은데 생활형 카드 뭐가 좋아요?">
               <div class="gpt-card-icon">🚇</div>
               <div class="gpt-card-title">교통/통신 아끼고 싶어요</div>
               <div class="gpt-card-desc">생활비 절약 위주 카드 알려줘요</div>
             </button>
 
-            <button class="gpt-suggest-card"
-                    data-q="연회비 1만원 이하에 무실적 혜택 카드 알려줘.">
+            <button class="gpt-suggest-card" data-q="연회비 1만원 이하에 무실적 혜택 카드 알려줘.">
               <div class="gpt-card-icon">💳</div>
               <div class="gpt-card-title">연회비 1만원 이하</div>
               <div class="gpt-card-desc">실적 없어도 혜택 있으면 최고</div>
@@ -96,17 +98,11 @@
           <!-- 하단 큰 입력창 -->
           <div class="gpt-input-wrap">
             <form class="gpt-input-row" id="homeAskForm">
-              <input
-                id="homeAskInput"
-                type="text"
-                placeholder="카드픽봇에게 물어보기: 예) 해외 결제 수수료 적은 카드 추천해 줘"
-                aria-label="카드픽봇에게 질문하기"
-              />
+              <input id="homeAskInput" type="text" placeholder="카드픽봇에게 물어보기: 예) 해외 결제 수수료 적은 카드 추천해 줘"
+                aria-label="카드픽봇에게 질문하기" />
               <button id="homeAskSend" class="gpt-send-btn" type="submit" aria-label="보내기">
-                <svg viewBox="0 0 24 24" fill="none"
-                     stroke="currentColor" stroke-width="2"
-                     stroke-linecap="round" stroke-linejoin="round"
-                     aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                  stroke-linejoin="round" aria-hidden="true">
                   <path d="M5 12L3 3l18 9-18 9 2-9z"></path>
                   <path d="M3 3l10 9"></path>
                 </svg>
@@ -178,4 +174,5 @@
     <div class="container muted">© 2025 CARD PICK — 데모 페이지입니다.</div>
   </footer>
 </body>
+
 </html>
