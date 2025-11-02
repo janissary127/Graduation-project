@@ -1020,6 +1020,13 @@ function renderComparisonTable() {
   const wrap = $("#compareGrid");
   if (!wrap) return;
 
+  // 헬퍼: newline -> <br> 처리하면서 HTML 이스케이프 유지
+  function nl2brSafe(str) {
+    if (str == null) return "";
+    // esc는 기존 코드에서 사용하는 이스케이프 함수라 가정
+    return esc(String(str)).replace(/\r\n|\r|\n/g, "<br>");
+  }
+
   // 3개의 칼럼 HTML을 만듬
   const cols = [0, 1, 2].map(i => {
     const card = getCardDataForSlot(i);
@@ -1056,16 +1063,46 @@ function renderComparisonTable() {
     const perf = (raw && (raw.performance || raw['전월실적'] || raw.performanceText)) || card?.performance || "";
     const desc1 = raw?.desc1 ?? raw?.description ?? card.desc ?? "";
 
+    // ---------- 상세 블록 생성 (dd_tables 우선, 없으면 dd_paragraphs) ----------
     let detailHtml = "";
     const details = (raw && Array.isArray(raw.details) && raw.details.length) ? raw.details : (Array.isArray(card.details) ? card.details : []);
     if (details.length) {
       detailHtml = details.slice(0, 3).map(d => {
         const title = d.dt_i || (d.dt_texts && d.dt_texts.join(", ")) || "";
-        const paras = (Array.isArray(d.dd_paragraphs) ? d.dd_paragraphs : []);
-        const snippet = paras.slice(0, 2).join(" / ");
-        return `<div class="detail-block"><strong>${esc(title)}</strong><div>${esc(snippet)}</div></div>`;
+        // dd_tables가 있으면 테이블 렌더, 없으면 dd_paragraphs 렌더
+        let inner = "";
+        if (Array.isArray(d.dd_tables) && d.dd_tables.length) {
+          // dd_tables: 배열(테이블들). 각 테이블은 2차원 배열(행 -> 셀)
+          // 우선 첫 번째 테이블만 렌더
+          const table = d.dd_tables[0];
+          if (Array.isArray(table) && table.length) {
+            // 첫 행을 헤더로 사용 (간단한 판단: 첫 행 길이 > 0)
+            const rowsHtml = table.map((row, rIdx) => {
+              const cells = (Array.isArray(row) ? row : [row]).map(cell => `<td>${nl2brSafe(cell)}</td>`).join("");
+              if (rIdx === 0) {
+                // header row
+                const ths = (Array.isArray(row) ? row : [row]).map(h => `<th>${esc(String(h))}</th>`).join("");
+                return `<thead><tr>${ths}</tr></thead>`;
+              } else {
+                return `<tr>${cells}</tr>`;
+              }
+            }).join("");
+            // 만약 thead가 없다면(즉 모든 행이 body라면), 전체를 tbody로 감싸기
+            const hasThead = rowsHtml.indexOf("<thead>") !== -1;
+            inner = `<div class="detail-table-wrap"><table class="dd-table">${hasThead ? rowsHtml.replace(/^(?:.|\n)*/, rowsHtml) : `<tbody>${rowsHtml}</tbody>`}</table></div>`;
+            // 위의 replace는 안전장치; 실제로 rowsHtml 이미 완성됨.
+          }
+        } else if (Array.isArray(d.dd_paragraphs) && d.dd_paragraphs.length) {
+          // dd_paragraphs: 간단히 줄 단위로 출력
+          inner = `<div class="detail-paragraphs">${d.dd_paragraphs.slice(0, 6).map(p => `<p>${nl2brSafe(p)}</p>`).join("")}</div>`;
+        } else {
+          inner = ""; // 아무 것도 없으면 비워둠
+        }
+
+        return `<div class="detail-block"><strong>${esc(title)}</strong><div class="detail-block__content">${inner}</div></div>`;
       }).join("");
     }
+    // -------------------------------------------------------------------------
 
     const benefitsHtml = benefits.length
       ? `<ul class="benefit-list">${benefits.slice(0, 6).map(b => `<li>${esc(b)}</li>`).join("")}</ul>`
@@ -1107,6 +1144,7 @@ function renderComparisonTable() {
 
   wrap.innerHTML = cols.join("");
 }
+
 
 // 안전한 RAW 매칭 헬퍼 함수
 function findRawForCard(card, RAW) {

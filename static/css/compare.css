@@ -83,7 +83,7 @@
   padding: 32px 0;
   border-top: 1px solid #e6e6e6;
 }
-.compare-summary__inner { max-width: 1200px; margin: 0 auto; }
+.compare-summary__inner { max-width: 1800px; margin: 0 auto; }
 
 /* 3열 그리드 */
 .compare-grid {
@@ -134,3 +134,41 @@
 @media (max-width: 640px) {
   .compare-grid { grid-template-columns: 1fr; }
 }
+
+/* ---- dd_tables / dd_paragraphs 보강 스타일 (append to compare.css) ---- */
+.detail-block { margin-bottom: 14px; }
+.detail-block strong { display:block; margin-bottom:8px; color:#1f2937; }
+.detail-block__content { font-size:13px; color:#374151; }
+
+.detail-paragraphs p {
+  margin:6px 0;
+  line-height:1.45;
+  color:#4b5563;
+  font-size:13px;
+}
+
+/* 표 스타일 */
+.detail-table-wrap { overflow:auto; margin-top:8px; }
+.dd-table {
+  width:100%;
+  border-collapse:collapse;
+  font-size:13px;
+  min-width:480px;
+}
+.dd-table thead th {
+  background:#f8fafc;
+  text-align:left;
+  padding:8px 10px;
+  border-bottom:1px solid #e6eef6;
+  font-weight:700;
+  color:#111827;
+}
+.dd-table tbody td, .dd-table tr td {
+  padding:8px 10px;
+  border-bottom:1px solid #f1f5f9;
+  vertical-align:top;
+  color:#374151;
+}
+.dd-table tr:nth-child(odd) td { background: #fff; }
+.dd-table tr:nth-child(even) td { background: #fbfdff; }
+
