@@ -8,10 +8,12 @@
 
   <!-- 정적 파일: Flask/Jinja 경로 -->
   <link rel="stylesheet" href="{{ url_for('static', filename='css/common.css') }}" />
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/cards.css') }}" />
+  <!-- <link rel="stylesheet" href="{{ url_for('static', filename='css/cards.css') }}" /> -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/browse.css') }}" />
   <!-- browse 전용 스타일이 더 필요하면 cards.css 만으로 충분할 수도 있음 -->
 
   <script defer src="{{ url_for('static', filename='js/app.js') }}"></script>
+  <script defer src="{{ url_for('static', filename='js/render-cards.js') }}"></script>
   <!-- 필요 시 활성화 -->
   <!-- <script defer src="{{ url_for('static', filename='js/app2.js') }}"></script> -->
 </head>
@@ -76,32 +78,16 @@
       </div>
 
       <section aria-label="검색 결과">
-        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px">
-          <article class="benefit__item">
-            <div class="brand-circle" style="background:#0066ff">삼성</div>
-            <div class="benefit__label">온라인/간편결제 특화</div>
-            <div class="benefit__issuer">삼성 iD SELECT ALL</div>
-            <a href="{{ url_for('compare') }}" class="btn-outline" style="margin-top:8px">비교함 담기</a>
-          </article>
-          <article class="benefit__item">
-            <div class="brand-circle" style="background:#6a5de3">롯데</div>
-            <div class="benefit__label">편의점/카페 상시혜택</div>
-            <div class="benefit__issuer">LOCA Likit</div>
-            <a href="{{ url_for('compare') }}" class="btn-outline" style="margin-top:8px">비교함 담기</a>
-          </article>
-          <article class="benefit__item">
-            <div class="brand-circle" style="background:#0071c2">우리</div>
-            <div class="benefit__label">생활/쇼핑 적립</div>
-            <div class="benefit__issuer">정석 POINT</div>
-            <a href="{{ url_for('compare') }}" class="btn-outline" style="margin-top:8px">비교함 담기</a>
-          </article>
-          <article class="benefit__item">
-            <div class="brand-circle" style="background:#0f62ae">NH</div>
-            <div class="benefit__label">체크 · 교통/통신 절약</div>
-            <div class="benefit__issuer">올바른 체크</div>
-            <a href="{{ url_for('compare') }}" class="btn-outline" style="margin-top:8px">비교함 담기</a>
-          </article>
+        <!-- issuer 목록 (초기 화면) -->
+        <div id="issuerGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px">
         </div>
+
+        <!-- 특정 카드사 카드들 보여줄 그리드 (초기엔 숨김) -->
+        <div id="cardGrid" style="display:none;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px">
+        </div>
+
+        <!-- 위/아래 전환용 버튼 -->
+        <button id="backToIssuers" style="display:none;margin-bottom:12px">← 카드사 목록으로</button>
       </section>
     </div>
   </main>
