@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>CARD PICK</title>
+
+  <!-- 공용 CSS / JS -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/common.css') }}" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/cards.css') }}" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/chatbot.css') }}" />
+
+  <script defer src="{{ url_for('static', filename='js/app.js') }}"></script>
+  <script defer src="{{ url_for('static', filename='js/index_home.js') }}"></script>
+</head>
+
+<body>
+  <!-- ================= Header (사이트 공통: JS에서 동일하게 치환/업데이트됨) ================= -->
+  <header class="site-header">
+    <div class="container header__inner">
+      <a href="{{ url_for('index') }}" class="brand" aria-label="CARD PICK 홈">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <rect x="2" y="5" width="20" height="14" rx="3" fill="#111827"></rect>
+          <rect x="4" y="9" width="16" height="2" rx="1" fill="#fff" opacity=".75"></rect>
+          <rect x="4" y="13" width="6" height="2" rx="1" fill="#fff" opacity=".75"></rect>
+        </svg>
+        <strong class="brand__text">CARD PICK</strong>
+      </a>
+
+      <!-- 요청사항 반영: 카드픽봇/인기차트/혜택·이벤트 제거, 아이콘 제거 -->
+      <nav class="nav" aria-label="주요">
+        <a href="{{ url_for('recommend') }}" data-nav="recommend">카드픽추천</a>
+        <a href="{{ url_for('browse') }}" data-nav="browse">카드찾기</a>
+        <a href="{{ url_for('compare') }}" data-nav="compare">비교함</a>
+      </nav>
+
+      <div class="header__icons"></div>
+    </div>
+  </header>
+
+  <!-- ================= 메인 =================
+       가운데 영역만 ChatGPT 홈 느낌으로 구성
+  -->
+  <main class="home-main">
+    <!-- ChatGPT 홈 느낌: 인사 + 추천 질문 카드 + 큰 입력창 -->
+    <section class="gpt-hero">
+      <div class="container">
+        <div class="gpt-shell">
+          <!-- 상단 인사 / 타이틀 -->
+          <header class="gpt-head">
+            <div class="gpt-heading-eyebrow">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M12 3l2.09 4.24L18 8.27l-3 2.92.71 4.28L12 13.77l-3.71 1.7L9 11.19 6 8.27l3.91-1.03L12 3z"
+                  stroke="#0ea5ff" stroke-width="1.5" stroke-linejoin="round" fill="none" />
+              </svg>
+              <span>맞춤 카드 탐색</span>
+            </div>
+
+            <h1 class="gpt-title">
+              오늘은 어떤 혜택이<br />
+              <span class="grad">필요해요?</span>
+            </h1>
+
+            <p class="gpt-desc">
+              "카페 자주 가요", "영화 많이 봐요", "교통비 아끼고 싶어요"<br />
+              그냥 말해주면 카드픽봇이 바로 골라줘요.
+            </p>
+          </header>
+
+          <!-- 추천 질문 카드 -->
+          <div class="gpt-suggest-grid">
+            <button class="gpt-suggest-card" data-q="카페 스타벅스 커피 할인 혜택 많은 카드 추천해 줘">
+              <div class="gpt-card-icon">☕</div>
+              <div class="gpt-card-title">커피/음료</div>
+              <div class="gpt-card-desc">카페 할인 혜택 받고 싶어요</div>
+            </button>
+
+            <button class="gpt-suggest-card" data-q="배달 외식 맥도날드 버거킹 치킨 피자 할인 카드 추천해 줘">
+              <div class="gpt-card-icon">🍔</div>
+              <div class="gpt-card-title">외식/배달</div>
+              <div class="gpt-card-desc">배달음식 자주 시켜먹어요</div>
+            </button>
+
+            <button class="gpt-suggest-card" data-q="영화 CGV 넷플릭스 유튜브 멜론 할인 혜택 카드 추천해 줘">
+              <div class="gpt-card-icon">🎬</div>
+              <div class="gpt-card-title">여가/문화</div>
+              <div class="gpt-card-desc">영화 OTT 즐겨봐요</div>
+            </button>
+
+            <button class="gpt-suggest-card" data-q="대중교통 버스 지하철 택시 주유 할인 카드 추천해 줘">
+              <div class="gpt-card-icon">🚆</div>
+              <div class="gpt-card-title">교통</div>
+              <div class="gpt-card-desc">교통비 아끼고 싶어요</div>
+            </button>
+
+            <button class="gpt-suggest-card" data-q="통신비 SKT KT LG 휴대폰 요금 할인 카드 추천해 줘">
+              <div class="gpt-card-icon">📱</div>
+              <div class="gpt-card-title">통신/구독</div>
+              <div class="gpt-card-desc">통신비 절약하고 싶어요</div>
+            </button>
+
+            <button class="gpt-suggest-card" data-q="쇼핑 마트 이마트 쿠팡 편의점 할인 카드 추천해 줘">
+              <div class="gpt-card-icon">🛍️</div>
+              <div class="gpt-card-title">쇼핑/마트</div>
+              <div class="gpt-card-desc">장보기 할인 받고 싶어요</div>
+            </button>
+          </div>
+
+          <!-- 하단 큰 입력창 -->
+          <div class="gpt-input-wrap">
+            <form class="gpt-input-row" id="homeAskForm" action="{{ url_for('chatbot_recommend') }}" method="get">
+              <input id="homeAskInput" name="query" type="text" placeholder="카드픽봇에게 물어보기: 예) 해외 결제 수수료 적은 카드 추천해 줘"
+                aria-label="카드픽봇에게 질문하기" />
+              <button id="homeAskSend" class="gpt-send-btn" type="submit" aria-label="보내기">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                  stroke-linejoin="round" aria-hidden="true">
+                  <path d="M5 12L3 3l18 9-18 9 2-9z"></path>
+                  <path d="M3 3l10 9"></path>
+                </svg>
+              </button>
+            </form>
+
+            <div class="gpt-hint">
+              카드픽봇은 데모 서비스입니다. 실제 혜택/한도는 각 카드사 최신 약관을 확인하세요.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 요청사항: '지금 많이 찾고 있어요' 섹션 제거됨 -->
+  </main>
+
+  <!-- ================= Search Modal (공통) ================= -->
+  <div id="searchModal" class="search-modal" aria-hidden="true" role="dialog" aria-modal="true">
+    <div id="searchBackdrop" class="modal-backdrop"></div>
+    <div class="search-dialog" role="document">
+      <div class="search-top">
+        <div class="search-input">
+          <svg viewBox="0 0 24 24">
+            <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"></circle>
+            <path d="M20 20L16.65 16.65" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>
+          </svg>
+          <input id="searchInput" type="text" placeholder="메뉴, 카드, 혜택을 검색해보세요" />
+        </div>
+        <button id="searchClose" class="search-close" aria-label="닫기">닫기</button>
+      </div>
+
+      <div class="search-titlebar">
+        <h2 class="search-title">통합 검색</h2>
+      </div>
+
+      <section class="search-section">
+        <div class="section-head">
+          <h3>최근 검색어</h3>
+          <label class="switch" title="최근 검색어 저장">
+            <input id="recentToggle" type="checkbox" checked />
+            <span class="slider"></span>
+            <span class="switch-label">최근 검색어 저장</span>
+          </label>
+        </div>
+        <div id="recentList" class="chip-row"></div>
+      </section>
+
+      <section class="search-section">
+        <h3>지금 많이 찾고 있어요</h3>
+        <div id="hotList" class="chip-row"></div>
+      </section>
+
+      <section class="search-section">
+        <h3>이런 정보를 찾고 계세요?</h3>
+        <div id="suggestList" class="suggest-row"></div>
+      </section>
+
+      <div class="search-bottom">
+        <button id="searchSubmit" class="btn-primary">검색</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- (주의) 플로팅 챗봇 위젯은 app.js에서 전 페이지 공통으로 동적 삽입됩니다. -->
+
+  <!-- ================= Footer ================= -->
+  <footer class="footer">
+    <div class="container muted">© 2025 CARD PICK — 데모 페이지입니다.</div>
+  </footer>
+</body>
+
+</html>

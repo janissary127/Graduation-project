@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>CARD PICK — AI 카드 추천</title>
+
+  <!-- 공용 CSS / JS -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/common.css') }}" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/cards.css') }}" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/chatbot_recommend.css') }}" />
+
+  <script defer src="{{ url_for('static', filename='js/app.js') }}"></script>
+  <script defer src="{{ url_for('static', filename='js/recommend_bot.js') }}"></script>
+</head>
+
+<body>
+  <!-- Header (공통) -->
+  <header class="site-header">
+    <div class="container header__inner">
+      <a href="{{ url_for('index') }}" class="brand" aria-label="CARD PICK 홈">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <rect x="2" y="5" width="20" height="14" rx="3" fill="#111827" />
+          <rect x="4" y="9" width="16" height="2" rx="1" fill="#fff" opacity=".75" />
+          <rect x="4" y="13" width="6" height="2" rx="1" fill="#fff" opacity=".75" />
+        </svg>
+        <strong class="brand__text">CARD PICK</strong>
+      </a>
+      <nav class="nav" aria-label="주요">
+        <a href="{{ url_for('recommend') }}" data-nav="recommend">카드픽추천</a>
+        <a href="{{ url_for('browse') }}" data-nav="browse">카드찾기</a>
+        <a href="{{ url_for('compare') }}" data-nav="compare">비교함</a>
+      </nav>
+      <div class="header__icons"></div>
+    </div>
+  </header>
+
+  <!-- 메인 -->
+  <main class="chatbot-recommend-page">
+    <div class="container">
+      <!-- 상단 헤더 -->
+      <div class="recommend-hero">
+        <div class="bot-icon">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M4 6a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4v6a4 4 0 0 1-4 4h-4l-4 4v-4H8a4 4 0 0 1-4-4V6z"
+                  stroke="#0ea5ff" stroke-width="2" fill="none"
+                  stroke-linecap="round" stroke-linejoin="round"></path>
+            <circle cx="9" cy="9" r="1" fill="#0ea5ff"></circle>
+            <circle cx="15" cy="9" r="1" fill="#0ea5ff"></circle>
+          </svg>
+        </div>
+        <h1>AI 카드 추천 챗봇</h1>
+        <p>원하는 혜택을 입력하면 맞춤 카드를 추천해드립니다.</p>
+      </div>
+
+      <!-- 챗봇 영역 -->
+      <div class="chat-container">
+        <!-- 대화 로그 -->
+        <div class="chat-log" id="chatLog" aria-live="polite">
+          <div class="chat-message bot">
+            <div class="message-avatar">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                <path d="M4 6a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4v6a4 4 0 0 1-4 4h-4l-4 4v-4H8a4 4 0 0 1-4-4V6z"
+                      stroke="currentColor" stroke-width="2" fill="none"></path>
+              </svg>
+            </div>
+            <div class="message-content">
+              안녕하세요! CARD PICK BOT입니다.<br/>
+              원하시는 카드 혜택을 알려주세요.<br/>
+              예) "카페 할인", "해외 결제", "교통비 절약", "연회비 저렴한 카드"
+            </div>
+          </div>
+        </div>
+
+        <!-- 추천 키워드 -->
+        <div class="chat-suggestions" id="chatSuggestions">
+          <button class="suggestion-chip" data-keyword="카페">☕ 카페 할인</button>
+          <button class="suggestion-chip" data-keyword="배달">🍕 배달 할인</button>
+          <button class="suggestion-chip" data-keyword="해외">✈️ 해외 결제</button>
+          <button class="suggestion-chip" data-keyword="교통">🚇 교통비 절약</button>
+          <button class="suggestion-chip" data-keyword="통신">📱 통신비 할인</button>
+          <button class="suggestion-chip" data-keyword="연회비">🛍 쇼핑 할인</button>
+        </div>
+
+        <!-- 입력 영역 -->
+        <form class="chat-input-form" id="chatInputForm">
+          <input
+            id="chatInput"
+            type="text"
+            placeholder="원하는 혜택을 입력하세요 (예: 카페 할인, 해외 결제)"
+            aria-label="혜택 키워드 입력" />
+          <button id="chatSendBtn" class="chat-send-btn" type="submit" aria-label="보내기">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round">
+              <path d="M5 12L3 3l18 9-18 9 2-9z"></path>
+              <path d="M3 3l10 9"></path>
+            </svg>
+          </button>
+        </form>
+      </div>
+
+      <!-- 추천 결과 영역 -->
+      <div class="recommendation-results" id="recommendResults" style="display:none;">
+        <h2 class="results-title">추천 카드</h2>
+        <div class="results-grid" id="resultsGrid"></div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container muted">© 2025 CARD PICK — 데모 페이지입니다.</div>
+  </footer>
+</body>
+
+</html>

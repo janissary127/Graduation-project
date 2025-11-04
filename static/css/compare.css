@@ -1,0 +1,174 @@
+/* compare.css
+   - 비교함(3-슬롯) 전용 + compare summary (플렉시블 그리드)
+   Citation: original styles.css parts. :contentReference[oaicite:4]{index=4}
+*/
+
+.compare-page{ background:#fafbfd; padding:36px 0 60px }
+.compare-hero{
+  display:flex; flex-direction:column; align-items:center; text-align:center;
+  gap:6px; margin-top:12px; margin-bottom:26px
+}
+.compare-hero h1{ font-size:32px; letter-spacing:-.3px; margin:10px 0 6px; font-weight:900 }
+.compare-hero p{ color:#6b7280; margin:0 }
+
+.compare-slots{
+  display:grid; grid-template-columns:1fr 16px 1fr 16px 1fr; gap:0; align-items:center; margin-top:10px
+}
+.divider-vert{ width:1px; height:360px; background:#eef1f6; justify-self:center }
+.slot{ display:flex; flex-direction:column; align-items:center; gap:12px }
+
+.slot-circle{
+  position:relative; width:240px; height:240px; border-radius:999px; background:#fff;
+  box-shadow:0 6px 24px rgba(16,24,40,.06); display:grid; place-items:center;
+}
+.slot-target{
+  width:142px; height:92px; border-radius:12px;
+  border:2px dashed #9aa3b2; display:grid; place-items:center;
+  color:#111827; background:#fff; cursor:pointer;
+}
+.slot-target.selected{ border-style:solid }
+.slot-mini{
+  width:120px;
+  height:74px;
+  border-radius:10px;
+  border:1px solid #e5e7ee;
+  box-shadow:0 8px 16px rgba(40,50,70,.1);
+  background:linear-gradient(135deg,var(--c1),var(--c2));
+  overflow: visible;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+/* slot 이미지 스타일 */
+.slot-mini img.slot-img{
+  max-width: 100%;
+  max-height: 100%;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  transform: none;
+  transition: none;
+  image-orientation: from-image;
+}
+
+.plus{ font-size:28px; line-height:1 }
+.slot-caption{ font-size:12px; color:#6b7280; margin:0 }
+
+.slot-clear{
+  position:absolute; right:8px; top:8px; width:28px; height:28px; border-radius:999px;
+  display:grid; place-items:center; cursor:pointer;
+  border:1px solid #e7ebf3; background:#fff; color:#6b7280; font-weight:800;
+  box-shadow:0 6px 18px rgba(16,24,40,.08);
+  opacity:0; pointer-events:none; transition:.15s ease;
+}
+.slot-circle:hover .slot-clear{ opacity:1; pointer-events:auto }
+.slot-target.selected ~ .slot-clear{ opacity:1; pointer-events:auto }
+.slot-clear:hover{ transform:scale(1.05); color:#111827 }
+
+/* 반응형 */
+@media (max-width:640px){
+  .slot-circle{ width:200px; height:200px }
+  .slot-target{ width:120px; height:80px }
+  .compare-slots{ grid-template-columns:1fr 12px 1fr 12px 1fr }
+  .divider-vert{ height:300px }
+}
+
+/* 비교 요약 영역 (compare summary) */
+.compare-summary {
+  margin-top: 32px;
+  background: #fafafa;
+  padding: 32px 0;
+  border-top: 1px solid #e6e6e6;
+}
+.compare-summary__inner { max-width: 1800px; margin: 0 auto; }
+
+/* 3열 그리드 */
+.compare-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  align-items: start;
+}
+
+/* 각 카드 칼럼 스타일 */
+.compare-column {
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 1px 0 rgba(0,0,0,0.05);
+  overflow: hidden;
+  border: 1px solid #f0f0f0;
+}
+.compare-col__head {
+  padding: 22px;
+  text-align: center;
+  border-bottom: 1px solid #f3f3f3;
+}
+.compare-col__thumb img { max-width: 100%; max-height: 100%; object-fit: contain; display:block; }
+
+.compare-col__name { font-weight:700; margin-bottom:6px; font-size:15px; }
+.compare-col__issuer { color: #777; font-size:13px; margin-bottom:8px; }
+.compare-col__promo { color:#d97706; font-weight:700; font-size:14px; margin-bottom:12px; }
+
+.compare-rows { padding: 18px; }
+.compare-row {
+  padding: 14px 0;
+  border-bottom: 1px solid #f3f3f3;
+  display:flex;
+  flex-direction:column;
+}
+.row-title { font-weight:600; font-size:13px; color:#333; margin-bottom:8px; }
+.row-content { font-size:14px; color:#444; }
+
+.benefit-list { margin:0; padding:0; list-style:none; display:block; }
+.benefit-list li { padding:4px 0; font-size:13px; color:#333; }
+
+.detail-block { font-size:13px; color:#555; margin-top:10px; }
+
+/* responsive */
+@media (max-width: 980px) {
+  .compare-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 640px) {
+  .compare-grid { grid-template-columns: 1fr; }
+}
+
+/* ---- dd_tables / dd_paragraphs 보강 스타일 (append to compare.css) ---- */
+.detail-block { margin-bottom: 14px; }
+.detail-block strong { display:block; margin-bottom:8px; color:#1f2937; }
+.detail-block__content { font-size:13px; color:#374151; }
+
+.detail-paragraphs p {
+  margin:6px 0;
+  line-height:1.45;
+  color:#4b5563;
+  font-size:13px;
+}
+
+/* 표 스타일 */
+.detail-table-wrap { overflow:auto; margin-top:8px; }
+.dd-table {
+  width:100%;
+  border-collapse:collapse;
+  font-size:13px;
+  min-width:480px;
+}
+.dd-table thead th {
+  background:#f8fafc;
+  text-align:left;
+  padding:8px 10px;
+  border-bottom:1px solid #e6eef6;
+  font-weight:700;
+  color:#111827;
+}
+.dd-table tbody td, .dd-table tr td {
+  padding:8px 10px;
+  border-bottom:1px solid #f1f5f9;
+  vertical-align:top;
+  color:#374151;
+}
+.dd-table tr:nth-child(odd) td { background: #fff; }
+.dd-table tr:nth-child(even) td { background: #fbfdff; }
+
