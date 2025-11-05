@@ -18,7 +18,6 @@
         'IBK기업은행': '#196F3D'
     };
 
-
     // corp 문자열 정규화: "삼성카드" -> "삼성", "NH농협카드" -> "NH" 등
     function normalizeCorp(corp) {
         if (!corp) return '';
@@ -58,6 +57,53 @@
         return `hsl(${hue} 70% 60%)`;
     }
 
+    /**
+     * 이미지 src 결정기
+     * 우선순위:
+     * 1) card.img 이 존재하면 그대로 사용 (절대경로 또는 상대경로 모두 허용)
+     * 2) card.name 기반으로 /static/img/{encodeURIComponent(name)}.png (우선)
+     *    -> 실패하면 .jpg 시도
+     *    -> 실패하면 placeholder
+     */
+    function resolveImageSrc(card) {
+        // placeholder(마지막 대체 수단)
+        const PLACEHOLDER = 'https://via.placeholder.com/120x80?text=Card';
+
+        // helper: 파일명(확장자 포함)을 안전하게 /static/img/ 경로로 만듬
+        function imgPathFromFilename(filename) {
+            // encodeURIComponent는 특수문자, 공백 등을 안전하게 인코딩
+            return `/static/img/${encodeURIComponent(filename)}`;
+        }
+
+        // 1) card.img가 있으면 우선 처리
+        if (card.img) {
+            const raw = String(card.img).trim();
+            // 만약 이미 절대 URL 또는 루트 상대경로이면 그대로 사용
+            if (/^https?:\/\//i.test(raw) || raw.startsWith('/')) {
+                return { initial: raw, fallbackToJpg: false, placeholder: PLACEHOLDER };
+            }
+            // 그렇지 않으면 static/img 하위 파일명으로 간주
+            return { initial: imgPathFromFilename(raw), fallbackToJpg: false, placeholder: PLACEHOLDER };
+        }
+
+        // 2) card.name 기반으로 시도 (사용자 제공 파일명 예: "[NH농협] 그린카드v2.png")
+        const baseName = (card.name || '').trim();
+        if (!baseName) {
+            return { initial: PLACEHOLDER, fallbackToJpg: false, placeholder: PLACEHOLDER };
+        }
+
+        // 일반적으로 JSON에 확장자가 없는 경우가 많으므로 .png 먼저, .jpg 대체
+        const pngFile = `${baseName}.png`;
+        const jpgFile = `${baseName}.jpg`;
+
+        return {
+            initial: imgPathFromFilename(pngFile),
+            fallbackToJpg: true,
+            jpgSrc: imgPathFromFilename(jpgFile),
+            placeholder: PLACEHOLDER
+        };
+    }
+
     function createCardNode(card) {
         const container = document.createElement('div');
         container.className = 'card-container';
@@ -76,19 +122,47 @@
         }).join('') || `<div class="benefit-item"><div class="benefit-label">혜택</div><div class="benefit-value">정보 없음</div></div>`;
 
         // 안전한 대체값
-        const imgSrc = card.img || 'https://via.placeholder.com/120x80?text=Card';
         const promoText = card.promo || '';
         const performance = card.performance || '';
         const desc1 = card.desc1 || '';
         const desc2 = card.desc2 || '';
         const teamId = card.team_id || 0;
 
-        container.innerHTML = `
-        <div class="card_img">
-            <img src="${imgSrc}" alt="${(card.name || '카드')}" />
-        </div>
+        // 이미지 요소 생성 (onerror로 확장자 폴백 처리)
+        const imgWrap = document.createElement('div');
+        imgWrap.className = 'card_img';
+        const imgEl = document.createElement('img');
+        imgEl.alt = (card.name || '카드');
+        imgEl.setAttribute('loading', 'lazy');
 
-        <div class="card_data">
+        const resolved = resolveImageSrc(card);
+        // 추적 상태
+        let triedJpg = false;
+        imgEl.src = resolved.initial;
+
+        imgEl.addEventListener('error', function onImgError() {
+            // 만약 jpg로 폴백 가능하고 아직 jpg를 시도하지 않았다면 jpg로 바꿔치기
+            if (resolved.fallbackToJpg && !triedJpg && resolved.jpgSrc) {
+                triedJpg = true;
+                imgEl.src = resolved.jpgSrc;
+                return;
+            }
+            // 그 외에는 placeholder로
+            if (imgEl.src !== resolved.placeholder) {
+                imgEl.src = resolved.placeholder;
+            } else {
+                // 이미 placeholder도 실패한다면 이벤트 제거
+                imgEl.removeEventListener('error', onImgError);
+            }
+        });
+
+        imgWrap.appendChild(imgEl);
+
+        // 카드 데이터 HTML
+        const dataWrap = document.createElement('div');
+        dataWrap.className = 'card_data';
+
+        dataWrap.innerHTML = `
             <div class="title-row">
                 <div class="card_tit">
                     <span class="card_name">${card.name || ''}</span>
@@ -108,8 +182,10 @@
                 <div class="txt">${desc1}</div>
                 <div class="txt2">${desc2}</div>
             </div>
-        </div>
-    `;
+        `;
+
+        container.appendChild(imgWrap);
+        container.appendChild(dataWrap);
 
         return container;
     }
