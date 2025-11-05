@@ -152,35 +152,73 @@
             const node = createIssuerNode(key, info.displayName, info.cards.length, info.corpSample);
             issuerGrid.appendChild(node);
         });
+
+        // 항상 issuerGrid는 보이게 하고 cardGrid는 초기엔 숨김
         issuerGrid.style.display = '';
         cardGrid.style.display = 'none';
         backBtn.style.display = 'none';
+
+        // 초기에는 선택 표시 제거
+        document.querySelectorAll('.issuer-item.selected').forEach(el => el.classList.remove('selected'));
     }
 
-    // 특정 issuer 카드들 렌더
+    // 선택된 issuer 강조 제거/추가 도우미
+    function setSelectedIssuerKey(key) {
+        document.querySelectorAll('.issuer-item').forEach(el => {
+            if (el.dataset.issuer === key) el.classList.add('selected');
+            else el.classList.remove('selected');
+        });
+    }
+
+    // 특정 issuer 카드들 렌더 — issuerGrid를 숨기지 않도록 수정
     function showCardsForIssuer(issuerKey) {
         const info = issuerMap[issuerKey];
         if (!info) {
             cardGrid.innerHTML = '<div>해당 카드사가 없습니다.</div>';
+            cardGrid.style.display = '';
+            backBtn.style.display = '';
+            setSelectedIssuerKey(null);
             return;
         }
         cardGrid.innerHTML = '';
         info.cards.forEach(card => cardGrid.appendChild(createCardNode(card)));
 
-        issuerGrid.style.display = 'none';
+        // issuerGrid는 숨기지 않는다 — 항상 보이게
+        issuerGrid.style.display = '';
         cardGrid.style.display = '';
+
+        // 뒤로가기 버튼은 카드 목록을 닫는 용도로 노출 (원하면 제거 가능)
         backBtn.style.display = '';
+
+        // 클릭한 issuer 강조
+        setSelectedIssuerKey(issuerKey);
     }
 
-    // 카드사 맵 전역(히스토리 popstate에서도 사용)
-    let issuerMap = {};
+    // back 버튼: 카드 목록만 닫고 issuer 목록은 유지
+    backBtn.addEventListener('click', () => {
+        // 히스토리 방식 유지하되, 단순히 카드 영역만 초기화
+        try {
+            // 히스토리 스택이 있으면 뒤로가기로 처리
+            history.back();
+        } catch (e) {
+            // 실패하면 카드 목록 숨기기
+            cardGrid.innerHTML = '';
+            cardGrid.style.display = 'none';
+            backBtn.style.display = 'none';
+            document.querySelectorAll('.issuer-item.selected').forEach(el => el.classList.remove('selected'));
+        }
+    });
 
-    // 뒤로가기/앞으로가기 처리: state에 issuer가 있으면 해당 issuer 표시, 없으면 issuer 목록
+    // popstate는 기존대로 동작하되 issuer 목록은 항상 보이게 유지
     window.addEventListener('popstate', (ev) => {
         const state = ev.state;
         if (state && state.issuer) {
             showCardsForIssuer(state.issuer);
         } else {
+            // 카드 목록만 닫고 issuer 목록은 보이게
+            cardGrid.innerHTML = '';
+            cardGrid.style.display = 'none';
+            backBtn.style.display = 'none';
             renderIssuers(issuerMap);
         }
     });
