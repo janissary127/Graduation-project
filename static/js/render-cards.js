@@ -167,21 +167,33 @@
     }
 
     // 토글 함수: dl group 내부의 dl들에 .on 클래스를 토글
-    function toggleDetails(holder) {
-        if (!holder) return;
+    // removeOnClose 옵션을 true로 넘기면 "닫힐 때 holder를 DOM에서 제거"합니다.
+    function toggleDetails(holder, { removeOnClose = false } = {}) {
+        if (!holder) return false;
         const dls = holder.querySelectorAll('dl');
         const anyOn = Array.from(dls).some(dl => dl.classList.contains('on'));
-        dls.forEach(dl => {
-            if (anyOn) {
+
+        if (anyOn) {
+            // 현재 열려있음 -> 닫기
+            dls.forEach(dl => {
                 dl.classList.remove('on');
                 dl.classList.add('detail-collapsed');
-            } else {
+            });
+
+            if (removeOnClose) {
+                // 부모에서 제거 (메모리/참조 정리)
+                if (holder.parentNode) holder.parentNode.removeChild(holder);
+            }
+            return false; // 닫혔음을 반환
+        } else {
+            // 현재 닫혀있음 -> 열기
+            dls.forEach(dl => {
                 dl.classList.add('on');
                 dl.classList.remove('detail-collapsed');
-            }
-        });
+            });
+            return true; // 열렸음을 반환
+        }
     }
-    // -------------------------------------------------------------
 
     function createCardNode(card) {
         const container = document.createElement('div');
@@ -290,7 +302,15 @@
                 // 처음에는 열기 (toggleDetails가 .on을 추가)
                 toggleDetails(detailsHolder);
             } else {
-                toggleDetails(detailsHolder);
+                // 이미 존재하면: 현재 열려있으면 닫으면서 DOM에서 제거,
+                // 닫혀있으면 다시 열기.
+                const wasOpened = toggleDetails(detailsHolder, { removeOnClose: true });
+                // toggleDetails이 닫은 경우(removeOnClose로 제거했을 경우) detailsHolder 레퍼런스 정리
+                if (wasOpened === false) {
+                    detailsHolder = null;
+                } else {
+                    // 만약 toggleDetails이 열어줬다면(드물게 사용할 경우) 레퍼런스 유지
+                }
             }
         });
 
