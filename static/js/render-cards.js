@@ -80,8 +80,8 @@
     }
 
     // ---------- 새로 추가된 함수: details -> dl/dd 생성 ----------
+    // replace the old createDetailsGroup with this one
     function createDetailsGroup(detailsArray) {
-        // wrapper for all dl elements for this card
         const holder = document.createElement('div');
         holder.className = 'card-details-holder';
 
@@ -90,55 +90,54 @@
 
             // dt 생성
             const dt = document.createElement('dt');
-            // option: 배경 아이콘(세부 JSON에 iconUrl 같은 필드를 넣으면 사용)
+
+            // optional icon background
             if (detail.iconUrl) {
                 dt.style.backgroundImage = `url("${detail.iconUrl}")`;
                 dt.style.backgroundRepeat = 'no-repeat';
             }
 
-            // dt_texts 배열의 첫 항목을 txt1으로
+            // dt_texts 첫 항목
             const pTxt = document.createElement('p');
             pTxt.className = 'txt1';
             const firstTxt = Array.isArray(detail.dt_texts) && detail.dt_texts.length ? detail.dt_texts[0] : '';
             pTxt.textContent = firstTxt;
             dt.appendChild(pTxt);
 
-            // dt_i (강조 텍스트)
+            // dt_i (요약 텍스트)
             if (detail.dt_i) {
                 const iEl = document.createElement('i');
                 iEl.textContent = detail.dt_i;
                 dt.appendChild(iEl);
             }
 
+            // accessibility: make dt focusable and indicate collapsed by default
+            dt.tabIndex = 0;
+            dt.setAttribute('role', 'button');
+
             dl.appendChild(dt);
 
-            // dd 생성 (초기엔 숨김, .on 클래스가 있으면 보이도록 스타일 조정 가능)
+            // dd 생성 (초기 숨김)
             const dd = document.createElement('dd');
             const inBox = document.createElement('div');
             inBox.className = 'in_box';
 
-            // dd_paragraphs -> <p>들
             if (Array.isArray(detail.dd_paragraphs)) {
                 detail.dd_paragraphs.forEach(par => {
                     const p = document.createElement('p');
-                    // preserve simple line breaks: 교체된 \n => 실제 줄바꿈은 그대로 두고 textContent로 안전하게 추가
                     p.textContent = par;
                     inBox.appendChild(p);
                 });
             }
 
-            // dd_tables -> <table> (각 표를 하나씩 추가)
             if (Array.isArray(detail.dd_tables) && detail.dd_tables.length) {
                 detail.dd_tables.forEach(tableArr => {
-                    // tableArr: 2D array (rows x cols)
                     const table = document.createElement('table');
                     table.className = 'detail-table';
                     tableArr.forEach((rowArr, rowIndex) => {
                         const tr = document.createElement('tr');
-                        rowArr.forEach((cellText, colIndex) => {
-                            // 첫 행은 헤더로 처리할 수도 있으나 원본 예시에선 그저 셀로 보임.
+                        rowArr.forEach(cellText => {
                             const cell = document.createElement(rowIndex === 0 ? 'th' : 'td');
-                            // 셀 안에 줄바꿈이 포함되어 있을 수 있으므로 텍스트로 추가
                             cell.textContent = cellText;
                             tr.appendChild(cell);
                         });
@@ -148,23 +147,56 @@
                 });
             }
 
-            // (option) 마지막에 편집기 출처 같은 작은 문구가 있으면 추가. JSON에 없다면 무시.
             if (detail.footerHtml) {
                 const pf = document.createElement('p');
-                pf.innerHTML = detail.footerHtml; // footerHtml은 신뢰된 내용일 때만 사용하세요.
+                pf.innerHTML = detail.footerHtml; // 신뢰된 HTML만 넣을 것
                 inBox.appendChild(pf);
             }
 
             dd.appendChild(inBox);
             dl.appendChild(dd);
 
-            // 기본적으로 dd 숨기기; expand 시 .on 클래스를 dl에 추가
-            dl.classList.add('detail-collapsed'); // CSS에서 이 클래스에 따라 dd를 숨기세요.
+            // 기본 상태: 닫힘
+            dl.classList.add('detail-collapsed');
+            dl.setAttribute('aria-expanded', 'false');
+
+            // ----- 개별 dt 토글 핸들러 -----
+            function openDl() {
+                dl.classList.add('on');
+                dl.classList.remove('detail-collapsed');
+                dl.setAttribute('aria-expanded', 'true');
+            }
+            function closeDl() {
+                dl.classList.remove('on');
+                dl.classList.add('detail-collapsed');
+                dl.setAttribute('aria-expanded', 'false');
+            }
+            function toggleDl() {
+                if (dl.classList.contains('on')) closeDl();
+                else openDl();
+            }
+
+            // 클릭으로 토글
+            dt.addEventListener('click', (e) => {
+                e.stopPropagation();
+                toggleDl();
+            });
+
+            // 키보드 접근성: Enter / Space로 토글
+            dt.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    dt.click();
+                }
+            });
+
+            // holder에 추가
             holder.appendChild(dl);
         });
 
         return holder;
     }
+
 
     // 토글 함수: dl group 내부의 dl들에 .on 클래스를 토글
     // removeOnClose 옵션을 true로 넘기면 "닫힐 때 holder를 DOM에서 제거"합니다.
@@ -283,6 +315,8 @@
 
         viewLink.addEventListener('click', (ev) => {
             ev.preventDefault();
+
+            // 1) detailsHolder가 없으면 생성만 하고 (기본 닫힌 상태 유지), DOM에 추가
             if (!detailsHolder) {
                 detailsHolder = createDetailsGroup(card.details || []);
                 // 투톤 강조(왼쪽 바) — 카드사 컬러 적용
@@ -291,28 +325,24 @@
                     detailsHolder.style.borderLeft = `6px solid ${corpColor}`;
                 } catch (e) { /* ignore */ }
 
-                // 스크롤 높이 제한은 CSS에서 처리 (클래스로)
                 detailsHolder.classList.add('two-tone-details');
-                // keyboard scrollability
                 detailsHolder.tabIndex = 0;
 
-                // container에 contentRow 아래로 삽입 — 세로 정렬 유지
                 container.appendChild(detailsHolder);
 
-                // 처음에는 열기 (toggleDetails가 .on을 추가)
-                toggleDetails(detailsHolder);
-            } else {
-                // 이미 존재하면: 현재 열려있으면 닫으면서 DOM에서 제거,
-                // 닫혀있으면 다시 열기.
-                const wasOpened = toggleDetails(detailsHolder, { removeOnClose: true });
-                // toggleDetails이 닫은 경우(removeOnClose로 제거했을 경우) detailsHolder 레퍼런스 정리
-                if (wasOpened === false) {
-                    detailsHolder = null;
-                } else {
-                    // 만약 toggleDetails이 열어줬다면(드물게 사용할 경우) 레퍼런스 유지
-                }
+                // <-- 여기서 toggleDetails 호출하지 않습니다.
+                // 생성 후 기본 상태는 '닫힘' (detail-collapsed) 이므로
+                // 사용자가 각 dt를 클릭해서 해당 dd를 열 수 있습니다.
+                return;
             }
+
+            // 2) detailsHolder가 이미 있으면 (두번째 클릭) : 그냥 제거
+            if (detailsHolder && detailsHolder.parentNode) {
+                detailsHolder.parentNode.removeChild(detailsHolder);
+            }
+            detailsHolder = null;
         });
+
 
         return container;
     }
