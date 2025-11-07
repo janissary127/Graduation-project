@@ -4,6 +4,9 @@
     const issuerGrid = document.getElementById('issuerGrid');
     const cardGrid = document.getElementById('cardGrid');
     const backBtn = document.getElementById('backToIssuers');
+    let issuerMap = {}; // 기존에 전역으로 사용되던 issuerMap을 명시적으로 선언
+    let allCards = [];  // JSON으로 로드한 전체 카드 목록 (필터 소스)
+
 
     // 브랜드별 기본 색상 (원하면 JSON에 넣어도 됨)
     const BRAND_COLOR = {
@@ -411,6 +414,80 @@
         backBtn.style.display = '';
         setSelectedIssuerKey(issuerKey);
     }
+    // ---------------------- 카테고리 필터링 기능 (추가) ----------------------
+    function normalizeCategoryKey(s) {
+        return String(s || '').replace(/\s|\/|·|_/g, '').toLowerCase();
+    }
+
+    // 선택된 발급사(issuer) 키 반환 (없으면 null)
+    function getSelectedIssuerKey() {
+        const sel = document.querySelector('.issuer-item.selected');
+        return sel ? sel.dataset.issuer : null;
+    }
+
+    // 카테고리(칩)으로 카드들을 필터링해서 화면에 표시
+    // 카테고리(칩)으로 카드들을 필터링해서 화면에 표시
+    function showFilteredCards(categoryText) {
+        const cat = String(categoryText || '').trim();
+        const catNorm = normalizeCategoryKey(cat);
+
+        // source: 현재 선택된 발급사 내에서 필터할지, 전체에서 필터할지
+        const selectedIssuer = getSelectedIssuerKey();
+        const sourceCards = selectedIssuer && issuerMap[selectedIssuer]
+            ? issuerMap[selectedIssuer].cards
+            : (Array.isArray(allCards) ? allCards : []);
+
+        let filtered;
+        if (!cat || cat === '모든가맹점' || catNorm === '') {
+            filtered = sourceCards.slice(); // 전체
+        } else {
+            filtered = sourceCards.filter(card => {
+                if (!Array.isArray(card.details)) return false;
+                return card.details.some(detail => {
+                    if (!Array.isArray(detail.dt_texts)) return false;
+                    return detail.dt_texts.some(dt => {
+                        const dtNorm = normalizeCategoryKey(dt);
+                        // 부분 일치 허용 (예: "마트/편의점" 같이 복합표현 처리)
+                        return dtNorm && catNorm && (dtNorm.includes(catNorm) || catNorm.includes(dtNorm));
+                    });
+                });
+            });
+        }
+
+        cardGrid.innerHTML = '';
+        if (!filtered.length) {
+            cardGrid.innerHTML = `<div style="padding:18px;color:#666">해당 조건에 맞는 카드가 없습니다.</div>`;
+        } else {
+            filtered.forEach(card => cardGrid.appendChild(createCardNode(card)));
+        }
+
+        // UI 상태: (발급사 목록을 항상 보이게 하고 싶다면 아래 라인은 제거 또는 주석 처리)
+        // issuerGrid.style.display = 'none';  <-- 이 줄을 제거했습니다.
+        cardGrid.style.display = '';
+        backBtn.style.display = '';
+    }
+
+
+    // 칩 버튼 상태(선택 강조) 관리
+    function setActiveChip(chipEl) {
+        document.querySelectorAll('.chip-row .chip').forEach(c => c.classList.remove('chip-active'));
+        if (chipEl) chipEl.classList.add('chip-active');
+    }
+
+    // 칩들에 클릭 이벤트 연결 (문서에 칩이 있는 시점에 호출)
+    function setupChipHandlers() {
+        const chips = document.querySelectorAll('.chip-row .chip');
+        if (!chips || !chips.length) return;
+
+        chips.forEach(chip => {
+            chip.addEventListener('click', (e) => {
+                const cat = chip.textContent.trim();
+                setActiveChip(chip);
+                showFilteredCards(cat);
+            });
+        });
+    }
+    // ---------------------- /카테고리 필터링 기능 ----------------------
 
     backBtn.addEventListener('click', () => {
         try {
@@ -435,16 +512,14 @@
         }
     });
 
-    backBtn.addEventListener('click', () => {
-        try { history.back(); } catch (e) { renderIssuers(issuerMap); }
-    });
-
     // 로드 및 초기 렌더링
     try {
         const res = await fetch(JSON_PATH, { cache: 'no-store' });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
         const items = Array.isArray(data) ? data : (data.cards || []);
+        allCards = items;           // loaded items 전역 저장
+        setupChipHandlers();        // 칩 클릭 리스너 연결
 
         issuerMap = items.reduce((acc, card) => {
             const key = normalizeCorp(card.corp || card.company || '기타');

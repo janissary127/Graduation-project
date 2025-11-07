@@ -379,6 +379,12 @@
   white-space: pre-wrap;
 }
 
+.chip-row .chip.chip-active {
+  background: #034EA2;
+  color: #fff;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+
 /* 모바일: content-row가 세로로 쌓여도 안정 동작 */
 @media (max-width: 768px) {
   .content-row {
