@@ -11,14 +11,14 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='css/cards.css') }}" />
   <link rel="stylesheet" href="{{ url_for('static', filename='css/compare.css') }}" />
   <link rel="stylesheet" href="{{ url_for('static', filename='css/picker.css') }}" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/chatbot.css') }}" />
 
   <script defer src="{{ url_for('static', filename='js/app.js') }}"></script>
-  <!-- 필요 시 활성화 -->
-  <!-- <script defer src="{{ url_for('static', filename='js/app2.js') }}"></script> -->
+  <script defer src="{{ url_for('static', filename='js/chatbot.js') }}"></script>
 </head>
 
 <body>
-  <!-- Header (간소화 버전: 카드픽봇/차트/혜택/검색/비교 아이콘 제거) -->
+  <!-- Header (간소화 버전) -->
   <header class="site-header">
     <div class="container header__inner">
       <a href="{{ url_for('index') }}" class="brand" aria-label="CARD PICK 홈">
@@ -34,7 +34,6 @@
         <a href="{{ url_for('browse') }}" data-nav="browse">카드찾기</a>
         <a href="{{ url_for('compare') }}" data-nav="compare">비교함</a>
       </nav>
-      <!-- 아이콘 영역 비움(레이아웃 유지용) -->
       <div class="header__icons"></div>
     </div>
   </header>
@@ -140,7 +139,7 @@
     </div>
   </div>
 
-  <!-- 검색 모달(공통) — 헤더에서 검색 아이콘은 제거했지만 모달은 유지(비표시) -->
+  <!-- 검색 모달(공통) -->
   <div id="searchModal" class="search-modal" aria-hidden="true" role="dialog" aria-modal="true">
     <div id="searchBackdrop" class="modal-backdrop"></div>
     <div class="search-dialog" role="document">

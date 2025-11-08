@@ -8,14 +8,12 @@
 
   <!-- 정적 파일: Flask/Jinja 경로 -->
   <link rel="stylesheet" href="{{ url_for('static', filename='css/common.css') }}" />
-  <!-- <link rel="stylesheet" href="{{ url_for('static', filename='css/cards.css') }}" /> -->
   <link rel="stylesheet" href="{{ url_for('static', filename='css/browse.css') }}" />
-  <!-- browse 전용 스타일이 더 필요하면 cards.css 만으로 충분할 수도 있음 -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/chatbot.css') }}" />
 
   <script defer src="{{ url_for('static', filename='js/app.js') }}"></script>
+  <script defer src="{{ url_for('static', filename='js/chatbot.js') }}"></script>
   <script defer src="{{ url_for('static', filename='js/render-cards.js') }}"></script>
-  <!-- 필요 시 활성화 -->
-  <!-- <script defer src="{{ url_for('static', filename='js/app2.js') }}"></script> -->
 </head>
 
 <body>
@@ -33,26 +31,9 @@
       <nav class="nav" aria-label="주요">
         <a href="{{ url_for('recommend') }}" data-nav="recommend">카드픽추천</a>
         <a href="{{ url_for('browse') }}" data-nav="browse">카드찾기</a>
-        <a href="{{ url_for('charts') }}" data-nav="charts">인기차트</a>
-        <a href="{{ url_for('deals') }}" data-nav="deals">혜택·이벤트</a>
         <a href="{{ url_for('compare') }}" data-nav="compare">비교함</a>
       </nav>
-      <div class="header__icons">
-        <button id="openSearch" class="icon-btn" aria-label="검색 열기">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <circle cx="11" cy="11" r="7" stroke="#111827" stroke-width="2" />
-            <path d="M20 20L16.65 16.65" stroke="#111827" stroke-width="2" stroke-linecap="round" />
-          </svg>
-        </button>
-        <a href="{{ url_for('compare') }}" class="icon-btn" aria-label="비교함">
-          <span class="icon-with-badge">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <path d="M7 3v18M17 3v18M4 7h6M14 17h6" stroke="#111827" stroke-width="2" stroke-linecap="round" />
-            </svg>
-            <span id="compareBadge" class="badge" style="display:none">0</span>
-          </span>
-        </a>
-      </div>
+      <div class="header__icons"></div>
     </div>
   </header>
 

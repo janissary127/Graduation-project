@@ -115,6 +115,46 @@ async function initAuthUI() {
 }
 
 /* =========================================================
+ * (A3) 챗봇 스크립트 동적 로더 (누락 대비)
+ * =======================================================*/
+function ensureChatbotLoaded(cb) {
+  // 이미 로드됨
+  if (window.Chatbot && typeof window.Chatbot.init === 'function') {
+    try { window.Chatbot.init(); } catch {}
+    cb?.();
+    return;
+  }
+  // 중복 로드 방지
+  if (document.querySelector('script[data-chatbot-loader="1"]')) {
+    const timer = setInterval(() => {
+      if (window.Chatbot?.init) {
+        clearInterval(timer);
+        try { window.Chatbot.init(); } catch {}
+        cb?.();
+      }
+    }, 60);
+    setTimeout(() => clearInterval(timer), 5000);
+    return;
+  }
+  // 스크립트 주입
+  const s = document.createElement('script');
+  s.src = '/static/js/chatbot.js';
+  s.defer = true;
+  s.dataset.chatbotLoader = "1";
+  s.onload = () => { try { window.Chatbot?.init?.(); } catch {} cb?.(); };
+  document.head.appendChild(s);
+
+  // 스타일도 보장(혹시 템플릿에서 누락되었을 때)
+  if (!document.querySelector('link[data-chatbot-style="1"]')) {
+    const l = document.createElement('link');
+    l.rel = 'stylesheet';
+    l.href = '/static/css/chatbot.css';
+    l.dataset.chatbotStyle = "1";
+    document.head.appendChild(l);
+  }
+}
+
+/* =========================================================
  * (B) 카드 데이터 로드
  * =======================================================*/
 async function loadCards() {
@@ -672,12 +712,11 @@ function handleSlotImageError(img) {
     const nextExt = tryExts[nextIdx] || ".png";
     img.dataset.currentExt = nextExt;
 
-    if (img.datasetSrcBase) {
-      img.dataset.src = img.datasetSrcBase + nextExt;
+    if (img.dataset.srcBase) {
+      img.dataset.src = img.dataset.srcBase + nextExt;
       img.src = img.dataset.src;
     } else {
-      const origName =
-        img.datasetName || img.dataset.name || img.getAttribute("alt") || "";
+      const origName = img.dataset.name || img.getAttribute("alt") || "";
       img.src = imagePathForName(origName, nextExt);
     }
   } catch (e) {
@@ -1023,7 +1062,6 @@ function renderComparisonTable() {
   // 헬퍼: newline -> <br> 처리하면서 HTML 이스케이프 유지
   function nl2brSafe(str) {
     if (str == null) return "";
-    // esc는 기존 코드에서 사용하는 이스케이프 함수라 가정
     return esc(String(str)).replace(/\r\n|\r|\n/g, "<br>");
   }
 
@@ -1063,46 +1101,30 @@ function renderComparisonTable() {
     const perf = (raw && (raw.performance || raw['전월실적'] || raw.performanceText)) || card?.performance || "";
     const desc1 = raw?.desc1 ?? raw?.description ?? card.desc ?? "";
 
-    // ---------- 상세 블록 생성 (dd_tables 우선, 없으면 dd_paragraphs) ----------
+    // ---------- 상세 블록 생성 ----------
     let detailHtml = "";
     const details = (raw && Array.isArray(raw.details) && raw.details.length) ? raw.details : (Array.isArray(card.details) ? card.details : []);
     if (details.length) {
       detailHtml = details.slice(0, 3).map(d => {
         const title = d.dt_i || (d.dt_texts && d.dt_texts.join(", ")) || "";
-        // dd_tables가 있으면 테이블 렌더, 없으면 dd_paragraphs 렌더
         let inner = "";
         if (Array.isArray(d.dd_tables) && d.dd_tables.length) {
-          // dd_tables: 배열(테이블들). 각 테이블은 2차원 배열(행 -> 셀)
-          // 우선 첫 번째 테이블만 렌더
           const table = d.dd_tables[0];
           if (Array.isArray(table) && table.length) {
-            // 첫 행을 헤더로 사용 (간단한 판단: 첫 행 길이 > 0)
-            const rowsHtml = table.map((row, rIdx) => {
-              const cells = (Array.isArray(row) ? row : [row]).map(cell => `<td>${nl2brSafe(cell)}</td>`).join("");
-              if (rIdx === 0) {
-                // header row
-                const ths = (Array.isArray(row) ? row : [row]).map(h => `<th>${esc(String(h))}</th>`).join("");
-                return `<thead><tr>${ths}</tr></thead>`;
-              } else {
-                return `<tr>${cells}</tr>`;
-              }
-            }).join("");
-            // 만약 thead가 없다면(즉 모든 행이 body라면), 전체를 tbody로 감싸기
-            const hasThead = rowsHtml.indexOf("<thead>") !== -1;
-            inner = `<div class="detail-table-wrap"><table class="dd-table">${hasThead ? rowsHtml.replace(/^(?:.|\n)*/, rowsHtml) : `<tbody>${rowsHtml}</tbody>`}</table></div>`;
-            // 위의 replace는 안전장치; 실제로 rowsHtml 이미 완성됨.
+            const head = table[0];
+            const body = table.slice(1);
+            const thead = `<thead><tr>${(Array.isArray(head) ? head : [head]).map(h => `<th>${esc(String(h))}</th>`).join("")}</tr></thead>`;
+            const tbody = `<tbody>${body.map(row => `<tr>${(Array.isArray(row) ? row : [row]).map(c => `<td>${nl2brSafe(c)}</td>`).join("")}</tr>`).join("")}</tbody>`;
+            inner = `<div class="detail-table-wrap"><table class="dd-table">${thead}${tbody}</table></div>`;
           }
         } else if (Array.isArray(d.dd_paragraphs) && d.dd_paragraphs.length) {
-          // dd_paragraphs: 간단히 줄 단위로 출력
           inner = `<div class="detail-paragraphs">${d.dd_paragraphs.slice(0, 6).map(p => `<p>${nl2brSafe(p)}</p>`).join("")}</div>`;
         } else {
-          inner = ""; // 아무 것도 없으면 비워둠
+          inner = "";
         }
-
         return `<div class="detail-block"><strong>${esc(title)}</strong><div class="detail-block__content">${inner}</div></div>`;
       }).join("");
     }
-    // -------------------------------------------------------------------------
 
     const benefitsHtml = benefits.length
       ? `<ul class="benefit-list">${benefits.slice(0, 6).map(b => `<li>${esc(b)}</li>`).join("")}</ul>`
@@ -1222,8 +1244,7 @@ function initHeaderState() {
 }
 
 /* =========================================================
- * (H) 플로팅 챗봇 위젯 관련 코드는 chatbot.js로 분리되었습니다.
- *     app.js에서는 chatbot.js가 로드되어 있다면 init()을 호출합니다.
+ * (H) 플로팅 챗봇 위젯 — chatbot.js가 로드되어 있으면 init
  * =======================================================*/
 
 /* =========================================================
@@ -1237,17 +1258,10 @@ function initHomeAsk() {
   if (!form || !input) return;
 
   function launchChatWith(q) {
-    // chatbot.js가 노출해 둔 window.Chatbot API를 사용
-    // (초기화가 되어 있지 않다면 init 시도)
-    if (!window.Chatbot) {
-      if (window.Chatbot && typeof window.Chatbot.init === 'function') window.Chatbot.init();
-    } else if (typeof window.Chatbot.init === 'function' && !window.Chatbot.__inited) {
-      // 안전하게 한 번 init 호출 (chatbot.js 내부에서 __inited 플래그 관리 가능)
-      try { window.Chatbot.init(); } catch (e) { /* noop */ }
-    }
-
-    if (window.Chatbot?.open) window.Chatbot.open();
-    if (window.Chatbot?.sendExternal) window.Chatbot.sendExternal(q);
+    ensureChatbotLoaded(() => {
+      window.Chatbot.open?.();
+      window.Chatbot.sendExternal?.(q);
+    });
   }
 
   form.addEventListener("submit", (e) => {
@@ -1281,12 +1295,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   // 1-1) 인증 UI 상태 반영
   initAuthUI();
 
-  // 2) 챗봇 위젯 (분리된 chatbot.js에서 init 함수가 있다면 호출)
-  try {
-    if (window.Chatbot && typeof window.Chatbot.init === 'function') {
-      window.Chatbot.init();
-    }
-  } catch (e) { /* noop */ }
+  // 2) 챗봇 위젯 로드/초기화 보장
+  ensureChatbotLoaded(() => {
+    try { window.Chatbot?.init?.(); } catch {}
+  });
 
   // 3) 검색 모달
   initSearchModal();

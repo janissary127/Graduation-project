@@ -13,6 +13,8 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='css/chatbot.css') }}" />
 
   <script defer src="{{ url_for('static', filename='js/app.js') }}"></script>
+  <!-- 챗봇 스크립트(고정 로드) -->
+  <script defer src="{{ url_for('static', filename='js/chatbot.js') }}"></script>
 </head>
 
 <body>
@@ -167,7 +169,7 @@
     </div>
   </div>
 
-  <!-- (주의) 플로팅 챗봇 위젯은 app.js에서 전 페이지 공통으로 동적 삽입됩니다. -->
+  <!-- (주의) 플로팅 챗봇 위젯은 app.js 또는 chatbot.js에서 전 페이지 공통으로 동적 삽입됩니다. -->
 
   <!-- ================= Footer ================= -->
   <footer class="footer">

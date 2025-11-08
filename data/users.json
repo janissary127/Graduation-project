@@ -1,0 +1,9 @@
+{
+  "users": {
+    "kop010504@gmail.com": {
+      "name": "이상호",
+      "email": "kop010504@gmail.com",
+      "password_hash": "scrypt:32768:8:1$2oiBa67Y7JxVnkKF$60a62d2d291d2036f3270d623d826c426e5896ebb90e792c80ef80ec29f4f609e06030c75af3de604c024e0405e4e9616a300734c75dbaa4042e2e54f84c903c"
+    }
+  }
+}
