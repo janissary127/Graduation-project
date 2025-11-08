@@ -94,6 +94,14 @@ def logout():
         return ("", 204)
     return redirect(url_for("index"))
 
+@app.get("/mypage")
+def mypage():
+    # 로그인 필요
+    if not session.get("user"):
+        # 로그인 후 돌아오도록 next 파라미터 전달
+        return redirect(url_for("login", next=request.path))
+    return render_template("mypage.html")
+
 @app.route("/api/auth/status")
 def auth_status():
     u = session.get("user")

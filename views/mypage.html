@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>CARD PICK · 마이페이지</title>
+
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/common.css') }}" />
+  <script defer src="{{ url_for('static', filename='js/app.js') }}"></script>
+</head>
+<body>
+  <!-- 헤더는 app.js의 mountGlobalHeader()가 공통으로 주입/치환합니다 -->
+  <header class="site-header">
+    <div class="container header__inner">
+      <a href="{{ url_for('index') }}" class="brand" aria-label="CARD PICK 홈">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+          <rect x="2" y="5" width="20" height="14" rx="3" fill="#111827" />
+          <rect x="4" y="9" width="16" height="2" rx="1" fill="#fff" opacity=".75" />
+          <rect x="4" y="13" width="6" height="2" rx="1" fill="#fff" opacity=".75" />
+        </svg>
+        <strong class="brand__text">CARD PICK</strong>
+      </a>
+      <nav class="nav" aria-label="주요">
+        <a href="{{ url_for('recommend') }}" data-nav="recommend">카드픽추천</a>
+        <a href="{{ url_for('browse') }}" data-nav="browse">카드찾기</a>
+        <a href="{{ url_for('compare') }}" data-nav="compare">비교함</a>
+      </nav>
+      <div class="header__auth" id="authLinks"></div>
+    </div>
+  </header>
+
+  <main class="mypage">
+    <div class="container">
+      <h1 style="margin:6px 0 14px;font-size:26px;letter-spacing:-.3px;font-weight:900">마이페이지</h1>
+
+      <div class="mp-grid">
+        <!-- 좌: 프로필 / 회원정보 수정 -->
+        <section class="section-card">
+          <h2>회원정보 수정</h2>
+          <p class="muted" style="margin-top:-4px">백엔드 연동 전이므로 저장은 안내 메시지만 표시됩니다.</p>
+          <form id="mpForm" class="mp-form" novalidate>
+            <div class="mp-field">
+              <label for="mpName">이름</label>
+              <input id="mpName" name="name" type="text" placeholder="홍길동" />
+            </div>
+            <div class="mp-field">
+              <label for="mpEmail">이메일</label>
+              <input id="mpEmail" name="email" type="email" placeholder="you@example.com" />
+            </div>
+            <div class="mp-field">
+              <label for="mpPassword">비밀번호 변경</label>
+              <input id="mpPassword" name="password" type="password" placeholder="새 비밀번호" />
+            </div>
+            <div class="mp-actions">
+              <button type="submit" class="btn-primary">저장</button>
+              <span class="muted">저장은 추후 서버 연동 후 활성화됩니다.</span>
+            </div>
+          </form>
+          <hr style="margin:16px 0;border:none;border-top:1px solid #eef2f6" />
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <a href="/survey" class="btn-ghost">설문조사 바로가기</a>
+            <a href="/compare" class="btn-ghost">비교함 바로가기</a>
+          </div>
+        </section>
+
+        <!-- 우: 즐겨찾기 카드 목록 -->
+        <section class="section-card">
+          <div class="fav-head">
+            <h2 style="margin:0">즐겨찾기한 카드</h2>
+            <span class="count">총 <strong id="favCount">0</strong>개</span>
+          </div>
+          <div id="favGrid" class="fav-grid">
+            <!-- JS로 렌더링 -->
+          </div>
+          <p class="muted" style="margin-top:10px">
+            * 즐겨찾기가 비어 있다면, 카드 목록 페이지에서 즐겨찾기를 추가해 주세요. (로컬 저장)
+          </p>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="container muted">© 2025 CARD PICK</div>
+  </footer>
+</body>
+</html>
