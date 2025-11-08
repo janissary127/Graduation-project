@@ -179,3 +179,26 @@ button:focus-visible{ outline-offset:4px }
 @media (prefers-reduced-motion:reduce){
   *{ transition:none !important; animation:none !important; scroll-behavior:auto !important }
 }
+
+/* === Sticky Footer: 모든 페이지 공통 (common.css 맨 아래 추가) === */
+html, body {
+  height: 100%;
+}
+body {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 페이지 본문이 공간을 채우게 해서 footer가 바닥에 붙도록 */
+main {
+  flex: 1 0 auto;
+}
+
+/* (선택) footer 스타일 – 필요 시만 사용 */
+.footer {
+  /* margin-top: auto;  // main이 없다면 이 한 줄만으로도 바닥 고정 가능 */
+  width: 100%;
+  /* border-top: 1px solid var(--line, #e5e7eb); */
+  /* background: #fff; */
+}
