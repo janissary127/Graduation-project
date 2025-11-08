@@ -2,17 +2,12 @@
  * CARD PICK — app.js
  *
  * 주요 기능
- *  - 공통 헤더 주입(간소화: 카드픽추천/카드찾기/비교함 + 로그인/회원가입/마이페이지)
- *  - 로그인 상태 UI 반영 (/api/auth/status)
+ *  - 공통 헤더 주입(로그인 시 프로필 아이콘 + "안녕하세요, ○○님" 인사 + 로그아웃)
  *  - 검색 모달
  *  - 인기/혜택 가로 슬라이더
  *  - 비교 페이지 카드 선택(피커) + 로컬스토리지 저장
  *  - 비교함 뱃지
- *  - 플로팅 챗봇 위젯은 분리(chatbot.js) — 있으면 init()
- *  - 마이페이지(회원정보/즐겨찾기 목록) 초기화
- *
- *  - 히어로 배너/슬라이드 관련 코드도 남겨두었지만
- *    index.html에서는 현재 사용 X. (#heroTrack 없으면 그냥 안 돈다)
+ *  - 플로팅 챗봇 위젯은 분리(chatbot.js)
  * =======================================================*/
 
 /* ------------------------ 전역 상태 ------------------------ */
@@ -87,7 +82,7 @@ function mountGlobalHeader() {
 }
 
 /* =========================================================
- * (A2) 로그인 상태 UI 갱신 (+ 마이페이지 링크)
+ * (A2) 로그인 상태 UI 갱신 — 인사 + 프로필 아이콘 + 로그아웃
  * =======================================================*/
 async function initAuthUI() {
   try {
@@ -97,13 +92,22 @@ async function initAuthUI() {
     if (!box) return;
 
     if (s.logged_in) {
-      const who = s.name || s.email || "사용자";
+      const who = (s.name && String(s.name).trim())
+        || (s.email ? String(s.email).split("@")[0] : "")
+        || "회원";
+
       box.innerHTML = `
         <span class="hello">안녕하세요, <strong>${esc(who)}</strong>님</span>
-        <a href="/mypage" class="btn-link">마이페이지</a>
+        <a href="/mypage" class="icon-btn avatar-btn" aria-label="마이페이지">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <circle cx="12" cy="7.5" r="3.5" stroke="#111827" stroke-width="2"></circle>
+            <path d="M4 19a8 8 0 0 1 16 0" stroke="#111827" stroke-width="2" stroke-linecap="round"></path>
+          </svg>
+        </a>
         <form id="logoutForm" method="post" action="/logout" style="display:inline">
-          <button type="submit" class="btn-outline small">로그아웃</button>
+          <button type="submit" class="btn-outline small" aria-label="로그아웃">로그아웃</button>
         </form>`;
+
       const form = document.querySelector("#logoutForm");
       form?.addEventListener("submit", async (e) => {
         e.preventDefault();
@@ -151,22 +155,16 @@ async function loadCards() {
         promo: it.promo ?? "",
         desc: it.desc1 ?? it.description ?? "",
         details: it.details ?? [],
-        image: it.image ?? ""
+        image: it.image ?? it.img ?? ""
       };
     });
 
     useDataMode = CARDS.length > 0;
-
-    // 🔗 마이페이지/다른 스크립트에서 접근 가능하도록 window에 노출
-    window.CARDS = CARDS;
-    window.RAW = RAW;
   } catch (e) {
     console.warn("카드 JSON 로드 실패(더미 모드):", e);
     useDataMode = false;
     RAW = [];
     CARDS = [];
-    window.CARDS = [];
-    window.RAW = [];
   }
 }
 
@@ -1013,7 +1011,7 @@ function initCompareSlots() {
   renderComparisonTable();
 }
 
-/* -------------------- 비교 테이블 렌더링: renderComparisonTable -------------------- */
+/* -------------------- 비교 테이블 렌더링 -------------------- */
 function fmt(s) { return (s === null || s === undefined) ? "" : String(s); }
 
 function getCardDataForSlot(i) {
@@ -1072,7 +1070,7 @@ function renderComparisonTable() {
     const perf = (raw && (raw.performance || raw['전월실적'] || raw.performanceText)) || card?.performance || "";
     const desc1 = raw?.desc1 ?? raw?.description ?? card.desc ?? "";
 
-    // ---------- 상세 블록 생성 (dd_tables 우선, 없으면 dd_paragraphs) ----------
+    // ---------- 상세 블록 생성 ----------
     let detailHtml = "";
     const details = (raw && Array.isArray(raw.details) && raw.details.length) ? raw.details : (Array.isArray(card.details) ? card.details : []);
     if (details.length) {
@@ -1093,18 +1091,17 @@ function renderComparisonTable() {
               }
             }).join("");
             const hasThead = rowsHtml.indexOf("<thead>") !== -1;
-            inner = `<div class="detail-table-wrap"><table class="dd-table">${hasThead ? rowsHtml : `<tbody>${rowsHtml}</tbody>`}</table></div>`;
+            inner = `<div class="detail-table-wrap"><table class="dd-table">${hasThead ? rowsHtml.replace(/^(?:.|\n)*/, rowsHtml) : `<tbody>${rowsHtml}</tbody>`}</table></div>`;
           }
         } else if (Array.isArray(d.dd_paragraphs) && d.dd_paragraphs.length) {
           inner = `<div class="detail-paragraphs">${d.dd_paragraphs.slice(0, 6).map(p => `<p>${nl2brSafe(p)}</p>`).join("")}</div>`;
         } else {
           inner = "";
         }
-
         return `<div class="detail-block"><strong>${esc(title)}</strong><div class="detail-block__content">${inner}</div></div>`;
       }).join("");
     }
-    // -------------------------------------------------------------------------
+    // ------------------------------------
 
     const benefitsHtml = benefits.length
       ? `<ul class="benefit-list">${benefits.slice(0, 6).map(b => `<li>${esc(b)}</li>`).join("")}</ul>`
@@ -1224,12 +1221,11 @@ function initHeaderState() {
 }
 
 /* =========================================================
- * (H) 플로팅 챗봇 위젯 관련 코드는 chatbot.js로 분리되었습니다.
- *     app.js에서는 chatbot.js가 로드되어 있다면 init()을 호출합니다.
+ * (H) 플로팅 챗봇 위젯은 chatbot.js에서 init()
  * =======================================================*/
 
 /* =========================================================
- * (I) 홈화면 전용: 큰 입력창 & 추천카드 → 챗봇과 연결
+ * (I) 홈화면 질문 → 챗봇 연동
  * =======================================================*/
 function initHomeAsk() {
   const form = $("#homeAskForm");
@@ -1239,8 +1235,6 @@ function initHomeAsk() {
   if (!form || !input) return;
 
   function launchChatWith(q) {
-    // chatbot.js가 노출해 둔 window.Chatbot API를 사용
-    // (초기화가 되어 있지 않다면 init 시도)
     if (!window.Chatbot) {
       if (window.Chatbot && typeof window.Chatbot.init === 'function') window.Chatbot.init();
     } else if (typeof window.Chatbot.init === 'function' && !window.Chatbot.__inited) {
@@ -1273,78 +1267,13 @@ function initHomeAsk() {
 }
 
 /* =========================================================
- * (I2) 마이페이지 초기화
- * =======================================================*/
-function initMyPage() {
-  const form = document.querySelector("#mpForm");
-  const nameEl = document.querySelector("#mpName");
-  const emailEl = document.querySelector("#mpEmail");
-  const favGrid = document.querySelector("#favGrid");
-  const favCount = document.querySelector("#favCount");
-
-  // 1) 프로필 채우기
-  fetch("/api/auth/status", { cache: "no-store" })
-    .then(r => r.ok ? r.json() : { logged_in:false })
-    .then(s => {
-      if (s && s.logged_in) {
-        if (nameEl)  nameEl.value  = s.name  || "";
-        if (emailEl) emailEl.value = s.email || "";
-      }
-    }).catch(()=>{});
-
-  // 2) 저장(데모): 서버 연동 전이라 동작 안내만
-  form?.addEventListener("submit", (e) => {
-    e.preventDefault();
-    alert("저장은 추후 서버 연동 후 활성화됩니다.");
-  });
-
-  // 3) 즐겨찾기 로드 (로컬스토리지)
-  function getFavKeys() {
-    const set = new Set();
-    try { (JSON.parse(localStorage.getItem("cp_favorites_v1") || "[]")||[]).forEach(k=>set.add(String(k))); } catch {}
-    try { (JSON.parse(localStorage.getItem("cp_favorites") || "[]")||[]).forEach(k=>set.add(String(k))); } catch {}
-    try { (JSON.parse(localStorage.getItem("cp_favorites_by_name") || "[]")||[]).forEach(k=>set.add(String(k))); } catch {}
-    return [...set];
-  }
-  function imageFor(card) {
-    if (card?.image) return card.image;
-    return imagePathForName(card?.name || "", ".jpg");
-  }
-  const keys = getFavKeys();
-  const list = (window.CARDS || []).filter(c =>
-    keys.includes(String(c.id)) || keys.includes(String(c.name)) || (c.rawId && keys.includes(String(c.rawId)))
-  );
-
-  if (favCount) favCount.textContent = String(list.length);
-
-  if (!favGrid) return;
-  if (!list.length) {
-    favGrid.innerHTML = `<div class="muted">즐겨찾기한 카드가 없습니다.</div>`;
-    return;
-  }
-
-  favGrid.innerHTML = list.map(c => `
-    <div class="card-mini">
-      <div class="card-mini__thumb">
-        <img src="${esc(imageFor(c))}" alt="${esc(c.name)}" />
-      </div>
-      <div class="card-mini__meta">
-        <div class="card-mini__name">${esc(c.name)}</div>
-        <div class="card-mini__issuer">${esc(c.issuer || c.corp || "")}</div>
-      </div>
-      <a href="/compare" class="btn-ghost small">비교함으로</a>
-    </div>
-  `).join("");
-}
-
-/* =========================================================
  * (J) 초기화
  * =======================================================*/
 document.addEventListener("DOMContentLoaded", async () => {
   // 1) 공통 헤더(동일화) + 상태
   mountGlobalHeader();
   initHeaderState();
-  // 1-1) 인증 UI 상태 반영
+  // 1-1) 인증 UI 상태 반영 (여기에 "안녕하세요, ○○님" 포함)
   initAuthUI();
 
   // 2) 챗봇 위젯 (분리된 chatbot.js에서 init 함수가 있다면 호출)
@@ -1362,7 +1291,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   if ($("#heroTrack")) renderHero();
   if ($("#benefitList")) renderBenefit();
   if ($(".compare-page")) initCompareSlots();
-  if (document.querySelector(".mypage")) initMyPage();
 
   // 5) 히어로 키보드
   if ($("#heroTrack")) {
@@ -1377,7 +1305,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 });
 
 /* =========================================================
- * (K) 폴백에 필요한 더미 카드/발급사 데이터(삭제 금지)
+ * (K) 폴백 더미 데이터
  * =======================================================*/
 const CARD_ISSUERS = [
   "전체", "신한카드", "삼성카드", "현대카드", "롯데카드",
