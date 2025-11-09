@@ -1,0 +1,15 @@
+설문조사 폼으로 만들어지는 json파일의 카드사용 및 선호도 섹션의
+preferredBenefits 결과 키워드를 기반으로 chat.py의 추천코드를 사용하여
+40 ~ 50개의 카드를 뽑아낸다음
+
+<option value="20대 미만">20대 미만</option>
+<option value="20대">20대</option>
+일시 card_list.json파일의  "performance" 카드정보를 확인하여 전월실적 없음 이나 전월실적 10만원 이상에 가중치를 주고
+
+<option value="30대">30대</option>
+<option value="40대">40대</option>
+<option value="50대">50대</option>
+<option value="60대 이상">60대 이상</option>
+
+경우는 전월실적 20만원 이상에 가중치를 주도록하자
+

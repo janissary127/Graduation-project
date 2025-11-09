@@ -2,15 +2,12 @@
  * CARD PICK — app.js
  *
  * 주요 기능
- *  - 공통 헤더 주입(간소화: 카드픽봇/인기차트/혜택·이벤트/검색·비교 아이콘 제거)
+ *  - 공통 헤더 주입(로그인 시 프로필 아이콘 + "안녕하세요, ○○님" 인사 + 로그아웃)
  *  - 검색 모달
  *  - 인기/혜택 가로 슬라이더
  *  - 비교 페이지 카드 선택(피커) + 로컬스토리지 저장
  *  - 비교함 뱃지
  *  - 플로팅 챗봇 위젯은 분리(chatbot.js)
- *
- *  - 히어로 배너/슬라이드 관련 코드도 남겨두었지만
- *    index.html에서는 현재 사용 X. (#heroTrack 없으면 그냥 안 돈다)
  * =======================================================*/
 
 /* ------------------------ 전역 상태 ------------------------ */
@@ -85,7 +82,7 @@ function mountGlobalHeader() {
 }
 
 /* =========================================================
- * (A2) 로그인 상태 UI 갱신
+ * (A2) 로그인 상태 UI 갱신 — 인사 + 프로필 아이콘 + 로그아웃
  * =======================================================*/
 async function initAuthUI() {
   try {
@@ -93,13 +90,24 @@ async function initAuthUI() {
     const s = await r.json();
     const box = document.querySelector("#authLinks");
     if (!box) return;
+
     if (s.logged_in) {
-      const who = s.name || s.email || "사용자";
+      const who = (s.name && String(s.name).trim())
+        || (s.email ? String(s.email).split("@")[0] : "")
+        || "회원";
+
       box.innerHTML = `
         <span class="hello">안녕하세요, <strong>${esc(who)}</strong>님</span>
-        <form id="logoutForm" method="post" action="/logout">
-          <button type="submit" class="btn-outline small">로그아웃</button>
+        <a href="/mypage" class="icon-btn avatar-btn" aria-label="마이페이지">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <circle cx="12" cy="7.5" r="3.5" stroke="#111827" stroke-width="2"></circle>
+            <path d="M4 19a8 8 0 0 1 16 0" stroke="#111827" stroke-width="2" stroke-linecap="round"></path>
+          </svg>
+        </a>
+        <form id="logoutForm" method="post" action="/logout" style="display:inline">
+          <button type="submit" class="btn-outline small" aria-label="로그아웃">로그아웃</button>
         </form>`;
+
       const form = document.querySelector("#logoutForm");
       form?.addEventListener("submit", async (e) => {
         e.preventDefault();
@@ -147,7 +155,7 @@ async function loadCards() {
         promo: it.promo ?? "",
         desc: it.desc1 ?? it.description ?? "",
         details: it.details ?? [],
-        image: it.image ?? ""
+        image: it.image ?? it.img ?? ""
       };
     });
 
@@ -1003,7 +1011,7 @@ function initCompareSlots() {
   renderComparisonTable();
 }
 
-/* -------------------- 비교 테이블 렌더링: renderComparisonTable -------------------- */
+/* -------------------- 비교 테이블 렌더링 -------------------- */
 function fmt(s) { return (s === null || s === undefined) ? "" : String(s); }
 
 function getCardDataForSlot(i) {
@@ -1023,7 +1031,6 @@ function renderComparisonTable() {
   // 헬퍼: newline -> <br> 처리하면서 HTML 이스케이프 유지
   function nl2brSafe(str) {
     if (str == null) return "";
-    // esc는 기존 코드에서 사용하는 이스케이프 함수라 가정
     return esc(String(str)).replace(/\r\n|\r|\n/g, "<br>");
   }
 
@@ -1063,7 +1070,7 @@ function renderComparisonTable() {
     const perf = (raw && (raw.performance || raw['전월실적'] || raw.performanceText)) || card?.performance || "";
     const desc1 = raw?.desc1 ?? raw?.description ?? card.desc ?? "";
 
-    // ---------- 상세 블록 생성 (dd_tables 우선, 없으면 dd_paragraphs) ----------
+    // ---------- 상세 블록 생성 ----------
     let detailHtml = "";
     const details = (raw && Array.isArray(raw.details) && raw.details.length) ? raw.details : (Array.isArray(card.details) ? card.details : []);
     if (details.length) {
@@ -1072,37 +1079,29 @@ function renderComparisonTable() {
         // dd_tables가 있으면 테이블 렌더, 없으면 dd_paragraphs 렌더
         let inner = "";
         if (Array.isArray(d.dd_tables) && d.dd_tables.length) {
-          // dd_tables: 배열(테이블들). 각 테이블은 2차원 배열(행 -> 셀)
-          // 우선 첫 번째 테이블만 렌더
           const table = d.dd_tables[0];
           if (Array.isArray(table) && table.length) {
-            // 첫 행을 헤더로 사용 (간단한 판단: 첫 행 길이 > 0)
             const rowsHtml = table.map((row, rIdx) => {
               const cells = (Array.isArray(row) ? row : [row]).map(cell => `<td>${nl2brSafe(cell)}</td>`).join("");
               if (rIdx === 0) {
-                // header row
                 const ths = (Array.isArray(row) ? row : [row]).map(h => `<th>${esc(String(h))}</th>`).join("");
                 return `<thead><tr>${ths}</tr></thead>`;
               } else {
                 return `<tr>${cells}</tr>`;
               }
             }).join("");
-            // 만약 thead가 없다면(즉 모든 행이 body라면), 전체를 tbody로 감싸기
             const hasThead = rowsHtml.indexOf("<thead>") !== -1;
             inner = `<div class="detail-table-wrap"><table class="dd-table">${hasThead ? rowsHtml.replace(/^(?:.|\n)*/, rowsHtml) : `<tbody>${rowsHtml}</tbody>`}</table></div>`;
-            // 위의 replace는 안전장치; 실제로 rowsHtml 이미 완성됨.
           }
         } else if (Array.isArray(d.dd_paragraphs) && d.dd_paragraphs.length) {
-          // dd_paragraphs: 간단히 줄 단위로 출력
           inner = `<div class="detail-paragraphs">${d.dd_paragraphs.slice(0, 6).map(p => `<p>${nl2brSafe(p)}</p>`).join("")}</div>`;
         } else {
-          inner = ""; // 아무 것도 없으면 비워둠
+          inner = "";
         }
-
         return `<div class="detail-block"><strong>${esc(title)}</strong><div class="detail-block__content">${inner}</div></div>`;
       }).join("");
     }
-    // -------------------------------------------------------------------------
+    // ------------------------------------
 
     const benefitsHtml = benefits.length
       ? `<ul class="benefit-list">${benefits.slice(0, 6).map(b => `<li>${esc(b)}</li>`).join("")}</ul>`
@@ -1222,12 +1221,11 @@ function initHeaderState() {
 }
 
 /* =========================================================
- * (H) 플로팅 챗봇 위젯 관련 코드는 chatbot.js로 분리되었습니다.
- *     app.js에서는 chatbot.js가 로드되어 있다면 init()을 호출합니다.
+ * (H) 플로팅 챗봇 위젯은 chatbot.js에서 init()
  * =======================================================*/
 
 /* =========================================================
- * (I) 홈화면 전용: 큰 입력창 & 추천카드 → 챗봇과 연결
+ * (I) 홈화면 질문 → 챗봇 연동
  * =======================================================*/
 function initHomeAsk() {
   const form = $("#homeAskForm");
@@ -1237,12 +1235,9 @@ function initHomeAsk() {
   if (!form || !input) return;
 
   function launchChatWith(q) {
-    // chatbot.js가 노출해 둔 window.Chatbot API를 사용
-    // (초기화가 되어 있지 않다면 init 시도)
     if (!window.Chatbot) {
       if (window.Chatbot && typeof window.Chatbot.init === 'function') window.Chatbot.init();
     } else if (typeof window.Chatbot.init === 'function' && !window.Chatbot.__inited) {
-      // 안전하게 한 번 init 호출 (chatbot.js 내부에서 __inited 플래그 관리 가능)
       try { window.Chatbot.init(); } catch (e) { /* noop */ }
     }
 
@@ -1278,7 +1273,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   // 1) 공통 헤더(동일화) + 상태
   mountGlobalHeader();
   initHeaderState();
-  // 1-1) 인증 UI 상태 반영
+  // 1-1) 인증 UI 상태 반영 (여기에 "안녕하세요, ○○님" 포함)
   initAuthUI();
 
   // 2) 챗봇 위젯 (분리된 chatbot.js에서 init 함수가 있다면 호출)
@@ -1310,7 +1305,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 });
 
 /* =========================================================
- * (K) 폴백에 필요한 더미 카드/발급사 데이터(삭제 금지)
+ * (K) 폴백 더미 데이터
  * =======================================================*/
 const CARD_ISSUERS = [
   "전체", "신한카드", "삼성카드", "현대카드", "롯데카드",

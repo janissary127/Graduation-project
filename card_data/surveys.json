@@ -1,0 +1,36 @@
+[
+  {
+    "user_email": "aaa@aaa.com",
+    "ageGroup": "",
+    "occupation": "",
+    "income": "",
+    "monthlyCardSpending": "",
+    "financialInstitutions": [],
+    "primaryGoal": "",
+    "importantFactors": [],
+    "preferredBenefits": [],
+    "annualFee": ""
+  },
+  {
+    "user_email": "aaa@aaa.com",
+    "ageGroup": "20대",
+    "occupation": "학생",
+    "income": "400-600만원",
+    "monthlyCardSpending": "30-50만원",
+    "financialInstitutions": [
+      "KB국민카드",
+      "우리카드"
+    ],
+    "primaryGoal": "여행, 취미 등 여유로운 생활",
+    "importantFactors": [
+      "안정성",
+      "수수료/비용"
+    ],
+    "preferredBenefits": [
+      "영화관",
+      "놀이공원/테마파크",
+      "OTT/스트리밍"
+    ],
+    "annualFee": ""
+  }
+]

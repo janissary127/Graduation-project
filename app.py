@@ -8,7 +8,7 @@ app = Flask(__name__, template_folder='views', static_folder='static')
 app.secret_key = os.environ.get("SECRET_KEY", "dev-secret-change-me")
 
 # --- 간단 사용자 저장(JSON) ---
-DATA_DIR = os.path.join(os.path.dirname(__file__), "data")
+DATA_DIR = os.path.join(os.path.dirname(__file__), "card_data")
 USERS_FILE = os.path.join(DATA_DIR, "users.json")
 
 def _ensure_users_file():
@@ -55,6 +55,57 @@ def recommend():
 @app.route("/chatbot_recommend")
 def chatbot_recommend():
     return render_template("chatbot_recommend.html")
+
+@app.route("/survey")
+def survey():
+    """설문조사 페이지"""
+    return render_template("survey.html")
+
+@app.route("/survey/submit", methods=["POST"])
+def survey_submit():
+    """설문조사 제출 처리"""
+    # 로그인 체크
+    user = session.get("user")
+    if not user:
+        return redirect(url_for("login"))
+
+    # 설문 데이터 수집
+    survey_data = {
+        "user_email": user.get("email"),
+        "ageGroup": request.form.get("ageGroup", ""),
+        "occupation": request.form.get("occupation", ""),
+        "income": request.form.get("income", ""),
+        "monthlyCardSpending": request.form.get("monthlyCardSpending", ""),
+        "financialInstitutions": request.form.getlist("financialInstitutions"),
+        "primaryGoal": request.form.get("primaryGoal", ""),
+        "importantFactors": request.form.getlist("importantFactors"),
+        "preferredBenefits": request.form.getlist("preferredBenefits"),
+        "annualFee": request.form.get("annualFee", "")
+    }
+
+    # 설문 결과를 세션에 저장 (추후 추천에 활용)
+    session["survey_data"] = survey_data
+
+    # 설문 결과를 파일로 저장 (선택사항)
+    surveys_file = os.path.join(DATA_DIR, "surveys.json")
+    os.makedirs(DATA_DIR, exist_ok=True)
+
+    try:
+        if os.path.exists(surveys_file):
+            with open(surveys_file, "r", encoding="utf-8") as f:
+                surveys = json.load(f)
+        else:
+            surveys = []
+
+        surveys.append(survey_data)
+
+        with open(surveys_file, "w", encoding="utf-8") as f:
+            json.dump(surveys, f, ensure_ascii=False, indent=2)
+    except Exception as e:
+        print(f"설문 저장 오류: {e}")
+
+    # 설문 완료 후 추천 페이지로 리디렉션
+    return redirect(url_for("recommend"))
 
 # ---------- Auth ----------
 @app.route("/signup", methods=["GET", "POST"])
@@ -119,7 +170,7 @@ def api_recommend():
             return jsonify({"error": "query 파라미터가 필요합니다."}), 400
 
         # 카드 데이터 로드
-        card_list_path = os.path.join(os.path.dirname(__file__), "static", "data", "card_list.json")
+        card_list_path = os.path.join(os.path.dirname(__file__), "static", "card_data", "card_list.json")
         cards = load_cards(card_list_path)
 
         # chat.py의 recommend 함수 사용

@@ -1,0 +1,9 @@
+{
+  "users": {
+    "aaa@aaa.com": {
+      "name": "장성훈",
+      "email": "aaa@aaa.com",
+      "password_hash": "scrypt:32768:8:1$kSvQXImmO5ekuy5p$0348efc5873c42aba445e530db8c16504a3c0985e575bbd3da62d498d85ebecfbdcfa651b9a691434a53ed241996a53122d351811968c30cce969739378592a0"
+    }
+  }
+}

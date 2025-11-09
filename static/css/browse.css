@@ -1,0 +1,395 @@
+/* =====================================================
+   CARD PICK — 통합 CSS (중복 제거본)
+   - 카드 이미지 너비: 120px
+   - 버튼 스타일: 테두리형 (hover에서 반전)
+   - 네이밍 통일: BEM-ish (benefit__label 등)
+   ===================================================== */
+
+/* ---------- issuer (카드사 그리드) ---------- */
+#issuerGrid {
+  display: flex;                /* 한 줄(flex-row) 배치 */
+  flex-direction: row;
+  gap: 16px;                    /* 카드 간 간격 */
+  padding: 12px 16px;
+  overflow-x: auto;             /* 가로 스크롤 허용 */
+  overflow-y: hidden;           /* 세로 스크롤 숨김 */
+  white-space: nowrap;          /* 줄바꿈 방지 (안정성) */
+  -webkit-overflow-scrolling: touch; /* iOS 부드러운 스크롤 */
+  scroll-snap-type: x mandatory; /* 카드 스냅 효과 */
+}
+
+/* 스크롤바(선택적) — WebKit (Chrome, Safari) 스타일 */
+#issuerGrid::-webkit-scrollbar {
+  height: 10px;
+}
+#issuerGrid::-webkit-scrollbar-track {
+  background: transparent;
+}
+#issuerGrid::-webkit-scrollbar-thumb {
+  background: rgba(0,0,0,0.12);
+  border-radius: 10px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+/* 각 카드(발행사 아이템)는 가로로 늘어나지 않음(고정 너비) */
+.issuer-item {
+  flex: 0 0 auto;               /* 고정 너비, 줄 내에서 늘어나지 않음 */
+  width: 220px;                 /* 필요에 따라 조정(예: 180, 140 등) */
+  height: 140px;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.05);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: transform .2s ease, box-shadow .2s ease;
+  cursor: pointer;
+  text-align: center;
+  scroll-snap-align: start;     /* 스냅 위치: 각 카드 시작점에 맞춤 */
+}
+
+.issuer-item:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.10);
+}
+
+/* 카드사 로고 원형 */
+.brand-circle {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  color: #fff;
+  font-weight: 600;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 10px;
+}
+
+/* ---------- 카드 항목 (통합) ---------- */
+.card-container {
+  display: flex;
+  flex-direction: column; /* 중요: 상세 영역이 아래로 쌓이도록 */
+  align-items: stretch;
+  gap: 12px;              /* 상단 내용과 상세 영역 사이 여백 */
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  padding: 18px 20px;
+  margin-bottom: 16px;
+  transition: transform .18s ease, box-shadow .18s ease;
+}
+
+
+.card-container:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.10);
+}
+
+/* 왼쪽 이미지 영역 */
+.card_img {
+  flex: 0 0 auto;
+  width: 120px; /* 컨테이너 너비(이미지 포함) */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.card_img img {
+  width: 120px;    /* 요청 반영: 120px */
+  height: auto;
+  border-radius: 8px;
+  display: block;
+}
+
+/* 가운데 카드 정보 영역 (통합) */
+.card_data {
+  flex: 1 1 auto;
+  min-width: 0; /* 텍스트 오버플로우 방지 */
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* 제목 / 오른쪽 버튼 한 줄 */
+.title-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.card_tit {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 700;
+  font-size: 1.06rem;
+  color: #111;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.card_corp {
+  color: #9a9a9a;
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+
+/* 오른쪽 버튼 — 테두리형 (요청) */
+.b_view {
+  flex: 0 0 auto;
+  display: inline-block;
+  padding: 10px 14px;
+  background: #ffffff;
+  color: #000000;
+  border: 1px solid #000000;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.95rem;
+  box-shadow: 0 2px 6px rgba(11,11,11,0.04);
+  transition: background .16s ease, color .16s ease, box-shadow .16s ease, transform .12s ease;
+}
+
+.b_view:hover,
+.b_view:focus {
+  background: #000000;
+  color: #ffffff;
+  box-shadow: 0 6px 14px rgba(0,0,0,0.12);
+  transform: translateY(-2px);
+}
+
+/* 프로모션 배지 */
+.promo-badge {
+  display: inline-block;
+  padding: 6px 10px;
+  border-radius: 14px;
+  background: rgba(255,160,0,0.12);
+  color: #d46a00;
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+
+/* (보조) promo 클래스를 유지하되 역할이 다르면 별도 사용 */
+.promo {
+  color: #ff6600;
+  font-weight: 600;
+}
+
+/* 혜택: 그리드 / 아이템 (통일된 네이밍) */
+.benefit-grid {
+  display: flex;
+  gap: 30px;
+  align-items: flex-start;
+  margin-top: 4px;
+  flex-wrap: wrap;
+}
+
+.benefit-item {
+  min-width: 0;
+}
+
+.benefit-item .benefit__label,
+.benefit__label {
+  display: block;
+  font-size: 0.85rem;
+  color: #777;
+  margin-bottom: 6px;
+}
+
+.benefit-item .benefit__value,
+.benefit__value {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #111;
+  line-height: 1.1;
+}
+
+/* 메타/조건 텍스트 */
+.meta-row {
+  display: flex;
+  gap: 18px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+  color: #888;
+  font-size: 0.9rem;
+}
+
+.meta-row .performance {
+  font-weight: 500;
+  color: #6a6a6a;
+}
+
+.meta-row .txt {
+  color: #6a6a6a;
+}
+
+/* 작은 세부 스타일 (sale 등) */
+.sale p {
+  margin: 4px 0;
+  font-size: 0.9rem;
+}
+
+/* 반응형: 좁은 화면에서는 세로 스택 (이미지 위, 버튼 아래 정렬)
+   브레이크포인트 통일: max-width: 768px */
+@media (max-width: 768px) {
+  .issuer-item {
+    width: 120px;
+    height: 120px;
+  }
+
+  .card-container {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .title-row {
+    align-items: center;
+  }
+
+  .b_view {
+    align-self: flex-end;
+  }
+
+  .benefit-grid {
+    gap: 18px;
+    flex-wrap: wrap;
+  }
+
+  .card_img {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .card_img img {
+    width: 120px; /* 모바일에서도 이미지 고정 너비 유지(원하면 100%로 변경 가능) */
+    max-width: 100%;
+  }
+
+  #issuerGrid { gap: 12px; padding: 8px 12px; }
+  .issuer-item { width: 180px; height: 120px; }
+  .brand-circle { width: 48px; height: 48px; font-size: 14px; }
+}
+
+/* Firefox: 스크롤바 최소 스타일(선택) */
+@supports (scrollbar-width: thin) {
+  #issuerGrid { scrollbar-width: thin; scrollbar-color: rgba(0,0,0,0.12) transparent; }
+}
+
+/* content-row: 기존의 좌-우(이미지 + 텍스트) 레이아웃을 유지 */
+.content-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  width: 100%;
+}
+
+/* 카드 디테일 홀더 (투톤 + 스크롤) */
+.card-details-holder.two-tone-details {
+  width: 100%;
+  max-height: 960px;           /* 높이 제어: 필요시 JS로 동적으로 변경 가능 */
+  overflow: auto;              /* 세로 스크롤 허용 */
+  padding: 12px;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(14,30,60,0.04);
+  background: linear-gradient(90deg, rgba(242,249,255,0.9) 0%, rgba(255,255,255,0.95) 40%);
+  /* 왼쪽 강조는 JS에서 border-left로 채우므로 background는 연한 투톤 */
+  position: relative;
+}
+
+/* 스크롤바 스타일 (WebKit) */
+.card-details-holder.two-tone-details::-webkit-scrollbar {
+  height: 10px;
+  width: 10px;
+}
+.card-details-holder.two-tone-details::-webkit-scrollbar-thumb {
+  background: rgba(0,0,0,0.12);
+  border-radius: 8px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+/* dl/dt/dd 스타일 — dt는 요약, dd는 내용(초기 숨김) */
+.card-details-holder dl {
+  margin: 8px 0;
+  padding: 0;
+}
+.card-details-holder dl dt {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px;
+  cursor: pointer;
+  border-radius: 8px;
+  /* dt 내부는 가볍게 반투명 투톤 (왼쪽 border로 강조되므로 중립) */
+  background: linear-gradient(90deg, rgba(255,255,255,0.8), rgba(250,250,250,0.6));
+  transition: background .12s ease, transform .12s ease;
+}
+.card-details-holder dl dt:hover {
+  transform: translateY(-2px);
+  background: linear-gradient(90deg, rgba(250,255,255,1), rgba(245,245,255,0.85));
+}
+
+/* dt 텍스트 */
+.card-details-holder .txt1 {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: #123660; /* 진한 톤(읽기 편하게) — 투톤 컨셉의 한쪽 톤 */
+}
+
+/* dt i (요약 요약 라인) */
+.card-details-holder dl dt i {
+  font-style: normal;
+  color: #6b7280;
+  margin-left: 6px;
+}
+
+/* dd 영역: 기본은 숨김, .on 클래스가 붙으면 보임 */
+.card-details-holder dl dd { display: none; }
+.card-details-holder dl.on dd { display: block; }
+
+/* dd 안의 in_box (본문) */
+.card-details-holder .in_box {
+  padding: 10px;
+  margin-top: 8px;
+  background: #ffffff;
+  border-radius: 8px;
+  color: #333;
+  line-height: 1.5;
+}
+
+/* 표 스타일 */
+.card-details-holder .detail-table {
+  border-collapse: collapse;
+  width: 100%;
+  margin-top: 8px;
+}
+.card-details-holder .detail-table th,
+.card-details-holder .detail-table td {
+  border: 1px solid #e8eef8;
+  padding: 8px;
+  font-size: 13px;
+  white-space: pre-wrap;
+}
+
+.chip-row .chip.chip-active {
+  background: #034EA2;
+  color: #fff;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+
+/* 모바일: content-row가 세로로 쌓여도 안정 동작 */
+@media (max-width: 768px) {
+  .content-row {
+    flex-direction: row; /* 모바일에서도 이미지+텍스트 한 줄 유지; 기존 모바일 규칙 유지 */
+    gap: 12px;
+  }
+  .card-details-holder.two-tone-details { max-height: 220px; }
+}

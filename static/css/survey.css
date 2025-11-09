@@ -1,0 +1,348 @@
+/* survey.css
+   - 설문조사 페이지 전용 스타일
+*/
+
+.survey-wrap {
+  padding: 36px 0;
+  min-height: calc(100vh - 200px);
+}
+
+.survey-container {
+  max-width: 720px;
+  margin: 20px auto;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+/* 진행률 바 */
+.survey-progress {
+  position: relative;
+  height: 6px;
+  background: #f1f5f9;
+  overflow: hidden;
+}
+
+.survey-progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #0ea5ff, #0b6eff);
+  transition: width 0.3s ease;
+  box-shadow: 0 2px 8px rgba(14, 165, 255, 0.3);
+}
+
+/* 헤더 */
+.survey-header {
+  padding: 32px 32px 24px;
+  text-align: center;
+  border-bottom: 1px solid #f5f7fb;
+}
+
+.survey-header h1 {
+  margin: 0 0 8px;
+  font-size: 26px;
+  font-weight: 900;
+  letter-spacing: -0.3px;
+}
+
+.survey-header p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.survey-step-info {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 16px;
+  padding: 6px 14px;
+  background: #f6f7fb;
+  border-radius: 999px;
+  font-size: 13px;
+  color: #475569;
+  font-weight: 600;
+}
+
+/* 설문 본문 */
+.survey-body {
+  padding: 32px;
+  min-height: 400px;
+}
+
+.survey-section {
+  display: none;
+  animation: fadeInUp 0.3s ease;
+}
+
+.survey-section.is-active {
+  display: block;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.section-title {
+  margin: 0 0 24px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid #f1f5f9;
+}
+
+.section-title h2 {
+  margin: 0 0 8px;
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--brand);
+}
+
+.section-title p {
+  margin: 0;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.optional-badge {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 3px 8px;
+  background: #f1f5f9;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #64748b;
+}
+
+/* 질문 */
+.survey-question {
+  margin-bottom: 28px;
+}
+
+.survey-question:last-child {
+  margin-bottom: 0;
+}
+
+.question-label {
+  display: block;
+  margin-bottom: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #334155;
+}
+
+.question-label .required {
+  color: #ef4444;
+  margin-left: 2px;
+}
+
+.question-desc {
+  margin: -8px 0 12px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+/* 입력 필드 */
+.survey-select {
+  width: 100%;
+  border: 1.5px solid #e7ebf3;
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-size: 14px;
+  outline: none;
+  background: #fff;
+  cursor: pointer;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.survey-select:focus {
+  border-color: #b7dfff;
+  box-shadow: 0 0 0 4px #e9f5ff;
+}
+
+.survey-input {
+  width: 100%;
+  border: 1.5px solid #e7ebf3;
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.survey-input:focus {
+  border-color: #b7dfff;
+  box-shadow: 0 0 0 4px #e9f5ff;
+}
+
+/* 체크박스/라디오 그룹 */
+.checkbox-group,
+.radio-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.checkbox-item,
+.radio-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border: 1.5px solid #e7ebf3;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.checkbox-item:hover,
+.radio-item:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+}
+
+.checkbox-item input,
+.radio-item input {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  accent-color: #0ea5ff;
+}
+
+.checkbox-item label,
+.radio-item label {
+  flex: 1;
+  cursor: pointer;
+  font-size: 14px;
+  color: #334155;
+}
+
+.checkbox-item:has(input:checked),
+.radio-item:has(input:checked) {
+  background: #e6f6ff;
+  border-color: #0ea5ff;
+}
+
+/* 기타 입력 */
+.other-input-wrapper {
+  margin-top: 12px;
+}
+
+.other-input-wrapper .survey-input {
+  font-size: 13px;
+}
+
+/* 하단 버튼 영역 */
+.survey-footer {
+  padding: 20px 32px;
+  background: #f8fafc;
+  border-top: 1px solid #e7ebf3;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.btn-survey {
+  padding: 12px 20px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  border: none;
+  outline: none;
+}
+
+.btn-survey:focus-visible {
+  outline: 3px solid rgba(14, 165, 255, 0.55);
+  outline-offset: 2px;
+}
+
+.btn-prev {
+  background: #fff;
+  color: #475569;
+  border: 1.5px solid #e7ebf3;
+}
+
+.btn-prev:hover:not(:disabled) {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+}
+
+.btn-prev:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.btn-next,
+.btn-submit {
+  background: #0ea5ff;
+  color: #fff;
+  border: none;
+}
+
+.btn-next:hover:not(:disabled),
+.btn-submit:hover:not(:disabled) {
+  filter: brightness(0.95);
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px rgba(14, 165, 255, 0.3);
+}
+
+.btn-next:disabled,
+.btn-submit:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-skip {
+  background: transparent;
+  color: var(--muted);
+  border: none;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 8px 14px;
+}
+
+.btn-skip:hover {
+  color: #475569;
+  background: #f1f5f9;
+}
+
+/* 반응형 */
+@media (max-width: 640px) {
+  .survey-container {
+    margin: 12px;
+    border-radius: 16px;
+  }
+
+  .survey-header {
+    padding: 24px 20px 20px;
+  }
+
+  .survey-header h1 {
+    font-size: 22px;
+  }
+
+  .survey-body {
+    padding: 24px 20px;
+    min-height: 300px;
+  }
+
+  .survey-footer {
+    padding: 16px 20px;
+    flex-wrap: wrap;
+  }
+
+  .btn-survey {
+    flex: 1;
+    min-width: 120px;
+  }
+}

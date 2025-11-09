@@ -91,7 +91,7 @@ def api_recommend():
     user_input = data.get("query", "")
 
     # 카드 데이터 로드
-    card_list_path = os.path.join(os.path.dirname(__file__), "static", "data", "card_list.json")
+    card_list_path = os.path.join(os.path.dirname(__file__), "static", "card_data", "card_list.json")
     cards = load_cards(card_list_path)
 
     # chat.py의 recommend 함수 사용
@@ -543,7 +543,7 @@ tree -L 2
 # ├── chat/
 # │   └── chat.py
 # └── static/
-#     └── data/
+#     └── card_data/
 #         └── card_list.json
 ```
 
