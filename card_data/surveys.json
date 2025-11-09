@@ -32,5 +32,252 @@
       "OTT/스트리밍"
     ],
     "annualFee": ""
+  },
+  {
+    "user_email": "aaa@aaa.com",
+    "ageGroup": "30대",
+    "occupation": "",
+    "income": "",
+    "monthlyCardSpending": "",
+    "financialInstitutions": [],
+    "primaryGoal": "",
+    "importantFactors": [],
+    "preferredBenefits": [],
+    "annualFee": ""
+  },
+  {
+    "user_email": "www@www.com",
+    "ageGroup": "",
+    "occupation": "",
+    "income": "",
+    "monthlyCardSpending": "",
+    "financialInstitutions": [],
+    "primaryGoal": "",
+    "importantFactors": [],
+    "preferredBenefits": [],
+    "annualFee": ""
+  },
+  {
+    "user_email": "aaa@aaa.com",
+    "ageGroup": "20대",
+    "occupation": "학생",
+    "income": "200만원 미만",
+    "monthlyCardSpending": "30만원 미만",
+    "financialInstitutions": [
+      "KB국민카드",
+      "우리카드"
+    ],
+    "primaryGoal": "내집 마련 또는 전세자금 마련",
+    "importantFactors": [
+      "안정성",
+      "혜택"
+    ],
+    "preferredBenefits": [
+      "온라인 쇼핑",
+      "편의점",
+      "통신비/관리비"
+    ],
+    "annualFee": "1만원 미만"
+  },
+  {
+    "user_email": "aaa@aaa.com",
+    "ageGroup": "20대",
+    "occupation": "학생",
+    "income": "200만원 미만",
+    "monthlyCardSpending": "30-50만원",
+    "financialInstitutions": [
+      "KB국민카드",
+      "우리카드"
+    ],
+    "primaryGoal": "여행, 취미 등 여유로운 생활",
+    "importantFactors": [
+      "수익률",
+      "브랜드 신뢰도"
+    ],
+    "preferredBenefits": [
+      "편의점",
+      "통신비/관리비",
+      "영화관"
+    ],
+    "annualFee": "연회비 없는 카드 선호"
+  },
+  {
+    "user_email": "aaa@aaa.com",
+    "ageGroup": "20대",
+    "occupation": "학생",
+    "income": "200-400만원",
+    "monthlyCardSpending": "30-50만원",
+    "financialInstitutions": [
+      "KB국민카드",
+      "롯데카드",
+      "현대카드"
+    ],
+    "primaryGoal": "여행, 취미 등 여유로운 생활",
+    "importantFactors": [
+      "안정성",
+      "사용 편의성"
+    ],
+    "preferredBenefits": [
+      "온라인 쇼핑",
+      "주유/교통",
+      "호텔/숙박"
+    ],
+    "annualFee": "연회비 없는 카드 선호"
+  },
+  {
+    "user_email": "aaa@aaa.com",
+    "ageGroup": "",
+    "occupation": "",
+    "income": "",
+    "monthlyCardSpending": "",
+    "financialInstitutions": [],
+    "primaryGoal": "",
+    "importantFactors": [],
+    "preferredBenefits": [],
+    "annualFee": ""
+  },
+  {
+    "user_email": "aaa@aaa.com",
+    "ageGroup": "",
+    "occupation": "",
+    "income": "",
+    "monthlyCardSpending": "",
+    "financialInstitutions": [],
+    "primaryGoal": "",
+    "importantFactors": [],
+    "preferredBenefits": [],
+    "annualFee": ""
+  },
+  {
+    "user_email": "aaa@aaa.com",
+    "ageGroup": "20대",
+    "occupation": "학생",
+    "income": "200만원 미만",
+    "monthlyCardSpending": "30만원 미만",
+    "financialInstitutions": [
+      "KB국민카드",
+      "우리카드",
+      "하나카드",
+      "IBK기업은행"
+    ],
+    "primaryGoal": "기타",
+    "importantFactors": [
+      "혜택",
+      "브랜드 신뢰도"
+    ],
+    "preferredBenefits": [
+      "편의점",
+      "배달앱",
+      "OTT/스트리밍"
+    ],
+    "annualFee": "5만원 이상"
+  },
+  {
+    "user_email": "aaa@aaa.com",
+    "ageGroup": "20대",
+    "occupation": "학생",
+    "income": "200-400만원",
+    "monthlyCardSpending": "30-50만원",
+    "financialInstitutions": [
+      "KB국민카드",
+      "롯데카드",
+      "현대카드",
+      "NH농협카드"
+    ],
+    "primaryGoal": "내집 마련 또는 전세자금 마련",
+    "importantFactors": [
+      "수수료/비용",
+      "혜택"
+    ],
+    "preferredBenefits": [
+      "편의점",
+      "오프라인 대형마트/백화점",
+      "공항라운지"
+    ],
+    "annualFee": ""
+  },
+  {
+    "user_email": "aaa@aaa.com",
+    "ageGroup": "",
+    "occupation": "",
+    "income": "",
+    "monthlyCardSpending": "",
+    "financialInstitutions": [],
+    "primaryGoal": "",
+    "importantFactors": [],
+    "preferredBenefits": [],
+    "annualFee": ""
+  },
+  {
+    "user_email": "aaa@aaa.com",
+    "ageGroup": "",
+    "occupation": "",
+    "income": "",
+    "monthlyCardSpending": "",
+    "financialInstitutions": [],
+    "primaryGoal": "",
+    "importantFactors": [],
+    "preferredBenefits": [],
+    "annualFee": ""
+  },
+  {
+    "user_email": "aaa@aaa.com",
+    "ageGroup": "30대",
+    "occupation": "직장인",
+    "income": "400-600만원",
+    "monthlyCardSpending": "100-200만원",
+    "financialInstitutions": [
+      "KB국민카드",
+      "우리카드",
+      "삼성카드",
+      "NH농협카드"
+    ],
+    "primaryGoal": "내집 마련 또는 전세자금 마련",
+    "importantFactors": [
+      "수익률",
+      "혜택"
+    ],
+    "preferredBenefits": [
+      "편의점",
+      "통신비/관리비",
+      "여행/항공"
+    ],
+    "annualFee": "5만원 이상"
+  },
+  {
+    "user_email": "aaa@aaa.com",
+    "ageGroup": "",
+    "occupation": "",
+    "income": "",
+    "monthlyCardSpending": "",
+    "financialInstitutions": [],
+    "primaryGoal": "",
+    "importantFactors": [],
+    "preferredBenefits": [],
+    "annualFee": ""
+  },
+  {
+    "user_email": "aaa@aaa.com",
+    "ageGroup": "",
+    "occupation": "",
+    "income": "",
+    "monthlyCardSpending": "",
+    "financialInstitutions": [],
+    "primaryGoal": "",
+    "importantFactors": [],
+    "preferredBenefits": [],
+    "annualFee": ""
+  },
+  {
+    "user_email": "aaa@aaa.com",
+    "ageGroup": "",
+    "occupation": "",
+    "income": "",
+    "monthlyCardSpending": "",
+    "financialInstitutions": [],
+    "primaryGoal": "",
+    "importantFactors": [],
+    "preferredBenefits": [],
+    "annualFee": ""
   }
 ]

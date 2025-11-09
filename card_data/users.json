@@ -3,7 +3,21 @@
     "aaa@aaa.com": {
       "name": "장성훈",
       "email": "aaa@aaa.com",
-      "password_hash": "scrypt:32768:8:1$kSvQXImmO5ekuy5p$0348efc5873c42aba445e530db8c16504a3c0985e575bbd3da62d498d85ebecfbdcfa651b9a691434a53ed241996a53122d351811968c30cce969739378592a0"
+      "password_hash": "scrypt:32768:8:1$kSvQXImmO5ekuy5p$0348efc5873c42aba445e530db8c16504a3c0985e575bbd3da62d498d85ebecfbdcfa651b9a691434a53ed241996a53122d351811968c30cce969739378592a0",
+      "favoriteCards": [
+        3,
+        1,
+        "삼성카드 taptap O",
+        "taptap DIGITAL",
+        "삼성카드 taptap S",
+        "삼성 iD GLOBAL 카드",
+        "American Express Blue"
+      ]
+    },
+    "www@www.com": {
+      "name": "ㅇㅁㄴㅇ",
+      "email": "www@www.com",
+      "password_hash": "scrypt:32768:8:1$pR3H3KiFNKKBbCW1$49dc5316d98d108b0cf156d9be80b259d5ab7ccbf6e404ea8eac63225409ad91b54d88376bf56250dd5eb32158b4bb1d4e9c6672a6b88c081a83438151d67c5c"
     }
   }
 }

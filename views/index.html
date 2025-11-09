@@ -13,7 +13,8 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='css/chatbot.css') }}" />
 
   <script defer src="{{ url_for('static', filename='js/app.js') }}"></script>
-  <script defer src="{{ url_for('static', filename='js/index_home.js') }}"></script>
+  <!-- 챗봇 스크립트(고정 로드) -->
+  <script defer src="{{ url_for('static', filename='js/chatbot.js') }}"></script>
 </head>
 
 <body>
@@ -32,7 +33,6 @@
       <!-- 요청사항 반영: 카드픽봇/인기차트/혜택·이벤트 제거, 아이콘 제거 -->
       <nav class="nav" aria-label="주요">
         <a href="{{ url_for('recommend') }}" data-nav="recommend">카드픽추천</a>
-        <a href="{{ url_for('survey') }}" data-nav="survey">맞춤카드</a>
         <a href="{{ url_for('browse') }}" data-nav="browse">카드찾기</a>
         <a href="{{ url_for('compare') }}" data-nav="compare">비교함</a>
       </nav>
@@ -65,54 +65,42 @@
             </h1>
 
             <p class="gpt-desc">
-              "카페 자주 가요", "영화 많이 봐요", "교통비 아끼고 싶어요"<br />
+              “카페/배달 많이 써요”, “연회비 1만원 이하”, “해외 결제 자주 해요”<br />
               그냥 말해주면 카드픽봇이 바로 골라줘요.
             </p>
           </header>
 
           <!-- 추천 질문 카드 -->
           <div class="gpt-suggest-grid">
-            <button class="gpt-suggest-card" data-q="카페 스타벅스 커피 할인 혜택 많은 카드 추천해 줘">
+            <button class="gpt-suggest-card" data-q="카페/배달 많이 쓰고 연회비는 저렴했으면 해요. 어떤 카드가 좋을까요?">
               <div class="gpt-card-icon">☕</div>
-              <div class="gpt-card-title">커피/음료</div>
-              <div class="gpt-card-desc">카페 할인 혜택 받고 싶어요</div>
+              <div class="gpt-card-title">카페/배달 많이 써요</div>
+              <div class="gpt-card-desc">연회비는 최대한 저렴했으면 해요</div>
             </button>
 
-            <button class="gpt-suggest-card" data-q="배달 외식 맥도날드 버거킹 치킨 피자 할인 카드 추천해 줘">
-              <div class="gpt-card-icon">🍔</div>
-              <div class="gpt-card-title">외식/배달</div>
-              <div class="gpt-card-desc">배달음식 자주 시켜먹어요</div>
+            <button class="gpt-suggest-card" data-q="해외 결제 수수료 적고 공항 라운지 가능한 카드 추천해 줘.">
+              <div class="gpt-card-icon">✈️</div>
+              <div class="gpt-card-title">해외/여행 자주 가요</div>
+              <div class="gpt-card-desc">라운지 · 해외 적립 위주로 보고 싶어요</div>
             </button>
 
-            <button class="gpt-suggest-card" data-q="영화 CGV 넷플릭스 유튜브 멜론 할인 혜택 카드 추천해 줘">
-              <div class="gpt-card-icon">🎬</div>
-              <div class="gpt-card-title">여가/문화</div>
-              <div class="gpt-card-desc">영화 OTT 즐겨봐요</div>
+            <button class="gpt-suggest-card" data-q="교통/통신 요금 줄이고 싶은데 생활형 카드 뭐가 좋아요?">
+              <div class="gpt-card-icon">🚇</div>
+              <div class="gpt-card-title">교통/통신 아끼고 싶어요</div>
+              <div class="gpt-card-desc">생활비 절약 위주 카드 알려줘요</div>
             </button>
 
-            <button class="gpt-suggest-card" data-q="대중교통 버스 지하철 택시 주유 할인 카드 추천해 줘">
-              <div class="gpt-card-icon">🚆</div>
-              <div class="gpt-card-title">교통</div>
-              <div class="gpt-card-desc">교통비 아끼고 싶어요</div>
-            </button>
-
-            <button class="gpt-suggest-card" data-q="통신비 SKT KT LG 휴대폰 요금 할인 카드 추천해 줘">
-              <div class="gpt-card-icon">📱</div>
-              <div class="gpt-card-title">통신/구독</div>
-              <div class="gpt-card-desc">통신비 절약하고 싶어요</div>
-            </button>
-
-            <button class="gpt-suggest-card" data-q="쇼핑 마트 이마트 쿠팡 편의점 할인 카드 추천해 줘">
-              <div class="gpt-card-icon">🛍️</div>
-              <div class="gpt-card-title">쇼핑/마트</div>
-              <div class="gpt-card-desc">장보기 할인 받고 싶어요</div>
+            <button class="gpt-suggest-card" data-q="연회비 1만원 이하에 무실적 혜택 카드 알려줘.">
+              <div class="gpt-card-icon">💳</div>
+              <div class="gpt-card-title">연회비 1만원 이하</div>
+              <div class="gpt-card-desc">실적 없어도 혜택 있으면 최고</div>
             </button>
           </div>
 
           <!-- 하단 큰 입력창 -->
           <div class="gpt-input-wrap">
-            <form class="gpt-input-row" id="homeAskForm" action="{{ url_for('chatbot_recommend') }}" method="get">
-              <input id="homeAskInput" name="query" type="text" placeholder="카드픽봇에게 물어보기: 예) 해외 결제 수수료 적은 카드 추천해 줘"
+            <form class="gpt-input-row" id="homeAskForm">
+              <input id="homeAskInput" type="text" placeholder="카드픽봇에게 물어보기: 예) 해외 결제 수수료 적은 카드 추천해 줘"
                 aria-label="카드픽봇에게 질문하기" />
               <button id="homeAskSend" class="gpt-send-btn" type="submit" aria-label="보내기">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -181,7 +169,7 @@
     </div>
   </div>
 
-  <!-- (주의) 플로팅 챗봇 위젯은 app.js에서 전 페이지 공통으로 동적 삽입됩니다. -->
+  <!-- (주의) 플로팅 챗봇 위젯은 app.js 또는 chatbot.js에서 전 페이지 공통으로 동적 삽입됩니다. -->
 
   <!-- ================= Footer ================= -->
   <footer class="footer">

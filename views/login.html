@@ -7,8 +7,10 @@
   <title>CARD PICK · 로그인</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/common.css') }}" />
   <link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/chatbot.css') }}" />
 
   <script defer src="{{ url_for('static', filename='js/app.js') }}"></script>
+  <script defer src="{{ url_for('static', filename='js/chatbot.js') }}"></script>
 </head>
 
 <body>
@@ -24,7 +26,6 @@
       </a>
       <nav class="nav" aria-label="주요">
         <a href="{{ url_for('recommend') }}" data-nav="recommend">카드픽추천</a>
-        <a href="{{ url_for('survey') }}" data-nav="survey">맞춤카드</a>
         <a href="{{ url_for('browse') }}" data-nav="browse">카드찾기</a>
         <a href="{{ url_for('compare') }}" data-nav="compare">비교함</a>
       </nav>

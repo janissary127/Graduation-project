@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>CARD PICK · 마이페이지</title>
+
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/common.css') }}" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/browse.css') }}" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/cards.css') }}" />
+  <script defer src="{{ url_for('static', filename='js/app.js') }}"></script>
+  <script defer src="{{ url_for('static', filename='js/mypage.js') }}"></script>
+
+  <style>
+    .mypage {
+      padding: 2rem 0;
+      min-height: calc(100vh - 200px);
+    }
+
+    .mp-grid {
+      display: grid;
+      grid-template-columns: 1fr 2fr;
+      gap: 2rem;
+      margin-top: 2rem;
+    }
+
+    @media (max-width: 960px) {
+      .mp-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .section-card {
+      background: white;
+      border-radius: 16px;
+      padding: 2rem;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    }
+
+    .section-card h2 {
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+      color: #111827;
+    }
+
+    .muted {
+      color: #6b7280;
+      font-size: 0.9rem;
+    }
+
+    .mp-form {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .mp-field {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .mp-field label {
+      font-weight: 600;
+      color: #374151;
+      font-size: 0.95rem;
+    }
+
+    .mp-field input {
+      padding: 0.75rem;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      font-size: 1rem;
+      transition: border-color 0.2s;
+    }
+
+    .mp-field input:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .mp-actions {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-top: 0.5rem;
+    }
+
+    .btn-primary {
+      padding: 0.75rem 1.5rem;
+      background: #667eea;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .btn-primary:hover {
+      background: #5568d3;
+    }
+
+    .btn-ghost {
+      padding: 0.75rem 1.5rem;
+      background: transparent;
+      color: #667eea;
+      border: 1px solid #667eea;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 600;
+      transition: all 0.2s;
+      display: inline-block;
+    }
+
+    .btn-ghost:hover {
+      background: #667eea;
+      color: white;
+    }
+
+    .fav-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .count {
+      font-size: 0.9rem;
+      color: #6b7280;
+    }
+
+    .count strong {
+      color: #667eea;
+      font-size: 1.1rem;
+    }
+
+    .fav-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1rem;
+    }
+
+    .fav-card-item {
+      background: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      padding: 1rem;
+      transition: all 0.2s;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .fav-card-item:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .fav-card-img {
+      width: 100%;
+      height: auto;
+      max-height: 120px;
+      object-fit: contain;
+      margin-bottom: 0.75rem;
+    }
+
+    .fav-card-name {
+      font-weight: 700;
+      font-size: 1rem;
+      color: #111827;
+      margin-bottom: 0.25rem;
+    }
+
+    .fav-card-corp {
+      font-size: 0.85rem;
+      color: #6b7280;
+      margin-bottom: 0.5rem;
+    }
+
+    .fav-card-benefits {
+      font-size: 0.85rem;
+      color: #4b5563;
+      line-height: 1.4;
+    }
+
+    .remove-favorite-btn {
+      position: absolute;
+      top: 0.5rem;
+      right: 0.5rem;
+      background: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 50%;
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      z-index: 2;
+    }
+
+    .remove-favorite-btn:hover {
+      border-color: #ef4444;
+      background: #fef2f2;
+    }
+
+    .remove-favorite-btn svg {
+      width: 16px;
+      height: 16px;
+      stroke: #6b7280;
+    }
+
+    .remove-favorite-btn:hover svg {
+      stroke: #ef4444;
+    }
+
+    .empty-favorites {
+      text-align: center;
+      padding: 3rem 1rem;
+      color: #9ca3af;
+    }
+
+    .empty-favorites svg {
+      width: 64px;
+      height: 64px;
+      margin-bottom: 1rem;
+      opacity: 0.3;
+    }
+
+    .footer {
+      background: #f9fafb;
+      padding: 2rem 0;
+      margin-top: 3rem;
+      border-top: 1px solid #e5e7eb;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <!-- 헤더는 app.js의 mountGlobalHeader()가 공통으로 주입/치환합니다 -->
+  <header class="site-header">
+    <div class="container header__inner">
+      <a href="{{ url_for('index') }}" class="brand" aria-label="CARD PICK 홈">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+          <rect x="2" y="5" width="20" height="14" rx="3" fill="#111827" />
+          <rect x="4" y="9" width="16" height="2" rx="1" fill="#fff" opacity=".75" />
+          <rect x="4" y="13" width="6" height="2" rx="1" fill="#fff" opacity=".75" />
+        </svg>
+        <strong class="brand__text">CARD PICK</strong>
+      </a>
+      <nav class="nav" aria-label="주요">
+        <a href="{{ url_for('recommend') }}" data-nav="recommend">카드픽추천</a>
+        <a href="{{ url_for('browse') }}" data-nav="browse">카드찾기</a>
+        <a href="{{ url_for('compare') }}" data-nav="compare">비교함</a>
+      </nav>
+      <div class="header__auth" id="authLinks"></div>
+    </div>
+  </header>
+
+  <main class="mypage">
+    <div class="container">
+      <h1 style="margin:6px 0 14px;font-size:26px;letter-spacing:-.3px;font-weight:900">마이페이지</h1>
+
+      <div class="mp-grid">
+        <!-- 좌: 프로필 / 회원정보 수정 -->
+        <section class="section-card">
+          <h2>회원정보 수정</h2>
+          <p class="muted" style="margin-top:-4px">백엔드 연동 전이므로 저장은 안내 메시지만 표시됩니다.</p>
+          <form id="mpForm" class="mp-form" novalidate>
+            <div class="mp-field">
+              <label for="mpName">이름</label>
+              <input id="mpName" name="name" type="text" placeholder="홍길동" />
+            </div>
+            <div class="mp-field">
+              <label for="mpEmail">이메일</label>
+              <input id="mpEmail" name="email" type="email" placeholder="you@example.com" />
+            </div>
+            <div class="mp-field">
+              <label for="mpPassword">비밀번호 변경</label>
+              <input id="mpPassword" name="password" type="password" placeholder="새 비밀번호" />
+            </div>
+            <div class="mp-actions">
+              <button type="submit" class="btn-primary">저장</button>
+              <span class="muted">저장은 추후 서버 연동 후 활성화됩니다.</span>
+            </div>
+          </form>
+          <hr style="margin:16px 0;border:none;border-top:1px solid #eef2f6" />
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <a href="/survey" class="btn-ghost">설문조사 바로가기</a>
+            <a href="/compare" class="btn-ghost">비교함 바로가기</a>
+          </div>
+        </section>
+
+        <!-- 우: 즐겨찾기 카드 목록 -->
+        <section class="section-card">
+          <div class="fav-head">
+            <h2 style="margin:0">즐겨찾기한 카드</h2>
+            <span class="count">총 <strong id="favCount">0</strong>개</span>
+          </div>
+          <div id="favGrid" class="fav-grid">
+            <!-- JS로 렌더링 -->
+          </div>
+          <p class="muted" style="margin-top:10px">
+            * 즐겨찾기가 비어 있다면, 카드 목록 페이지에서 즐겨찾기를 추가해 주세요. (로컬 저장)
+          </p>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="container muted">© 2025 CARD PICK</div>
+  </footer>
+</body>
+</html>

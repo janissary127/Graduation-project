@@ -136,7 +136,7 @@ async function loadCards() {
     try {
       json = await j("/api/cards");
     } catch (e) {
-      json = await j("/static/data/card_list.json");
+      json = await j("/static/card_data/card_list.json");
     }
 
     RAW = Array.isArray(json)

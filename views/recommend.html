@@ -9,10 +9,10 @@
   <!-- 공용 CSS / JS (Flask/Jinja 경로) -->
   <link rel="stylesheet" href="{{ url_for('static', filename='css/common.css') }}" />
   <link rel="stylesheet" href="{{ url_for('static', filename='css/cards.css') }}" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/chatbot.css') }}" />
 
   <script defer src="{{ url_for('static', filename='js/app.js') }}"></script>
-  <!-- app2.js도 쓰면 아래 줄 활성화 -->
-  <!-- <script defer src="{{ url_for('static', filename='js/app2.js') }}"></script> -->
+  <script defer src="{{ url_for('static', filename='js/chatbot.js') }}"></script>
 </head>
 
 <body>
@@ -29,26 +29,10 @@
       </a>
       <nav class="nav" aria-label="주요">
         <a href="{{ url_for('recommend') }}" data-nav="recommend">카드픽추천</a>
-        <a href="{{ url_for('survey') }}" data-nav="survey">맞춤카드</a>
         <a href="{{ url_for('browse') }}" data-nav="browse">카드찾기</a>
         <a href="{{ url_for('compare') }}" data-nav="compare">비교함</a>
       </nav>
-      <div class="header__icons">
-        <button id="openSearch" class="icon-btn" aria-label="검색 열기">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <circle cx="11" cy="11" r="7" stroke="#111827" stroke-width="2" />
-            <path d="M20 20L16.65 16.65" stroke="#111827" stroke-width="2" stroke-linecap="round" />
-          </svg>
-        </button>
-        <a href="{{ url_for('compare') }}" class="icon-btn" aria-label="비교함">
-          <span class="icon-with-badge">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <path d="M7 3v18M17 3v18M4 7h6M14 17h6" stroke="#111827" stroke-width="2" stroke-linecap="round" />
-            </svg>
-            <span id="compareBadge" class="badge" style="display:none">0</span>
-          </span>
-        </a>
-      </div>
+      <div class="header__icons"></div>
     </div>
   </header>
 

@@ -1,6 +1,6 @@
 // render-cards.js (수정본)
 (async function () {
-    const JSON_PATH = '/static/data/card_list.json'; // 실제 경로에 맞게 수정
+    const JSON_PATH = '/static/card_data/card_list.json'; // 실제 경로에 맞게 수정
     const issuerGrid = document.getElementById('issuerGrid');
     const cardGrid = document.getElementById('cardGrid');
     const backBtn = document.getElementById('backToIssuers');
