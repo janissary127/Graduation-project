@@ -1,18 +1,35 @@
 // survey-result.js - 설문조사 결과 페이지 로직
 
-let userFavorites = []; // 사용자의 즐겨찾기 카드 team_id 배열
+(function() {
+  'use strict';
 
-document.addEventListener('DOMContentLoaded', async () => {
+  console.log('[survey-result.js] 파일 로드됨');
+
+  let userFavorites = []; // 사용자의 즐겨찾기 카드 이름 배열 (로컬 스코프)
+
+  document.addEventListener('DOMContentLoaded', async () => {
+  console.log('[survey-result.js] DOMContentLoaded 이벤트 발생');
+
   const loadingSpinner = document.getElementById('loading-spinner');
   const recommendationsSection = document.getElementById('recommendations-section');
   const errorMessage = document.getElementById('error-message');
   const errorText = document.getElementById('error-text');
 
+  console.log('[survey-result.js] 엘리먼트 확인:', {
+    loadingSpinner: !!loadingSpinner,
+    recommendationsSection: !!recommendationsSection,
+    errorMessage: !!errorMessage,
+    errorText: !!errorText
+  });
+
   try {
     // 1. 사용자 즐겨찾기 정보 가져오기
+    console.log('[survey-result.js] 즐겨찾기 로드 시작...');
     await loadUserFavorites();
+    console.log('[survey-result.js] 즐겨찾기 로드 완료');
 
     // 2. 추천 API 호출
+    console.log('[추천 API] 호출 시작...');
     const recommendResponse = await fetch('/api/survey/recommend', {
       method: 'POST',
       headers: {
@@ -20,11 +37,16 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
     });
 
+    console.log('[추천 API] 응답 상태:', recommendResponse.status);
+
     if (!recommendResponse.ok) {
-      throw new Error('카드 추천을 불러올 수 없습니다.');
+      const errorText = await recommendResponse.text();
+      console.error('[추천 API] 에러 응답:', errorText);
+      throw new Error(`카드 추천을 불러올 수 없습니다. (${recommendResponse.status})`);
     }
 
     const recommendData = await recommendResponse.json();
+    console.log('[추천 API] 응답 데이터:', recommendData);
 
     if (!recommendData.success) {
       throw new Error(recommendData.error || '추천 시스템 오류가 발생했습니다.');
@@ -437,3 +459,5 @@ async function toggleFavorite(cardName, btnElement) {
     alert('로그인이 필요합니다.');
   }
 }
+
+})(); // IIFE 종료

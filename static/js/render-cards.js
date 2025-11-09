@@ -6,6 +6,7 @@
     const backBtn = document.getElementById('backToIssuers');
     let issuerMap = {}; // 기존에 전역으로 사용되던 issuerMap을 명시적으로 선언
     let allCards = [];  // JSON으로 로드한 전체 카드 목록 (필터 소스)
+    let userFavorites = []; // 사용자의 즐겨찾기 카드 이름 배열
 
 
     // 브랜드별 기본 색상 (원하면 JSON에 넣어도 됨)
@@ -20,6 +21,75 @@
         'NH': '#0F62AE',
         'IBK기업은행': '#196F3D'
     };
+
+    /**
+     * 사용자의 즐겨찾기 정보 로드 (카드 이름 배열)
+     */
+    async function loadUserFavorites() {
+        try {
+            const response = await fetch('/api/favorites');
+            if (response.ok) {
+                const data = await response.json();
+                userFavorites = data.favorites || [];
+                console.log('[즐겨찾기 로드] userFavorites:', userFavorites);
+            }
+        } catch (error) {
+            console.error('즐겨찾기 정보 로드 실패:', error);
+        }
+    }
+
+    /**
+     * 즐겨찾기 토글 (카드 이름 기반)
+     */
+    async function toggleFavorite(cardName, btnElement) {
+        if (!cardName) {
+            alert('카드 정보를 찾을 수 없습니다.');
+            return;
+        }
+
+        const isFavorite = userFavorites.includes(cardName);
+
+        console.log('[즐겨찾기 토글] 카드명:', cardName, '현재 상태:', isFavorite ? '즐겨찾기됨' : '즐겨찾기 안됨');
+
+        try {
+            const response = await fetch('/api/favorites', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    card_name: cardName,
+                    action: isFavorite ? 'remove' : 'add'
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error('즐겨찾기 처리 실패');
+            }
+
+            const data = await response.json();
+
+            if (data.success) {
+                console.log('[즐겨찾기 응답]', data);
+
+                // UI 업데이트
+                if (isFavorite) {
+                    userFavorites = userFavorites.filter(name => name !== cardName);
+                    btnElement.classList.remove('active');
+                } else {
+                    userFavorites.push(cardName);
+                    btnElement.classList.add('active');
+                }
+
+                console.log('[즐겨찾기 업데이트 후] userFavorites:', userFavorites);
+            } else {
+                alert(data.error || '즐겨찾기 처리에 실패했습니다.');
+            }
+        } catch (error) {
+            console.error('즐겨찾기 오류:', error);
+            alert('로그인이 필요합니다.');
+        }
+    }
 
     function normalizeCorp(corp) {
         if (!corp) return '';
@@ -233,6 +303,36 @@
     function createCardNode(card) {
         const container = document.createElement('div');
         container.className = 'card-container';
+        container.style.position = 'relative';
+
+        // 즐겨찾기 버튼 추가
+        const favoriteBtn = document.createElement('button');
+        favoriteBtn.className = 'favorite-btn';
+        favoriteBtn.title = '즐겨찾기';
+
+        // 카드 이름으로 즐겨찾기 상태 확인
+        const cardName = card.name;
+        const isFavorite = cardName && userFavorites.includes(cardName);
+        if (isFavorite) {
+            favoriteBtn.classList.add('active');
+        }
+
+        favoriteBtn.innerHTML = `
+            <svg viewBox="0 0 24 24">
+                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+            </svg>
+        `;
+
+        favoriteBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (!cardName) {
+                alert('카드 정보를 찾을 수 없습니다. (카드명 없음)');
+                console.error('Card data:', card);
+                return;
+            }
+            console.log('[즐겨찾기 버튼] 카드명:', cardName);
+            toggleFavorite(cardName, favoriteBtn);
+        });
 
         // --- content-row: 기존의 가로 레이아웃(이미지 + 데이터)을 이 안에 둠 ---
         const contentRow = document.createElement('div');
@@ -310,6 +410,7 @@
         contentRow.appendChild(dataWrap);
 
         // container은 세로로 쌓이게 하고, contentRow는 가로 배치 역할
+        container.appendChild(favoriteBtn);
         container.appendChild(contentRow);
 
         // --- 상세보기 핸들러 추가 ---
@@ -514,6 +615,9 @@
 
     // 로드 및 초기 렌더링
     try {
+        // 1. 사용자 즐겨찾기 정보 가져오기
+        await loadUserFavorites();
+
         const res = await fetch(JSON_PATH, { cache: 'no-store' });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();

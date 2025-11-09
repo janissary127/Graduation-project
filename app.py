@@ -219,25 +219,38 @@ def api_survey_recommend():
     try:
         from chat.survey_recommender import SurveyBasedRecommender
 
+        print("[추천 API] 요청 받음")
+
         # JSON 데이터를 파싱 (에러 무시)
         data = request.get_json(silent=True)
+        print(f"[추천 API] POST 데이터: {data}")
 
         # 세션에서 설문 데이터 가져오기 또는 POST 데이터 사용
         if data is None or not data:
             user = session.get("user")
+            print(f"[추천 API] 세션 사용자: {user}")
+
             if not user:
-                return jsonify({"error": "로그인이 필요합니다."}), 401
+                print("[추천 API] 에러: 로그인 필요")
+                return jsonify({"success": False, "error": "로그인이 필요합니다."}), 401
 
             survey_data = session.get("survey_data")
+            print(f"[추천 API] 세션 설문 데이터: {survey_data is not None}")
+
             if not survey_data:
-                return jsonify({"error": "설문조사 데이터가 없습니다."}), 400
+                print("[추천 API] 에러: 설문조사 데이터 없음")
+                return jsonify({"success": False, "error": "설문조사 데이터가 없습니다."}), 400
         else:
             survey_data = data
+
+        print(f"[추천 API] 추천 시스템 실행 중...")
 
         # 추천 시스템 실행
         card_list_path = os.path.join(os.path.dirname(__file__), "static", "card_data", "card_list.json")
         recommender = SurveyBasedRecommender(card_list_path)
         result = recommender.recommend(survey_data, top_n=10)
+
+        print(f"[추천 API] 추천 완료: {len(result.get('recommendations', []))}개 카드")
 
         return jsonify({
             "success": True,
@@ -246,9 +259,9 @@ def api_survey_recommend():
 
     except Exception as e:
         import traceback
-        print(f"Error in api_survey_recommend: {e}")
+        print(f"[추천 API] Error: {e}")
         print(traceback.format_exc())
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"success": False, "error": str(e)}), 500
 
 
 @app.route("/api/survey/data", methods=["GET"])

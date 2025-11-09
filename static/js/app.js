@@ -26,6 +26,8 @@ let currentSlot = null;
 
 let heroIndex = 0, heroTimer = null;
 
+let userFavorites = []; // 사용자의 즐겨찾기 카드 이름 배열
+
 /* ------------------------ 유틸 ------------------------ */
 const esc = (s) => (s || s === 0)
   ? String(s).replace(/[&<>"']/g, c => ({
@@ -120,6 +122,72 @@ async function initAuthUI() {
         <a href="/signup" class="btn-primary small">회원가입</a>`;
     }
   } catch (e) { /* noop */ }
+}
+
+/* =========================================================
+ * (A3) 즐겨찾기 관리
+ * =======================================================*/
+async function loadUserFavorites() {
+  try {
+    const response = await fetch('/api/favorites');
+    if (response.ok) {
+      const data = await response.json();
+      userFavorites = data.favorites || [];
+      console.log('[즐겨찾기 로드] userFavorites:', userFavorites);
+    }
+  } catch (error) {
+    console.error('즐겨찾기 정보 로드 실패:', error);
+  }
+}
+
+async function toggleFavorite(cardName, btnElement) {
+  if (!cardName) {
+    alert('카드 정보를 찾을 수 없습니다.');
+    return;
+  }
+
+  const isFavorite = userFavorites.includes(cardName);
+
+  console.log('[즐겨찾기 토글] 카드명:', cardName, '현재 상태:', isFavorite ? '즐겨찾기됨' : '즐겨찾기 안됨');
+
+  try {
+    const response = await fetch('/api/favorites', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        card_name: cardName,
+        action: isFavorite ? 'remove' : 'add'
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error('즐겨찾기 처리 실패');
+    }
+
+    const data = await response.json();
+
+    if (data.success) {
+      console.log('[즐겨찾기 응답]', data);
+
+      // UI 업데이트
+      if (isFavorite) {
+        userFavorites = userFavorites.filter(name => name !== cardName);
+        if (btnElement) btnElement.classList.remove('active');
+      } else {
+        userFavorites.push(cardName);
+        if (btnElement) btnElement.classList.add('active');
+      }
+
+      console.log('[즐겨찾기 업데이트 후] userFavorites:', userFavorites);
+    } else {
+      alert(data.error || '즐겨찾기 처리에 실패했습니다.');
+    }
+  } catch (error) {
+    console.error('즐겨찾기 오류:', error);
+    alert('로그인이 필요합니다.');
+  }
 }
 
 /* =========================================================
@@ -1107,9 +1175,18 @@ function renderComparisonTable() {
       ? `<ul class="benefit-list">${benefits.slice(0, 6).map(b => `<li>${esc(b)}</li>`).join("")}</ul>`
       : `<div class="row-content muted">세부 혜택 정보 없음</div>`;
 
+    // 즐겨찾기 상태 확인
+    const isFavorite = userFavorites.includes(card.name);
+    const favoriteClass = isFavorite ? 'active' : '';
+
     return `
       <div class="compare-column" data-slot="${i}">
         <div class="compare-col__head">
+          <button class="favorite-btn-compare ${favoriteClass}" data-card-name="${esc(card.name)}" title="즐겨찾기">
+            <svg viewBox="0 0 24 24">
+              <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+            </svg>
+          </button>
           <div class="compare-col__name">${esc(card.name)}</div>
           <div class="compare-col__issuer">${esc(card.issuer || "")}</div>
           ${promo ? `<div class="compare-col__promo">${esc(promo)}</div>` : ""}
@@ -1142,6 +1219,17 @@ function renderComparisonTable() {
   });
 
   wrap.innerHTML = cols.join("");
+
+  // 즐겨찾기 버튼 이벤트 리스너 추가
+  $$('.favorite-btn-compare').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const cardName = btn.getAttribute('data-card-name');
+      if (cardName) {
+        toggleFavorite(cardName, btn);
+      }
+    });
+  });
 }
 
 
@@ -1275,6 +1363,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   initHeaderState();
   // 1-1) 인증 UI 상태 반영 (여기에 "안녕하세요, ○○님" 포함)
   initAuthUI();
+  // 1-2) 즐겨찾기 정보 로드
+  await loadUserFavorites();
 
   // 2) 챗봇 위젯 (분리된 chatbot.js에서 init 함수가 있다면 호출)
   try {

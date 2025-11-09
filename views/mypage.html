@@ -236,6 +236,51 @@
       border-top: 1px solid #e5e7eb;
       text-align: center;
     }
+
+    /* 페이지네이션 스타일 */
+    .pagination-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 1rem;
+      margin-top: 2rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid #e5e7eb;
+    }
+
+    .pagination-btn {
+      padding: 0.6rem 1.2rem;
+      background: white;
+      color: #667eea;
+      border: 2px solid #667eea;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .pagination-btn:hover:not(:disabled) {
+      background: #667eea;
+      color: white;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    }
+
+    .pagination-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      border-color: #d1d5db;
+      color: #9ca3af;
+    }
+
+    .pagination-info {
+      font-weight: 600;
+      color: #374151;
+      font-size: 1rem;
+      min-width: 80px;
+      text-align: center;
+    }
   </style>
 </head>
 <body>
@@ -267,7 +312,6 @@
         <!-- 좌: 프로필 / 회원정보 수정 -->
         <section class="section-card">
           <h2>회원정보 수정</h2>
-          <p class="muted" style="margin-top:-4px">백엔드 연동 전이므로 저장은 안내 메시지만 표시됩니다.</p>
           <form id="mpForm" class="mp-form" novalidate>
             <div class="mp-field">
               <label for="mpName">이름</label>
@@ -283,7 +327,6 @@
             </div>
             <div class="mp-actions">
               <button type="submit" class="btn-primary">저장</button>
-              <span class="muted">저장은 추후 서버 연동 후 활성화됩니다.</span>
             </div>
           </form>
           <hr style="margin:16px 0;border:none;border-top:1px solid #eef2f6" />
@@ -302,9 +345,6 @@
           <div id="favGrid" class="fav-grid">
             <!-- JS로 렌더링 -->
           </div>
-          <p class="muted" style="margin-top:10px">
-            * 즐겨찾기가 비어 있다면, 카드 목록 페이지에서 즐겨찾기를 추가해 주세요. (로컬 저장)
-          </p>
         </section>
       </div>
     </div>

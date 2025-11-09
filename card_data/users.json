@@ -7,17 +7,25 @@
       "favoriteCards": [
         3,
         1,
-        "삼성카드 taptap O",
-        "taptap DIGITAL",
-        "삼성카드 taptap S",
         "삼성 iD GLOBAL 카드",
-        "American Express Blue"
+        "카드의정석 오하CHECK",
+        "신한카드 Hey Young 체크",
+        "신한카드 Mr.Life",
+        "신한카드 Hey Young 체크(잔망루피)",
+        "기후동행카드(체크)",
+        "KB국민카드 KaPick",
+        "신한카드 처음(ANNIVERSE)"
       ]
     },
     "www@www.com": {
       "name": "ㅇㅁㄴㅇ",
       "email": "www@www.com",
-      "password_hash": "scrypt:32768:8:1$pR3H3KiFNKKBbCW1$49dc5316d98d108b0cf156d9be80b259d5ab7ccbf6e404ea8eac63225409ad91b54d88376bf56250dd5eb32158b4bb1d4e9c6672a6b88c081a83438151d67c5c"
+      "password_hash": "scrypt:32768:8:1$pR3H3KiFNKKBbCW1$49dc5316d98d108b0cf156d9be80b259d5ab7ccbf6e404ea8eac63225409ad91b54d88376bf56250dd5eb32158b4bb1d4e9c6672a6b88c081a83438151d67c5c",
+      "favoriteCards": [
+        "디지로카 Las Vegas",
+        "신세계 THE S VIP",
+        "JADE Classic"
+      ]
     }
   }
 }

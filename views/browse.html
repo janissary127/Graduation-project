@@ -14,6 +14,55 @@
   <script defer src="{{ url_for('static', filename='js/app.js') }}"></script>
   <script defer src="{{ url_for('static', filename='js/chatbot.js') }}"></script>
   <script defer src="{{ url_for('static', filename='js/render-cards.js') }}"></script>
+
+  <style>
+    /* 즐겨찾기 버튼 - 왼쪽 상단으로 이동하여 자세히 보기 버튼과 겹치지 않게 */
+    .favorite-btn {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      background: white;
+      border: 2px solid #e5e7eb;
+      border-radius: 50%;
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      z-index: 2;
+    }
+
+    .favorite-btn:hover {
+      border-color: #fbbf24;
+      transform: scale(1.1);
+    }
+
+    .favorite-btn.active {
+      background: #fbbf24;
+      border-color: #fbbf24;
+    }
+
+    .favorite-btn svg {
+      width: 20px;
+      height: 20px;
+      fill: none;
+      stroke: #9ca3af;
+      stroke-width: 2;
+      transition: all 0.2s;
+    }
+
+    .favorite-btn.active svg {
+      fill: white;
+      stroke: white;
+    }
+
+    /* 카드 컨테이너 패딩 조정 - 왼쪽에 즐겨찾기 버튼 공간 확보 */
+    .card-container {
+      padding-left: 60px !important;
+    }
+  </style>
 </head>
 
 <body>
