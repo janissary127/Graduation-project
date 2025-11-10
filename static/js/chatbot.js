@@ -96,13 +96,30 @@
       form.requestSubmit();
     });
 
-    form.addEventListener("submit", (e) => {
+    form.addEventListener("submit", async (e) => {
       e.preventDefault();
       const q = (input.value || "").trim();
       if (!q) return input.focus();
       addUser(q);
       input.value = "";
-      setTimeout(() => addBot(genAnswer(q)), 350);
+
+      // 로딩 메시지 추가
+      addBot("추천 카드를 찾고 있습니다...");
+
+      try {
+        const answer = await genAnswer(q);
+        // 마지막 메시지(로딩) 제거
+        if (log.lastChild && log.lastChild.classList.contains('bot')) {
+          log.removeChild(log.lastChild);
+        }
+        addBot(answer);
+      } catch (error) {
+        // 마지막 메시지(로딩) 제거
+        if (log.lastChild && log.lastChild.classList.contains('bot')) {
+          log.removeChild(log.lastChild);
+        }
+        addBot("추천 중 오류가 발생했습니다. 다시 시도해 주세요.");
+      }
     });
 
     // 초기 상태
@@ -125,21 +142,61 @@
     log.scrollTop = log.scrollHeight;
   }
 
-  function genAnswer(q) {
-    const s = q.toLowerCase();
-    if (/카페|배달|편의점/.test(s)) {
-      return `<strong>추천: 삼성 taptap O</strong><br/>• 카페/배달 상시 적립 · 간편결제 추가<br/>→ <a href="/compare">비교함</a>에서 더 보기`;
+  async function genAnswer(q) {
+    try {
+      // API 호출
+      const response = await fetch('/api/recommend', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ query: q })
+      });
+
+      if (!response.ok) {
+        throw new Error('API 호출 실패');
+      }
+
+      const data = await response.json();
+
+      // 추천 카드가 없는 경우
+      if (!data.success || !data.recommendations || data.recommendations.length === 0) {
+        return `관련 키워드를 찾지 못했습니다. 조금 더 구체적으로 입력해 주세요.<br/>예) "스타벅스 자주 가요", "대중교통 이용", "영화 많이 봐요"`;
+      }
+
+      // 상위 2개 카드만 선택
+      const topCards = data.recommendations.slice(0, 2);
+
+      // 카드 정보 HTML 생성
+      let html = '<div class="cp-card-list">';
+
+      topCards.forEach((card, index) => {
+        const cardName = esc(card.name || '');
+        const cardCorp = esc(card.corp || '');
+        const benefits = card.benefits || [];
+
+        // 혜택은 최대 3개만 표시
+        const benefitList = benefits.slice(0, 3).map(b => `• ${esc(b)}`).join('<br/>');
+
+        html += `
+          <div class="cp-card-item">
+            <strong>${index + 1}. ${cardName}</strong> <span style="color: #6b7280; font-size: 0.9em;">(${cardCorp})</span><br/>
+            <div style="margin-top: 4px; font-size: 0.9em; line-height: 1.4;">
+              ${benefitList}
+            </div>
+          </div>
+        `;
+      });
+
+      html += '</div>';
+      html += `<div style="margin-top: 12px; font-size: 0.9em; color: #6b7280;">→ <a href="/browse" style="color: #2563eb;">카드찾기</a>에서 더 많은 카드를 확인해보세요</div>`;
+
+      return html;
+
+    } catch (error) {
+      console.error('추천 API 오류:', error);
+      throw error;
     }
-    if (/해외|여행|라운지|마일/.test(s)) {
-      return `<strong>추천: 스카이패스 계열</strong><br/>• 해외 적립/라운지 강점<br/>→ <a href="/compare">비교함</a>에서 조건 비교`;
-    }
-    if (/교통|통신|구독/.test(s)) {
-      return `<strong>추천: KB My WE:SH</strong><br/>• 교통/통신/구독 생활영역 특화<br/>→ <a href="/compare">비교함</a> 이동`;
-    }
-    if (/연회비|만원|저렴/.test(s)) {
-      return `<strong>추천: 현대 ZERO Edition2</strong><br/>• 무실적/낮은 연회비 구간<br/>→ <a href="/compare">비교함</a>에서 대안도 확인`;
-    }
-    return `원하시는 혜택 키워드를 알려주세요. 예) "카페/배달", "해외 적립", "교통/통신", "연회비 1만원 이하"`;
   }
 
   function open() {
@@ -160,10 +217,27 @@
     if (fab) fab.focus();
   }
 
-  function sendExternal(q) {
+  async function sendExternal(q) {
     createIfNeeded();
     addUser(q);
-    setTimeout(() => addBot(genAnswer(q)), 350);
+
+    // 로딩 메시지 추가
+    addBot("추천 카드를 찾고 있습니다...");
+
+    try {
+      const answer = await genAnswer(q);
+      // 마지막 메시지(로딩) 제거
+      if (log.lastChild && log.lastChild.classList.contains('bot')) {
+        log.removeChild(log.lastChild);
+      }
+      addBot(answer);
+    } catch (error) {
+      // 마지막 메시지(로딩) 제거
+      if (log.lastChild && log.lastChild.classList.contains('bot')) {
+        log.removeChild(log.lastChild);
+      }
+      addBot("추천 중 오류가 발생했습니다. 다시 시도해 주세요.");
+    }
   }
 
   function init() {
