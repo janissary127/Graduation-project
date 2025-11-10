@@ -52,6 +52,15 @@
 .cp-chat-send{ border:0; background:#0ea5ff; color:#fff; border-radius:12px; padding:10px 14px; font-weight:800; cursor:pointer }
 .cp-chat-send:hover{ filter:brightness(.95) }
 
+/* 카드 추천 리스트 스타일 */
+.cp-card-list{ display:flex; flex-direction:column; gap:12px; margin-top:8px }
+.cp-card-item{
+  padding:10px 12px; border-radius:10px; background:#f8fafc;
+  border:1px solid #e7ebf3; transition:background .15s ease
+}
+.cp-card-item:hover{ background:#f1f5f9 }
+.cp-card-item strong{ font-size:14px; font-weight:700; color:#111827 }
+
 @media (max-width:640px){
   .cp-chat-drawer{ right:12px; left:12px; width:auto; bottom:86px }
 }
